@@ -30,7 +30,11 @@ export default function BadgesScreen() {
                 .then(setBadges)
                 .catch((err) => console.error('Error fetching badges:', err));
         }
-    }, [userId]);    
+    }, [userId]);
+    
+    const earnedBadgesCount = badges.filter((badge) => badge.earned).length;
+    const totalBadgesCount = badges.length;
+    const progress = totalBadgesCount > 0 ? earnedBadgesCount / totalBadgesCount : 0;
 
     return (
         <SafeAreaView style={styles.mainContainer}>
@@ -39,7 +43,7 @@ export default function BadgesScreen() {
             <Text style={styles.heading}>Badges</Text>
 
             <Progress.Bar
-                progress={50 / 100}
+                progress={progress}
                 width={378}
                 color="#82AA59"
                 borderColor="#352A23"
