@@ -1,28 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, SafeAreaView, ScrollView, View, Text } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import { StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import FrankieBanner from '@/components/homepage/FrankieBanner';
 import ComingSoon from '@/components/homepage/ComingSoon';
 import PopularReviews from '@/components/homepage/PopularReviews';
 import PopularShows from '@/components/homepage/PopularShows';
 import ContinueWatching from '@/components/homepage/ContinueWatching';
+import TabBar from '@/components/TabBar';
 
 export default function HomepageScreen() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userId, setUserId] = useState<number | null>(null);
+    const [currentPage, setCurrentPage] = useState<string>('Home');
 
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
+                const id = await AsyncStorage.getItem('userId');
                 if (token && token !== '') {
                     setIsLoggedIn(true);
+                    setUserId(id ? parseInt(id) : null);
                 } else {
                     setIsLoggedIn(false);
+                    setUserId(null);
                 }
             } catch (error) {
                 console.log("Error checking login status:", error);
                 setIsLoggedIn(false);
+                setUserId(null);
             }
         };
 
@@ -64,11 +71,11 @@ export default function HomepageScreen() {
         seriesTitle: "La Casa de Papel",
         imageUri: "https://static.tvmaze.com/uploads/images/large_landscape/380/950352.jpg",
     };
-    
+
     const handleUnfollow = () => {
         console.log("Unfollow button clicked");
     };
-    
+
     const handleLog = () => {
         console.log("Log button clicked");
     };
@@ -78,12 +85,14 @@ export default function HomepageScreen() {
             <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {!isLoggedIn && <FrankieBanner />}
                 {isLoggedIn && (
-                    <ContinueWatching episode={episodeData} onUnfollow={handleUnfollow} onLog={handleLog}/>
+                    <ContinueWatching episode={episodeData} onUnfollow={handleUnfollow} onLog={handleLog} />
                 )}
                 <ComingSoon shows={shows} />
                 <PopularReviews reviews={popularReviews} />
                 <PopularShows shows={popularShows} />
             </ScrollView>
+
+            <TabBar isLoggedIn={isLoggedIn} currentPage={currentPage} userId={userId} />
         </SafeAreaView>
     );
 }
@@ -92,15 +101,15 @@ const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
         backgroundColor: '#FFF4E0',
-        paddingHorizontal: 16,
         paddingTop: 42,
         color: '#211B17',
         fontFamily: 'Arimo',
     },
     scrollContainer: {
         flex: 1,
+        paddingHorizontal: 16,
     },
     scrollContent: {
-        paddingBottom: 80, 
+        paddingBottom: 80,
     },
 });
