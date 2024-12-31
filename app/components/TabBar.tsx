@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Keyboard, Platform } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
 
 type TabBarProps = {
     isLoggedIn: boolean;
@@ -11,6 +12,7 @@ type TabBarProps = {
 export default function TabBar(props: TabBarProps) {
     const { isLoggedIn, currentPage, userId } = props;
     const [keyboardVisible, setKeyboardVisible] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -41,10 +43,28 @@ export default function TabBar(props: TabBarProps) {
           ];
 
     const handleNavigate = (page: string, userId?: number | null) => {
-        if (page === 'Profile' && userId !== null) {
-            console.log(`Navigate to Profile with userId: ${userId}`);
+        if (page === 'Profile') {
+            if (isLoggedIn) {
+                console.log(`Navigate to Profile with userId: ${userId}`);
+                console.log(`/profile/${userId}`);
+            } else {
+                console.log('Redirecting to Login page');
+                router.push('/'); 
+            }
         } else {
-            console.log(`Navigating to: ${page}`);
+            switch (page.toLowerCase()) {
+                case 'home':
+                    router.push('/homepage'); 
+                    break;
+                case 'search':
+                    console.log('/search'); 
+                    break;
+                case 'notifications':
+                    console.log('/notifications'); 
+                    break;
+                default:
+                    console.log(`Page not recognized: ${page}`);
+            }
         }
     };
 
