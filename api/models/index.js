@@ -29,6 +29,14 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
 const db = {};
 
 db.sequelize = sequelize;
-db.Users = require("./users.model.js")(sequelize, DataTypes);
+db.Users = require("./Users.model.js")(sequelize, DataTypes);
+db.Badges = require("./Badge.model.js")(sequelize, DataTypes);
+db.EarnedBadges = require("./EarnedBadge.model.js")(sequelize, DataTypes);
+db.Episodes = require("./Episode.model.js")(sequelize, DataTypes);
+db.ReviewComments = require("./ReviewComment.model.js")(sequelize, DataTypes);
+db.ReviewLikes = require("./ReviewLike.model.js")(sequelize, DataTypes);
+db.Seasons = require("./Season.model.js")(sequelize, DataTypes);
+db.Series = require("./Series.model.js")(sequelize, DataTypes);
+db.SeriesReviews = require("./SeriesReview.model.js")(sequelize, DataTypes);
 
 module.exports = db;
