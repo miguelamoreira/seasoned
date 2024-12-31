@@ -41,4 +41,17 @@ db.SeriesReviews = require("./SeriesReview.model.js")(sequelize, DataTypes);
 db.Genres = require("./Genre.model.js")(sequelize, DataTypes);
 db.PreferredGenres = require("./PreferredGenre.model.js")(sequelize, DataTypes);
 
+db.Users.hasMany(db.EarnedBadges, {
+    foreignKey: 'user_id',
+    as: 'earnedBadges'  // Alias for eager loading
+});
+
+db.Badges.hasMany(db.EarnedBadges, {
+    foreignKey: 'badge_id',
+    as: 'earnedBadges'  // Alias for eager loading
+});
+
+db.EarnedBadges.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
+db.EarnedBadges.belongsTo(db.Badges, { foreignKey: 'badge_id', as: 'badge' });
+
 module.exports = db;
