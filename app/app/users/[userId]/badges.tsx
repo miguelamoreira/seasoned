@@ -22,15 +22,22 @@ export default function BadgesScreen() {
     const router = useRouter();
     const [badges, setBadges] = useState<BadgeData[]>([]);
 
-    const sortedBadges = badges.sort((a, b) => Number(a.earned) - Number(b.earned)); 
 
     useEffect(() => {
         if (userId) {
-            fetchBadges(parseInt(userId))
-                .then(setBadges)
-                .catch((err) => console.error('Error fetching badges:', err));
+            fetchBadges(userId)
+                .then((fetchedBadges) => {
+                    const sortedBadges = fetchedBadges.sort((a: { earned: boolean; }, b: { earned: boolean; }) => {
+                        if (a.earned === b.earned) return 0;
+                        return a.earned ? -1 : 1;
+                    });
+                    setBadges(sortedBadges);
+                })
+                .catch((error) => {
+                    console.error('Error fetching badges:', error);
+                });
         }
-    }, [userId]);
+    }, [userId]);    
     
     const earnedBadgesCount = badges.filter((badge) => badge.earned).length;
     const totalBadgesCount = badges.length;
@@ -52,13 +59,19 @@ export default function BadgesScreen() {
             />
 
             <FlatList
-                data={sortedBadges} 
-                keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}
+                data={badges}  // Render sorted badges directly
+                keyExtractor={(item) => item.id.toString()}
                 numColumns={2} 
                 contentContainerStyle={styles.badgeGrid} 
                 renderItem={({ item }) => (
                     <View style={styles.badgeWrapper}>
-                        <Badge variant="grid" image={item.image} title={item.title} earned={item.earned} onPress={() => router.push(`/users/${userId}/badges/${item.id}`)}/>
+                        <Badge
+                            variant="grid"
+                            image={item.image}
+                            title={item.title}
+                            earned={item.earned}
+                            onPress={() => router.push(`/users/${userId}/badges/${item.id}`)}
+                        />
                     </View>
                 )}
             />

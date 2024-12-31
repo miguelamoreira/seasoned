@@ -95,7 +95,12 @@ export default function UserProfileScreen() {
         if (userId) {
             fetchBadges(userId)
                 .then((fetchedBadges) => {
-                    setBadges(fetchedBadges);
+                    const sortedBadges = fetchedBadges.sort((a: { earned: boolean; }, b: { earned: boolean; }) => {
+                        if (a.earned === b.earned) return 0;
+                        return a.earned ? -1 : 1;
+                    });
+
+                    setBadges(sortedBadges);
                 })
                 .catch((error) => {
                     console.error('Error fetching badges:', error);
@@ -168,7 +173,7 @@ export default function UserProfileScreen() {
         case 'genres':
           return <ProfileGenres genres={userGenres} type={type} />;
         case 'badges':
-          return <ProfileBadges badges={badges} type={type} />;
+          return <ProfileBadges badges={badges} type={type} userId={userId ?? -1}/>;
         case 'ratings':
           return <RatingDisplay type={type} ratings={[1, 3, 5, 15, 6]} average={4.5} />;
         case 'userShows':

@@ -24,6 +24,9 @@ router.route("/:id/earnedBadges")
     .post(badgesController.addEarnedBadges)
 
 router.route("/:id/badges")
-    .get(badgesController.getBadgesComparison)
+    .get(badgesController.findBadgesComparison)
+
+router.route("/:userId/badges/:id")
+    .get(badgesController.findBadgeById)
 
 module.exports = router;

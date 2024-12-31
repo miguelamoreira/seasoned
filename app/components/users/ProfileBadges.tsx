@@ -15,14 +15,15 @@ type BadgesDisplay = {
 type BadgesDisplayProps = {
     badges: BadgesDisplay[];
     type: 'profile' | 'edit';
+    userId: number;
 };
 
-export default function ProfileBadges({ badges, type }: BadgesDisplayProps) {
+export default function ProfileBadges({ badges, type, userId }: BadgesDisplayProps) {
     const router = useRouter();
     const [visibility, setVisibility] = useState(true);
 
     const handleSeeAll = (userId: number) => {
-        router.push(`/users/${userId}/badges`)
+        return router.push(`/users/${userId}/badges`)
     };
 
     return (
@@ -33,7 +34,7 @@ export default function ProfileBadges({ badges, type }: BadgesDisplayProps) {
                 <Switch value={visibility} onValueChange={(value) => setVisibility(value)} trackColor={{ false: '#d3d3d3', true: '#82AA59' }} thumbColor={visibility ? '#211B17' : '#f4f3f4'}/>
                 )}
                 {type === 'profile' && (
-                <TouchableOpacity onPress={() => handleSeeAll('Badges')} style={styles.seeAllContainer}>
+                <TouchableOpacity onPress={() => handleSeeAll(userId)} style={styles.seeAllContainer}>
                     <Text style={styles.seeAllText}>See all</Text>
                     <Icon name="chevron-forward" size={16} color="#211B17" />
                 </TouchableOpacity>

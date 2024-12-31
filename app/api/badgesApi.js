@@ -17,15 +17,15 @@ export const fetchBadges = async (userId) => {
     }
 }
 
-export const fetchBadgeById = async (id) => {
+export const fetchBadgeById = async (userId, badgeId) => {
     try {
-        const { data } = await apiClient.get(`/badges/${id}`);
-        return data;
+        const { data } = await apiClient.get(`/users/${userId}/badges/${badgeId}`);
+        return data.data;
     } catch (error) {
         console.error('Error fetching badge:', error);
         throw new Error('Failed to fetch badge. Please try again later.');
     }
-}
+};
 
 export const addEarnedBadge = async (userId, badgeId) => {
     try {

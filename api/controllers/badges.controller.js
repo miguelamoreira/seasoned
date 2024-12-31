@@ -7,7 +7,7 @@ const EarnedBadges = db.EarnedBadges;
 
 exports.findAllBadges = async (req, res) => {
     try {
-        const badges = await Badge.findAll();
+        const badges = await Badges.findAll();
 
         return res.status(200).json({
             message: 'Badges retrieved successfully',
@@ -21,30 +21,44 @@ exports.findAllBadges = async (req, res) => {
     }
 }
 
-exports.getBadgeById = async (req, res) => {
+exports.findBadgeById = async (req, res) => {
     const badgeId = req.params.id;
+    const userId = req.params.userId;
 
     try {
-        const badge = await Badge.findOne({ where: { badge_id: badgeId } });
+        const badge = await Badges.findOne({ where: { badge_id: badgeId } });
 
         if (!badge) {
             return res.status(404).json({
                 message: 'Badge not found'
-            })
+            });
         }
 
+        const earnedBadge = await EarnedBadges.findOne({
+            where: {
+                user_id: userId,
+                badge_id: badgeId
+            }
+        });
+
+        const badgeData = {
+            ...badge.dataValues,
+            earned: earnedBadge ? true : false,
+            earned_date: earnedBadge ? earnedBadge.earned_date : null,
+        };
+
         return res.status(200).json({
-            message: `Badge ${badgeId} retrieve successfully`,
-            data: badge
-        })
+            message: `Badge ${badgeId} retrieved successfully`,
+            data: badgeData
+        });
 
     } catch (error) {
         console.error(error);
         return res.status(500).json({
             message: 'Something went wrong. Please try again later.'
-        })
+        });
     }
-}
+};
 
 exports.findEarnedBadges = async (req, res) => {
     const userId = req.params.id;
@@ -56,8 +70,8 @@ exports.findEarnedBadges = async (req, res) => {
             },
             include: [
                 {
-                    model: Badge,  
-                    as: 'badge',  // Use the alias defined in the association
+                    model: Badges,  
+                    as: 'badge',
                     attributes: ['badge_id', 'name', 'description', 'howTo', 'image']
                 }
             ]
@@ -81,7 +95,7 @@ exports.findEarnedBadges = async (req, res) => {
     }
 }
 
-exports.getBadgesComparison = async (req, res) => {
+exports.findBadgesComparison = async (req, res) => {
     const userId = req.params.id;
 
     try {
@@ -99,16 +113,13 @@ exports.getBadgesComparison = async (req, res) => {
         });
 
         const earnedBadgeIds = earnedBadges.map((earnedBadge) => {
-            if (earnedBadge.Badges) {
-                return earnedBadge.Badges.badge_id;
-            }
-            return null;
-        }).filter((badgeId) => badgeId !== null);
+            return earnedBadge.badge ? earnedBadge.badge.badge_id : null;
+        }).filter((badgeId) => badgeId !== null); 
 
         const badgesWithEarnedStatus = allBadges.map((badge) => {
             return {
                 ...badge.dataValues,
-                earned: earnedBadgeIds.includes(badge.badge_id)
+                earned: earnedBadgeIds.includes(badge.badge_id) 
             };
         });
 
