@@ -1,14 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image, StyleSheet, SafeAreaView, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { useRouter } from 'expo-router';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import OptionsTab from '@/components/OptionsTab';
+import { fetchGenres } from '@/api/genresApi'
+import { createUser } from '@/api/authApi';
 
 export default function RegisterScreen() {
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [currentStep, setCurrentStep] = useState<number>(1);
-    const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+    const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
+    const [genres, setGenres] = useState<{ id: number; name: string }[]>([]);
+    const [loadingGenres, setLoadingGenres] = useState(false);
+    const [genresError, setGenresError] = useState<string | null>(null);
     const router = useRouter();
+
+    useEffect(() => {
+        if (currentStep === 2) {
+            const loadGenres = async () => {
+                setLoadingGenres(true);
+                setGenresError(null);
+
+                try {
+                    const genreData = await fetchGenres();
+                    setGenres(genreData);
+                } catch (error) {
+                    setGenresError('Failed to load genres. Please try again later.');
+                } finally {
+                    setLoadingGenres(false);
+                }
+            };
+
+            loadGenres();
+        }
+    }, [currentStep]);
 
     const handleBackButton = () => {
         if (currentStep === 1) {
@@ -18,38 +48,52 @@ export default function RegisterScreen() {
         }
     };
 
-    const toggleGenre = (genre: string) => {
-        if (selectedGenres.includes(genre)) {
-            setSelectedGenres(selectedGenres.filter((g) => g !== genre));
-        } else {
-            setSelectedGenres([...selectedGenres, genre]);
+    const toggleGenre = (genreId: number) => {
+        setSelectedGenres((prevGenres) =>
+            prevGenres.includes(genreId)
+                ? prevGenres.filter((id) => id !== genreId)
+                : [...prevGenres, genreId]
+        );
+    };
+
+    const handleSubmit = async () => {
+        const payload = { name: username, email, password, confirmPassword, preferredGenres: selectedGenres, };
+    
+        try {
+            const data = await createUser(payload);
+            console.log('Response from server:', data);
+            alert('Registration successful!');
+            router.push('/signin'); 
+        } catch (error) {
+            console.error('Registration error:', error);
         }
     };
+    
 
     const renderFirstPart = () => (
         <View style={styles.formContainer}>
             <View style={styles.inputGroup}>
                 <Text style={styles.label}>Username</Text>
                 <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-                    <TextInput style={styles.input} placeholder="Enter your username" placeholderTextColor="#FFF4E080"/>
+                    <TextInput style={styles.input} value={username} onChangeText={setUsername} placeholder="Enter your username" placeholderTextColor="#FFF4E080"/>
                 </Shadow>
             </View>
             <View style={styles.inputGroup}>
                 <Text style={styles.label}>E-mail</Text>
                 <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-                    <TextInput style={styles.input} placeholder="Enter your email" placeholderTextColor="#FFF4E080" keyboardType="email-address"/>
+                    <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="Enter your email" placeholderTextColor="#FFF4E080" keyboardType="email-address"/>
                 </Shadow>
             </View>
             <View style={styles.inputGroup}>
                 <Text style={styles.label}>Password</Text>
                 <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-                    <TextInput style={styles.input} placeholder="Enter your password" placeholderTextColor="#FFF4E080" secureTextEntry={true}/>
+                    <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Enter your password" placeholderTextColor="#FFF4E080" secureTextEntry={true}/>
                 </Shadow>
             </View>
             <View style={styles.inputGroup}>
                 <Text style={styles.label}>Confirm your password</Text>
                 <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-                    <TextInput style={styles.input} placeholder="Enter your password again" placeholderTextColor="#FFF4E080" secureTextEntry={true}/>
+                    <TextInput style={styles.input} value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Enter your password again" placeholderTextColor="#FFF4E080" secureTextEntry={true}/>
                 </Shadow>
             </View>
             <View style={styles.nextContainer}>
@@ -68,35 +112,36 @@ export default function RegisterScreen() {
     const renderSecondPart = () => (
         <View style={styles.formContainer}>
             <Text style={styles.genresTitle}>Favourite genres</Text>
-            <View style={styles.genresContainer}>
-                {['Action','Adventure','Animation','Comedy','Crime','Drama','Fantasy','Musical','Romance','Science Fiction','Thriller',]
-                .map((genre) => {
-                    const isSelected = selectedGenres.includes(genre);
-                    const buttonStyle = [
-                        styles.genreButton,
-                        isSelected && styles.genreButtonSelected,
-                        { borderColor: isSelected ? '#211B17' : '#D8A84E' },
-                    ];
-
-                    const buttonContent = (
-                        <TouchableOpacity key={genre} style={buttonStyle} onPress={() => toggleGenre(genre)}>
-                            <Text style={[styles.genreText, isSelected && styles.genreTextSelected]}>{genre}</Text>
-                            {isSelected && <Text style={styles.removeText}>X</Text>}
-                        </TouchableOpacity>
-                    );
-
-                    return isSelected ? (
-                        <Shadow key={genre} distance={2} startColor={'#211B17'} offset={[1, 2]}>
-                            {buttonContent}
-                        </Shadow>
-                    ) : (
-                        buttonContent
-                    );
-                })}
-            </View>
+            {loadingGenres ? (
+                <Text>Loading genres...</Text>
+            ) : genresError ? (
+                <Text style={styles.errorText}>{genresError}</Text>
+            ) : (
+                <View style={styles.genresContainer}>
+                    {genres.map((genre) => {
+                        const isSelected = selectedGenres.includes(genre.id);
+                        return (
+                            <TouchableOpacity
+                                key={genre.id}
+                                style={[
+                                    styles.genreButton,
+                                    isSelected && styles.genreButtonSelected,
+                                    { borderColor: isSelected ? '#211B17' : '#D8A84E' },
+                                ]}
+                                onPress={() => toggleGenre(genre.id)}
+                            >
+                                <Text style={[styles.genreText, isSelected && styles.genreTextSelected]}>{genre.name}</Text>
+                                {isSelected && (
+                                    <Icon name="close" size={24} color="#211B17" style={styles.removeIcon} />
+                                )}
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
+            )}
             <View style={styles.optionsContainer}>
                 <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-                    <TouchableOpacity style={styles.signupButton} activeOpacity={0.9}>
+                    <TouchableOpacity style={styles.signupButton} activeOpacity={0.9} onPress={handleSubmit}>
                         <Text style={styles.buttonText}>Sign up</Text>
                     </TouchableOpacity>
                 </Shadow>
@@ -106,7 +151,7 @@ export default function RegisterScreen() {
 
     return (
         <SafeAreaView style={styles.mainContainer}>
-            <OptionsTab type='back' onBackPress={() => router.back()}></OptionsTab>
+            <OptionsTab type='register' onStepBackPress={handleBackButton}></OptionsTab>
 
             <View style={styles.headingContainer}>
                 <Text style={styles.heading}>{currentStep === 1 ? 'Sign up' : 'Select Genres'}</Text>
@@ -226,13 +271,12 @@ const styles = StyleSheet.create({
         color: '#211B17',
         fontFamily: 'Arimo',
     },
-    genreTextSelected: {
-        color: '#FFF4E0',
-    },
-    removeText: {
-        fontSize: 16,
-        color: '#FFF4E0',
+    removeIcon: {
         marginLeft: 10,
-        fontWeight: '700',
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 16,
+        textAlign: 'center',
     },
 });

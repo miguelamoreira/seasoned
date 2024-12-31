@@ -38,5 +38,7 @@ db.ReviewLikes = require("./ReviewLike.model.js")(sequelize, DataTypes);
 db.Seasons = require("./Season.model.js")(sequelize, DataTypes);
 db.Series = require("./Series.model.js")(sequelize, DataTypes);
 db.SeriesReviews = require("./SeriesReview.model.js")(sequelize, DataTypes);
+db.Genres = require("./Genre.model.js")(sequelize, DataTypes);
+db.PreferredGenres = require("./PreferredGenre.model.js")(sequelize, DataTypes);
 
 module.exports = db;

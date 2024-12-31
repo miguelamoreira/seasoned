@@ -4,13 +4,14 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Shadow } from 'react-native-shadow-2';
 
 interface OptionsTabProps {
-    type: 'back' | 'cross' | 'cross-check';
+    type: 'back' | 'cross' | 'cross-check' | 'register';
     onBackPress?: () => void;
+    onStepBackPress?: () => void;
     onCrossPress?: () => void;
     onCheckPress?: () => void;
 }
 
-export default function OptionsTab({ type, onBackPress, onCrossPress, onCheckPress }: OptionsTabProps) {
+export default function OptionsTab({ type, onBackPress, onCrossPress, onCheckPress, onStepBackPress }: OptionsTabProps) {
     return (
         <View style={styles.optionsContainer}>
             {type === 'back' && (
@@ -40,6 +41,13 @@ export default function OptionsTab({ type, onBackPress, onCrossPress, onCheckPre
                         </TouchableOpacity>
                     </Shadow>
                 </View>
+            )}
+            { type === 'register' && (
+                <Shadow distance={1} startColor={'#211B17'} offset={[1, 2]}>
+                    <TouchableOpacity onPress={onStepBackPress} style={styles.button} activeOpacity={0.9}>
+                        <Ionicons name="arrow-back" size={24} color="#FFF4E0" />
+                    </TouchableOpacity>
+                </Shadow>
             )}
         </View>
     )

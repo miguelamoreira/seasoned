@@ -6,6 +6,8 @@ const { JWTconfig } = require("../config/db.config.js");
 require("dotenv").config();
 
 const Users = db.Users;
+const Genres = db.Genres;
+const PreferredGenres = db.PreferredGenres;
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
@@ -48,7 +50,7 @@ exports.login = async (req, res) => {
 }
 
 exports.create = async (req, res) => {
-    const { name, email, password, confirmPassword } = req.body;
+    const { name, email, password, confirmPassword, preferredGenres } = req.body;
 
     try {
         if (!name || !email || !password || !confirmPassword) {
@@ -72,10 +74,20 @@ exports.create = async (req, res) => {
             registration_date: Date.now(),
         });
 
+        if (preferredGenres && preferredGenres.length > 0) {
+            const genresData = preferredGenres.map(genreId => ({
+                user_id: userNew.user_id,
+                genre_id: genreId,
+            }));
+            await PreferredGenres.bulkCreate(genresData);
+        }
+
         return res.status(201).json({
-            message: 'User created successfully'
+            message: 'User created successfully',
+            user: userNew, 
         })
     } catch (error) {
+        console.error('Error during user creation:', error);
         return res.status(500).json({
             message: 'Something went wrong. Please try again later.'
         })
