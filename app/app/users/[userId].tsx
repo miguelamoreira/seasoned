@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, FlatList, View } from 'react-native';
+import { SafeAreaView, StyleSheet, FlatList, View, Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -13,6 +13,8 @@ import ProfileBadges from '@/components/users/ProfileBadges';
 import RatingDisplay from '@/components/reviews/RatingsDisplay';
 import ProfileOptions from '@/components/users/ProfileOptions';
 import TabBar from '@/components/TabBar';
+
+import { fetchBadges } from '@/api/badgesApi'
 
 const user = {
   id: 1,
@@ -54,23 +56,6 @@ const otherUser = {
   ],
 };
 
-const dummyBadges = [
-  {
-    name: 'Early Bird',
-    description: 'Awarded for logging in before 6 AM.',
-    image: 'https://via.placeholder.com/60',
-    dateEarned: '2024-12-01',
-    locked: false,
-  },
-  {
-    name: 'Achiever',
-    description: 'Completed 100 tasks in a month.',
-    image: 'https://via.placeholder.com/60',
-    dateEarned: '2024-11-25',
-    locked: false,
-  },
-];
-
 const userGenres = ['Drama', 'Action', 'Thriller', 'Comedy', 'Adventure', 'Fantasy'];
 
 export default function UserProfileScreen() {
@@ -80,8 +65,9 @@ export default function UserProfileScreen() {
     const [isViewingOtherUser, setIsViewingOtherUser] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userId, setUserId] = useState<number | null>(null);
-    const [userData, setUserData] = useState(null); // Store fetched user data
+    const [userData, setUserData] = useState(null);
     const [currentPage, setCurrentPage] = useState<string>('Profile');
+    const [badges, setBadges] = useState([]);
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -104,6 +90,18 @@ export default function UserProfileScreen() {
 
         checkLoginStatus();
     }, []);
+
+    useEffect(() => {
+        if (userId) {
+            fetchBadges(userId)
+                .then((fetchedBadges) => {
+                    setBadges(fetchedBadges);
+                })
+                .catch((error) => {
+                    console.error('Error fetching badges:', error);
+                });
+        }
+    },  [userId]);
 
     const handleSaveProfile = () => {
       setType('profile');
@@ -170,7 +168,7 @@ export default function UserProfileScreen() {
         case 'genres':
           return <ProfileGenres genres={userGenres} type={type} />;
         case 'badges':
-          return <ProfileBadges badges={dummyBadges} type={type} />;
+          return <ProfileBadges badges={badges} type={type} />;
         case 'ratings':
           return <RatingDisplay type={type} ratings={[1, 3, 5, 15, 6]} average={4.5} />;
         case 'userShows':
@@ -197,7 +195,6 @@ const styles = StyleSheet.create({
       paddingTop: 42,
     },
     flatListContent: {
-      paddingHorizontal: 16,
       paddingBottom: 72,
     },
 });

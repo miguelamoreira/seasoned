@@ -56,6 +56,7 @@ export default function ProfileFavourites({ shows, type, onAddShow, onRemoveShow
 const styles = StyleSheet.create({
     container: {
         marginVertical: 12,
+        paddingHorizontal: 16,
     },
     heading: {
         fontSize: 20,

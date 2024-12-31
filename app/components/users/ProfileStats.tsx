@@ -67,6 +67,7 @@ export default function ProfileStats({ stats, type }: ProfileStatsProps) {
 const styles = StyleSheet.create({
     container: {
         marginVertical: 12,
+        paddingHorizontal: 16,
     },
     statsContainer: {
         flexDirection: 'row',

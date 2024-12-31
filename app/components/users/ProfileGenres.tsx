@@ -65,6 +65,7 @@ export default function ProfileGenres({
 const styles = StyleSheet.create({
   container: {
     marginVertical: 12,
+    paddingHorizontal: 16,
   },
   title: {
     fontSize: 20,

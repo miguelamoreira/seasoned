@@ -9,7 +9,7 @@ type BadgesDisplay = {
     description: string;
     image: string;
     dateEarned?: string;
-    locked?: boolean;
+    earned?: boolean;
 };
 
 type BadgesDisplayProps = {
@@ -41,9 +41,9 @@ export default function ProfileBadges({ badges, type }: BadgesDisplayProps) {
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.badgeScrollView}>
                 {badges.map((badge, index) => (
-                <View key={index} style={[ styles.badgeContainer, { opacity: visibility ? 1 : 0.5 } ]}>
+                <View key={index} style={[ styles.badgeContainer, { opacity: visibility ? 1 : 0.5 }, index === 0 && { marginLeft: 16 } ]}>
                     <Shadow distance={1} startColor={'#211B17'} offset={[1, 2]}>
-                    <Image source={{ uri: badge.image }} style={[styles.badge, badge.locked && { opacity: 0.5 }]}/>
+                    <Image source={{ uri: badge.image }} style={[styles.badge, !badge.earned && { opacity: 0.5 }]}/>
                     </Shadow>
                 </View>
                 ))}
@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 10,
+        paddingHorizontal: 16,
     },
     seeAllContainer: {
         flexDirection: 'row',

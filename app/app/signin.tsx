@@ -42,7 +42,7 @@ export default function SignInScreen() {
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>E-mail</Text>
                     <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-                        <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="Enter your email" placeholderTextColor="#FFF4E080"/>
+                        <TextInput inputMode='email' style={styles.input} value={email} onChangeText={setEmail} placeholder="Enter your email" placeholderTextColor="#FFF4E080"/>
                     </Shadow>
                 </View>
                 <View style={styles.inputGroup}>

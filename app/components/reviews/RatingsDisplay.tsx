@@ -46,6 +46,7 @@ export default function RatingDisplay({ ratings, average, type }: RatingDisplayP
 const styles = StyleSheet.create({
     container: {
         marginVertical: 12,
+        paddingHorizontal: 16,
     },
     heading: {
         fontSize: 20,

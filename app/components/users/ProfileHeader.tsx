@@ -143,6 +143,7 @@ const styles = StyleSheet.create({
       justifyContent: 'space-between',
       marginBottom: 16,
       paddingVertical: 8,
+      paddingHorizontal: 16,
     },
     editAvatar: {
       width: 36,

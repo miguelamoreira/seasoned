@@ -24,6 +24,7 @@ export default function ProfileOptions({ title, options, type }: ProfileOptionsP
 const styles = StyleSheet.create({
   container: {
     marginVertical: 12,
+    paddingHorizontal: 16,
   },
   heading: {
     fontSize: 20,
