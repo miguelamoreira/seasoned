@@ -130,7 +130,7 @@ export default function RegisterScreen() {
                                 ]}
                                 onPress={() => toggleGenre(genre.id)}
                             >
-                                <Text style={[styles.genreText, isSelected && styles.genreTextSelected]}>{genre.name}</Text>
+                                <Text style={styles.genreText}>{genre.name}</Text>
                                 {isSelected && (
                                     <Icon name="close" size={24} color="#211B17" style={styles.removeIcon} />
                                 )}
