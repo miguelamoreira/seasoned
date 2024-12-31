@@ -15,4 +15,7 @@ router.route("/login")
 router.route("/")
     .post(usersController.create)
 
+router.route("/:id")
+    .get(usersController.findOne)
+
 module.exports = router;
