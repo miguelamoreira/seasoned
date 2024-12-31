@@ -15,4 +15,6 @@ app.get("/", function (req, res) {
   res.status(200).json({ message: "home -- Seasoned api" });
 });
 
+app.use("/users", require("./routes/users.routes.js"));
+
 app.listen(port, () => console.log(`App listening at http://${host}:${port}/`));

@@ -2,9 +2,19 @@ import React from 'react';
 import { Image, StyleSheet, SafeAreaView, View, Text, TouchableOpacity } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 export default function HomeScreen() {
   const router = useRouter();
+
+  const clearAsyncStorage = async () => {
+    try {
+      await AsyncStorage.clear();
+      console.log('AsyncStorage cleared!');
+    } catch (error) {
+      console.error('Error clearing AsyncStorage:', error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -19,12 +29,12 @@ export default function HomeScreen() {
 
       <View style={styles.optionsContainer}>
         <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-          <TouchableOpacity style={styles.signinButton} activeOpacity={0.9} onPress={() => console.log('/signin')}>
+          <TouchableOpacity style={styles.signinButton} activeOpacity={0.9} onPress={() => router.push('/signin')}>
             <Text style={styles.buttonText}>Sign in</Text>
           </TouchableOpacity>
         </Shadow>
         <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-          <TouchableOpacity style={styles.signupButton} activeOpacity={0.9} onPress={() => console.log('/register')}>
+          <TouchableOpacity style={styles.signupButton} activeOpacity={0.9} onPress={() => router.push('/register')}>
             <Text style={styles.buttonText}>Sign up</Text>
           </TouchableOpacity>
         </Shadow>
@@ -32,7 +42,7 @@ export default function HomeScreen() {
 
       <View style={styles.skipContainer}>
         <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-          <TouchableOpacity style={styles.skipButton} activeOpacity={0.9} onPress={() => console.log('/homepage')}>
+          <TouchableOpacity style={styles.skipButton} activeOpacity={0.9} onPress={() => {clearAsyncStorage(); router.push('/homepage')}}>
             <Text style={styles.buttonText}>Skip</Text>
           </TouchableOpacity>
         </Shadow>
