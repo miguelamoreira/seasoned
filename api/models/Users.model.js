@@ -26,6 +26,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             defaultValue: 0
         },
+        badges_visibility: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true,
+            allowNull: false,
+        },
     },{
         timestamps: false, 
         freezeTableName: true,

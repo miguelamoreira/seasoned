@@ -46,7 +46,7 @@ export default function TabBar(props: TabBarProps) {
         if (page === 'Profile') {
             if (isLoggedIn) {
                 console.log(`Navigate to Profile with userId: ${userId}`);
-                console.log(`/profile/${userId}`);
+                router.push(`/users/${userId}`);
             } else {
                 console.log('Redirecting to Login page');
                 router.push('/'); 

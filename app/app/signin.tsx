@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, StyleSheet, SafeAreaView, View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { Image, StyleSheet, SafeAreaView, View, Text, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native'; 
 import { Shadow } from 'react-native-shadow-2';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
@@ -15,7 +15,7 @@ export default function SignInScreen() {
     const handleLogin = async () => {
         try {
             const response = await login({ email, password });
-    
+
             if (response?.success && response.accessToken) {
                 await AsyncStorage.setItem('userToken', response.accessToken);
                 await AsyncStorage.setItem('userId', response.loggedUserId.toString());
@@ -34,39 +34,42 @@ export default function SignInScreen() {
         <SafeAreaView style={styles.mainContainer}>
             <OptionsTab type='back' onBackPress={() => router.back()}></OptionsTab>
 
-            <View style={styles.headingContainer}>
-                <Text style={styles.heading}>Sign in</Text>
-            </View>
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+                <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                    <View style={styles.headingContainer}>
+                        <Text style={styles.heading}>Sign in</Text>
+                    </View>
 
-            <View style={styles.formContainer}>
-                <View style={styles.inputGroup}>
-                    <Text style={styles.label}>E-mail</Text>
-                    <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-                        <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="Enter your email" placeholderTextColor="#FFF4E080"/>
-                    </Shadow>
-                </View>
-                <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Password</Text>
-                    <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-                        <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Enter your password" placeholderTextColor="#FFF4E080" secureTextEntry={true}/>
-                    </Shadow>
-                </View>
-            </View>
+                    <View style={styles.formContainer}>
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>E-mail</Text>
+                            <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
+                                <TextInput inputMode='email' style={styles.input} value={email} onChangeText={setEmail} placeholder="Enter your email" placeholderTextColor="#FFF4E080"/>
+                            </Shadow>
+                        </View>
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Password</Text>
+                            <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
+                                <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Enter your password" placeholderTextColor="#FFF4E080" secureTextEntry={true}/>
+                            </Shadow>
+                        </View>
+                    </View>
 
-            <View style={styles.optionsContainer}>
-                <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-                    <TouchableOpacity style={styles.signinButton} activeOpacity={0.9} onPress={handleLogin}>
-                        <Text style={styles.buttonText}>Sign in</Text>
-                    </TouchableOpacity>
-                </Shadow>
-                <Text style={styles.footerText}>
-                    Are you new? <Text style={styles.boldText} onPress={() => router.push('/register')}>Create an account</Text>
-                </Text>
-            </View>
+                    <View style={styles.optionsContainer}>
+                        <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
+                            <TouchableOpacity style={styles.signinButton} activeOpacity={0.9} onPress={handleLogin}>
+                                <Text style={styles.buttonText}>Sign in</Text>
+                            </TouchableOpacity>
+                        </Shadow>
+                        <Text style={styles.footerText}>
+                            Are you new? <Text style={styles.boldText} onPress={() => router.push('/register')}>Create an account</Text>
+                        </Text>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }
-
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
