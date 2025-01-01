@@ -25,6 +25,7 @@ router.route("/:id/earnedBadges")
 
 router.route("/:id/badges")
     .get(badgesController.findBadgesComparison)
+    .patch(badgesController.updateBadgesVisibility)
 
 router.route("/:userId/badges/:id")
     .get(badgesController.findBadgeById)

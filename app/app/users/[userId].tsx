@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, FlatList, View, Image } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import OptionsTab from '@/components/OptionsTab';
@@ -14,7 +14,7 @@ import RatingDisplay from '@/components/reviews/RatingsDisplay';
 import ProfileOptions from '@/components/users/ProfileOptions';
 import TabBar from '@/components/TabBar';
 
-import { fetchBadges } from '@/api/badgesApi'
+import { fetchBadges } from '@/api/badgesApi';
 
 const user = {
   id: 1,
@@ -131,7 +131,7 @@ export default function UserProfileScreen() {
       });
     };
 
-    const sections = [ 'header', 'stats', 'favourites', 'genres', 'badges', 'ratings', 'userShows', 'userActivity' ];
+    const sections = ['header', 'stats', 'favourites', 'genres', 'badges', 'ratings', 'userShows', 'userActivity'];
 
     const userShowsOptions = [
       { label: 'following', action: () => handleTabSelect('Following', `/users/${userId}/usersShows`) },
@@ -169,11 +169,11 @@ export default function UserProfileScreen() {
         case 'stats':
           return <ProfileStats stats={user.statsData} type={type} />;
         case 'favourites':
-          return <ProfileFavourites type={type} shows={user.favourites} onAddShow={handleAddShow} onRemoveShow={(id) => console.log(`Remove Show with ID: ${id}`)}/>;
+          return <ProfileFavourites type={type} shows={user.favourites} onAddShow={handleAddShow} onRemoveShow={(id) => console.log(`Remove Show with ID: ${id}`)} />;
         case 'genres':
           return <ProfileGenres genres={userGenres} type={type} />;
         case 'badges':
-          return <ProfileBadges badges={badges} type={type} userId={userId ?? -1}/>;
+          return <ProfileBadges badges={badges} type={type} userId={userId ?? -1} currentUserId={userId ?? -1} />;
         case 'ratings':
           return <RatingDisplay type={type} ratings={[1, 3, 5, 15, 6]} average={4.5} />;
         case 'userShows':
@@ -187,7 +187,7 @@ export default function UserProfileScreen() {
 
     return (
       <SafeAreaView style={styles.mainContainer}>
-        <FlatList data={sections} renderItem={renderItem} keyExtractor={(item) => item} contentContainerStyle={styles.flatListContent} showsVerticalScrollIndicator={false}/>
+        <FlatList data={sections} renderItem={renderItem} keyExtractor={(item) => item} contentContainerStyle={styles.flatListContent} showsVerticalScrollIndicator={false} />
         <TabBar isLoggedIn={isLoggedIn} currentPage={currentPage} userId={userId} />
       </SafeAreaView>
     );

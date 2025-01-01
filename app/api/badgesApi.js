@@ -36,3 +36,13 @@ export const addEarnedBadge = async (userId, badgeId) => {
         throw new Error('Failed to award badge. Please try again later.');
     }
 }
+
+export const updateBadgesVisibility = async (userId, badgesVisibility) => {
+    try {
+        const response = await apiClient.patch(`/users/${userId}/badges`, { badges_visibility: badgesVisibility });
+        return response.data;
+    } catch (error) {
+        console.error('Failed to update badges visibility:', error.response ? error.response.data : error.message);
+        throw new Error('Failed to update badges visibility. Please try again later.');
+    }
+};

@@ -182,3 +182,36 @@ exports.addEarnedBadges = async (req, res) => {
         });
     }
 }
+
+exports.updateBadgesVisibility = async (req, res) => {
+    const userId = req.params.id;
+    const { badges_visibility } = req.body;
+
+    try {
+        if (typeof badges_visibility !== 'boolean') {
+            return res.status(400).json({
+                message: 'badges_visibility must be a boolean.',
+            });
+        }
+
+        const user = await Users.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: 'User not found.',
+            });
+        }
+
+        user.badges_visibility = badges_visibility;
+        await user.save();
+
+        return res.status(200).json({
+            message: 'Badges visibility updated successfully',
+            data: { user_id: userId, badges_visibility: user.badges_visibility }
+        })
+    } catch (error) {
+        console.error('Error updating badges visibility: ', error);
+        return res.status(500).json({
+            message: 'Something went wrong. Please try again later.'
+        })
+    }
+}

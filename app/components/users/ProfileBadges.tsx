@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, Switch } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
+
+import { updateBadgesVisibility } from '@/api/badgesApi';
 
 type BadgesDisplay = {
     name: string;
@@ -16,39 +18,81 @@ type BadgesDisplayProps = {
     badges: BadgesDisplay[];
     type: 'profile' | 'edit';
     userId: number;
+    currentUserId: number;
 };
 
-export default function ProfileBadges({ badges, type, userId }: BadgesDisplayProps) {
+export default function ProfileBadges({ badges, type, userId, currentUserId }: BadgesDisplayProps) {
     const router = useRouter();
-    const [visibility, setVisibility] = useState(true);
+    const [visibility, setVisibility] = useState(true); // Keep track of visibility
+    const [filteredBadges, setFilteredBadges] = useState(badges);
+
+    useEffect(() => {
+        // Update the filtered badges based on visibility and user profile type
+        if (type === 'profile' && userId !== currentUserId) {
+            setFilteredBadges(visibility ? badges : badges.filter((badge) => badge.earned));
+        } else {
+            setFilteredBadges(badges);
+        }
+    }, [visibility, badges, type, userId, currentUserId]);
+
+    const handleToggleVisibility = async (value: boolean) => {
+        setVisibility(value);
+        try {
+            await updateBadgesVisibility(userId, value); // Update the visibility in the database or backend
+        } catch (error) {
+            console.error('Failed to update visibility:', error);
+        }
+    };
 
     const handleSeeAll = (userId: number) => {
-        return router.push(`/users/${userId}/badges`)
+        return router.push(`/users/${userId}/badges`);
     };
+
+    // Only render the section if visibility is true or if the current user is viewing their own profile
+    if (type === 'profile' && userId !== currentUserId && !visibility) {
+        return null; // Don't render the section if visibility is off
+    }
 
     return (
         <View style={styles.container}>
             <View style={styles.sectionHeader}>
                 <Text style={styles.heading}>Badges</Text>
                 {type === 'edit' && (
-                <Switch value={visibility} onValueChange={(value) => setVisibility(value)} trackColor={{ false: '#d3d3d3', true: '#82AA59' }} thumbColor={visibility ? '#211B17' : '#f4f3f4'}/>
+                    <Switch
+                        value={visibility}
+                        onValueChange={handleToggleVisibility}
+                        trackColor={{ false: '#d3d3d3', true: '#82AA59' }}
+                        thumbColor={visibility ? '#211B17' : '#f4f3f4'}
+                    />
                 )}
-                {type === 'profile' && (
-                <TouchableOpacity onPress={() => handleSeeAll(userId)} style={styles.seeAllContainer}>
-                    <Text style={styles.seeAllText}>See all</Text>
-                    <Icon name="chevron-forward" size={16} color="#211B17" />
-                </TouchableOpacity>
+                {type === 'profile' && userId !== currentUserId && (
+                    <TouchableOpacity onPress={() => handleSeeAll(userId)} style={styles.seeAllContainer}>
+                        <Text style={styles.seeAllText}>See all</Text>
+                        <Icon name="chevron-forward" size={16} color="#211B17" />
+                    </TouchableOpacity>
                 )}
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.badgeScrollView}>
-                {badges.map((badge, index) => (
-                <View key={index} style={[ styles.badgeContainer, { opacity: visibility ? 1 : 0.5 }, index === 0 && { marginLeft: 16 } ]}>
-                    <Shadow distance={1} startColor={'#211B17'} offset={[1, 2]}>
-                    <Image source={{ uri: badge.image }} style={[styles.badge, !badge.earned && { opacity: 0.5 }]}/>
-                    </Shadow>
-                </View>
-                ))}
-            </ScrollView>
+            {visibility && ( // Only render the badges if visibility is true
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.badgeScrollView}>
+                    {filteredBadges.map((badge, index) => (
+                        <View
+                            key={index}
+                            style={[
+                                styles.badgeContainer,
+                                { opacity: visibility || userId === currentUserId ? 1 : 0.5 },
+                                index === 0 && { marginLeft: 16 },
+                            ]}
+                        >
+                            <Shadow distance={1} startColor={'#211B17'} offset={[1, 2]}>
+                                <Image
+                                    source={{ uri: badge.image }}
+                                    style={[styles.badge, !badge.earned && { opacity: 0.5 }]}
+                                />
+                            </Shadow>
+                        </View>
+                    ))}
+                </ScrollView>
+            )}
         </View>
     );
 }
