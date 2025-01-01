@@ -9,6 +9,8 @@ const Users = db.Users;
 const Genres = db.Genres;
 const PreferredGenres = db.PreferredGenres;
 
+const cloudinary = require('../config/cloudinary.config.js');
+
 exports.login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -116,3 +118,90 @@ exports.findOne = async (req, res) => {
         })
     }
 }
+
+exports.update = async (req, res) => {
+    const userId = req.params.id;
+    const { email, currentPassword, newPassword, confirmNewPassword } = req.body;
+
+    try {
+        if (!email || !currentPassword || !newPassword || !confirmNewPassword) {
+            return res.status(400).json({ msg: "Please provide some data." });
+        }
+
+        let user = await Users.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ 
+                message: `User not found` 
+            });
+        }
+
+        const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!passwordMatch) {
+            return res.status(400).json({
+                message: 'Current password is incorrect',
+            });
+        }
+
+        user.email = email;
+
+        if (newPassword !== confirmNewPassword) {
+            return res.status(400).json({
+                message: 'New password and confirmation password do not match',
+            });
+        }
+
+        if (newPassword) {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            user.password = hashedPassword;
+        }
+
+        await user.save();
+
+        return res.status(200).json({ 
+            message: `User data updated successfully` 
+        });
+    } catch (err) {
+        return res.status(500).json({ 
+            message: "Something went wrong. Please try again later" 
+        });
+    }
+};
+
+exports.updateAvatar = async (req, res) => {
+    const userId = req.params.id;
+    const avatar = req.file;
+
+    try {
+        let user = await Users.findByPk(userId);
+
+        if (!user) {
+            return res.status(404).json({
+                msg: "User not found"
+            });
+        }
+
+        if (!avatar) {
+            return res.status(400).json({ msg: 'No file uploaded' });
+        }
+
+        const b64 = Buffer.from(avatar.buffer).toString("base64");
+        let dataURI = "data:" + avatar.mimetype + ";base64," + b64;
+
+        const uploadResult = await cloudinary.uploader.upload(dataURI, {
+            folder: 'seasoned', 
+            resource_type: 'auto', 
+        });
+
+        user.avatar = uploadResult.secure_url;
+
+        await user.save();
+        return res.status(200).json({ 
+            message: `User's avatar updated successfully.` 
+        });
+    } catch (error) {
+        console.error('error: ', error)
+        return res.status(500).json({ 
+            message: "Something went wrong. Please try again later" 
+        });
+    }
+};

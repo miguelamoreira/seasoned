@@ -70,4 +70,18 @@ db.Series.hasMany(db.FavouriteSeries, {
 db.FavouriteSeries.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
 db.FavouriteSeries.belongsTo(db.Series, { foreignKey: 'series_api_id', as: 'series' });
 
+// Users < PreferredGenres > Genres
+db.Users.hasMany(db.PreferredGenres, {
+    foreignKey: 'user_id',
+    as: 'preferredGenres'
+});
+
+db.Genres.hasMany(db.PreferredGenres, {
+    foreignKey: 'genre_id',
+    as: 'preferredGenres'
+})
+
+db.PreferredGenres.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
+db.PreferredGenres.belongsTo(db.Genres, { foreignKey: 'genre_id', as: 'genre' });
+
 module.exports = db;

@@ -10,6 +10,7 @@ const upload = multer({ storage: storage });
 const usersController = require("../controllers/users.controller");
 const badgesController = require("../controllers/badges.controller")
 const favouriteSeriesController = require("../controllers/favouriteSeries.controller")
+const genresController = require("../controllers/genres.controller")
 
 router.route("/login")
     .post(usersController.login);
@@ -19,6 +20,10 @@ router.route("/")
 
 router.route("/:id")
     .get(usersController.findOne)
+    .patch(usersController.update)
+
+router.route("/:id/avatar")
+    .patch(upload.single('avatar'), usersController.updateAvatar)
 
 router.route("/:id/earnedBadges")
     .get(badgesController.findEarnedBadges)
@@ -35,5 +40,10 @@ router.route("/:id/favourites")
     .get(favouriteSeriesController.findAllFavouriteSeries)
     .post(favouriteSeriesController.addFavouriteSeries)
     .delete(favouriteSeriesController.deleteFavouriteSeries)
+
+router.route("/:id/preferredGenres")
+    .get(genresController.findAllPreferredGenres)
+    .post(genresController.addPreferredGenre)
+    .delete(genresController.deletePreferredGenre)
 
 module.exports = router;

@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: true,
             allowNull: false,
         },
+        avatar: {
+            type: DataTypes.STRING,
+            defaultValue: 'https://res.cloudinary.com/deru44tum/image/upload/v1735762796/defaultAvatar_dykcyh.png',
+        }
     },{
         timestamps: false, 
         freezeTableName: true,
