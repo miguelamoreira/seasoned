@@ -40,18 +40,34 @@ db.Series = require("./Series.model.js")(sequelize, DataTypes);
 db.SeriesReviews = require("./SeriesReview.model.js")(sequelize, DataTypes);
 db.Genres = require("./Genre.model.js")(sequelize, DataTypes);
 db.PreferredGenres = require("./PreferredGenre.model.js")(sequelize, DataTypes);
+db.FavouriteSeries = require("./FavouriteSeries.model.js")(sequelize, DataTypes);
 
+// Users < EarnedBadges > Badges
 db.Users.hasMany(db.EarnedBadges, {
     foreignKey: 'user_id',
-    as: 'earnedBadges'  // Alias for eager loading
+    as: 'earnedBadges'
 });
 
 db.Badges.hasMany(db.EarnedBadges, {
     foreignKey: 'badge_id',
-    as: 'earnedBadges'  // Alias for eager loading
+    as: 'earnedBadges'
 });
 
 db.EarnedBadges.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
 db.EarnedBadges.belongsTo(db.Badges, { foreignKey: 'badge_id', as: 'badge' });
+
+// Users < FavouriteSeries > Series
+db.Users.hasMany(db.FavouriteSeries, {
+    foreignKey: 'user_id',
+    as: 'favouriteSeries'
+});
+
+db.Series.hasMany(db.FavouriteSeries, {
+    foreignKey: 'series_api_id',
+    as: 'favouriteSeries'
+});
+
+db.FavouriteSeries.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
+db.FavouriteSeries.belongsTo(db.Series, { foreignKey: 'series_api_id', as: 'series' });
 
 module.exports = db;
