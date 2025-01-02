@@ -9,24 +9,9 @@ import UsersDisplay, { User } from '@/components/users/UsersDisplay';
 
 import { getFollowingUsers, getFollowers } from '@/api/relationshipsApi'
 
-const followers: User[] = [
-    { id: 1, image: 'https://via.placeholder.com/80', username: 'Michael_24', type: 'user' },
-    { id: 2, image: 'https://via.placeholder.com/80', username: 'Julie.007', type: 'user' },
-    { id: 3, image: 'https://via.placeholder.com/80', username: 'the_series_killer24', type: 'user' },
-    { id: 4, image: 'https://via.placeholder.com/80', username: 'mia_anderson', type: 'user' },
-    { id: 5, image: 'https://via.placeholder.com/80', username: 'dwaynepete', type: 'user' },
-];
-
-const following: User[] = [
-    { id: 1, image: 'https://via.placeholder.com/80', username: 'padillajes', following: true, type: 'user' },
-    { id: 2, image: 'https://via.placeholder.com/80', username: 'annacole', following: true, type: 'user' },
-    { id: 3, image: 'https://via.placeholder.com/80', username: 'pgraham', following: true, type: 'user' },
-    { id: 4, image: 'https://via.placeholder.com/80', username: 'jason78', following: true, type: 'user' },
-    { id: 5, image: 'https://via.placeholder.com/80', username: 'courtneybe', following: true, type: 'user' },
-];
-
 export default function FollowersFollowingScreen() {
     const { userId, activeTab: initialActiveTab } = useLocalSearchParams<{ userId: string; activeTab: string }>();
+    const userIdString = Number(userId);
     const router = useRouter();
 
     const [isFocused, setIsFocused] = useState(false);
@@ -35,34 +20,46 @@ export default function FollowersFollowingScreen() {
     const [activeTab, setActiveTab] = useState<'Followers' | 'Following'>(
         (initialActiveTab as 'Followers' | 'Following') || 'Followers'
     );
+    const [followersData, setFollowersData] = useState<User[]>([]);
+    const [followingData, setFollowingData] = useState<User[]>([]);
 
     const handleSearchFocus = () => setIsFocused(true);
     const handleSearchBlur = () => setIsFocused(false);
     const handleSearchChange = (text: string) => setSearchText(text);
 
     const handleTabPress = (tab: string) => {
-        console.log('Tab Pressed:', tab); 
         setActiveTab(tab as 'Followers' | 'Following');
     };
 
+    const fetchFollowers = async () => {
+        const data = await getFollowers(userIdString);
+        setFollowersData(data);
+    };
+
+    const fetchFollowing = async () => {
+        const data = await getFollowingUsers(userIdString);
+        setFollowingData(data);
+    };
+
     useEffect(() => {
-        console.log('Active Tab:', activeTab);
-        console.log('Search Text:', searchText);
+        if (activeTab === 'Followers') {
+            fetchFollowers();
+        } else {
+            fetchFollowing();
+        }
+    }, [activeTab]);
 
-        const data = activeTab === 'Followers' ? followers : following;
-        console.log('Filtered Data Source:', data);
-
+    useEffect(() => {
+        const data = activeTab === 'Followers' ? followersData : followingData;
         const filtered = data.filter((user) =>
-            user.username.toLowerCase().includes(searchText.toLowerCase())
+            user.name.toLowerCase().includes(searchText.toLowerCase())
         );
-        console.log('Filtered Data:', filtered);
-
         setFilteredData(filtered);
-    }, [activeTab, searchText]);
+    }, [searchText, activeTab, followersData, followingData]);
 
     return (
         <SafeAreaView style={styles.mainContainer}>
-            <OptionsTab type="back" onBackPress={() => router.back()} />
+            <OptionsTab type="back" onBackPress={() => router.push(`/users/${userIdString}`)} />
 
             <TabMenu
                 tabs={[
@@ -79,15 +76,25 @@ export default function FollowersFollowingScreen() {
             </View>
 
             <View style={styles.listContainer}>
-                {filteredData.length > 0 ? (
+                {activeTab === 'Followers' && filteredData.length > 0 ? (
                     <UsersDisplay
                         users={filteredData}
-                        currentUser={null} 
-                        type="profile" 
+                        currentUser={userId} 
+                        type="followers"
                     />
-                ) : (
-                    <Text style={styles.noDataText}>No users found</Text>
-                )}
+                ) : activeTab === 'Followers' && filteredData.length === 0 ? (
+                    <Text style={styles.noDataText}>No followers found</Text>
+                ) : null}
+
+                {activeTab === 'Following' && filteredData.length > 0 ? (
+                    <UsersDisplay
+                        users={filteredData}
+                        currentUser={userId} 
+                        type="following"
+                    />
+                ) : activeTab === 'Following' && filteredData.length === 0 ? (
+                    <Text style={styles.noDataText}>Not following anyone</Text>
+                ) : null}
             </View>
         </SafeAreaView>
     );

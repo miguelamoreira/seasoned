@@ -4,8 +4,9 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { Shadow } from 'react-native-shadow-2';
 
 export type User = {
+    name: any;
     id: number;
-    image: string;
+    avatar: string;
     username: string;
     following?: boolean;
     type: 'user';
@@ -13,12 +14,13 @@ export type User = {
 
 type UsersProps = {
     users: User[];
-    currentUser: User | null;
-    type: 'search' | 'profile';
+    currentUser: string;
+    type: 'search' | 'following' | 'followers';
 };
 
 export default function UsersDisplay({ users, currentUser, type }: UsersProps) {
     const [updatedUsers, setUpdatedUsers] = useState(users);
+    const [currentType, setCurrentType] = useState(type);
 
     useEffect(() => {
         setUpdatedUsers(users);
@@ -30,6 +32,8 @@ export default function UsersDisplay({ users, currentUser, type }: UsersProps) {
                 user.id === userId ? { ...user, following: !user.following } : user
             )
         );
+        
+        setCurrentType((prevType) => (prevType === 'following' ? 'followers' : 'following'));
     };
 
     const handleRemoveFollower = (followerId: number) => {
@@ -40,12 +44,12 @@ export default function UsersDisplay({ users, currentUser, type }: UsersProps) {
         <View style={styles.userContainer}>
             <View style={styles.userDetails}>
                 <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-                    <Image source={{ uri: item.image }} style={styles.userImage} />
+                    <Image source={{ uri: item.avatar }} style={styles.userImage} />
                 </Shadow>
-                <Text style={styles.userName}>{item.username}</Text>
+                <Text style={styles.userName}>{item.name}</Text>
             </View>
             <View style={styles.userOptions}>
-                {type === 'search' && (
+                {currentType === 'search' && (
                     <TouchableOpacity onPress={() => handleFollowUnfollow(item.id)}>
                         <Icon
                             name={item.following ? 'user-times' : 'user-plus'}
@@ -54,9 +58,9 @@ export default function UsersDisplay({ users, currentUser, type }: UsersProps) {
                         />
                     </TouchableOpacity>
                 )}
-                {type === 'profile' && (
+                {currentType === 'followers' && (
                     <>
-                        {currentUser && currentUser.id === item.id ? (
+                        {currentUser && Number(currentUser) !== item.id ? (
                             <Shadow distance={1} startColor={'#211B17'} offset={[2, 4]}>
                                 <TouchableOpacity
                                     onPress={() => handleRemoveFollower(item.id)}
@@ -78,6 +82,18 @@ export default function UsersDisplay({ users, currentUser, type }: UsersProps) {
                             </Shadow>
                         )}
                     </>
+                )}
+                { currentType === 'following' && (
+                    <Shadow distance={1} startColor={'#211B17'} offset={[2, 4]}>
+                        <TouchableOpacity
+                            onPress={() => handleFollowUnfollow(item.id)}
+                            style={styles.button}
+                        >
+                            <Text style={styles.buttonText}>
+                                {item.following ? 'Unfollow' : 'Follow'}
+                            </Text>
+                        </TouchableOpacity>
+                    </Shadow>
                 )}
             </View>
         </View>

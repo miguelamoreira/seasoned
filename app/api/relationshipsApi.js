@@ -3,7 +3,7 @@ import apiClient from './apiClient'
 export const getFollowingUsers = async (userId) => {
     try {
         const { data } = await apiClient.get(`/users/${userId}/following`);
-        return data;
+        return data.data;
     } catch (error) {
         console.error('Error fetching following users:', error);
         throw new Error('Failed to fetch following users. Please try again later.');
@@ -13,7 +13,7 @@ export const getFollowingUsers = async (userId) => {
 export const getFollowers = async (userId) => {
     try {
         const { data } = await apiClient.get(`/users/${userId}/followers`);
-        return data;
+        return data.data;
     } catch (error) {
         console.error('Error fetching followers:', error);
         throw new Error('Failed to fetch followers. Please try again later.');

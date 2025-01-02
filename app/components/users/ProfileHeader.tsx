@@ -96,7 +96,6 @@ export default function ProfileHeader({ type, username, followers, following, pr
                 name: 'avatar.jpg',
               };
               const updatedAvatar = await updateUserAvatar(userId, avatarFile);
-              console.log('avatar: ', updatedAvatar.avatar);
               
               setNewProfileImage(updatedAvatar.data);
               closeProfileModal();
@@ -159,8 +158,8 @@ export default function ProfileHeader({ type, username, followers, following, pr
         ) : (
           <View style={styles.profileInfoContainer}>
             <Text style={styles.username}>{username}</Text>
-            <Text style={styles.followsInfo} onPress={handleFollowersPress}>{followers} Followers</Text>
-            <Text style={styles.followsInfo} onPress={handleFollowingPress}>{following} Following</Text>
+            <Text style={styles.followsInfo} onPress={() => handleFollowersPress(userId)}>{followers} Followers</Text>
+            <Text style={styles.followsInfo} onPress={() => handleFollowingPress(userId)}>{following} Following</Text>
           </View>
         )}
 
