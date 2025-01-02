@@ -23,11 +23,10 @@ type BadgesDisplayProps = {
 
 export default function ProfileBadges({ badges, type, userId, currentUserId }: BadgesDisplayProps) {
     const router = useRouter();
-    const [visibility, setVisibility] = useState(true); // Keep track of visibility
+    const [visibility, setVisibility] = useState(true); 
     const [filteredBadges, setFilteredBadges] = useState(badges);
 
     useEffect(() => {
-        // Update the filtered badges based on visibility and user profile type
         if (type === 'profile' && userId !== currentUserId) {
             setFilteredBadges(visibility ? badges : badges.filter((badge) => badge.earned));
         } else {
@@ -38,7 +37,7 @@ export default function ProfileBadges({ badges, type, userId, currentUserId }: B
     const handleToggleVisibility = async (value: boolean) => {
         setVisibility(value);
         try {
-            await updateBadgesVisibility(userId, value); // Update the visibility in the database or backend
+            await updateBadgesVisibility(userId, value);
         } catch (error) {
             console.error('Failed to update visibility:', error);
         }
@@ -48,9 +47,8 @@ export default function ProfileBadges({ badges, type, userId, currentUserId }: B
         return router.push(`/users/${userId}/badges`);
     };
 
-    // Only render the section if visibility is true or if the current user is viewing their own profile
     if (type === 'profile' && userId !== currentUserId && !visibility) {
-        return null; // Don't render the section if visibility is off
+        return null;
     }
 
     return (
@@ -65,14 +63,14 @@ export default function ProfileBadges({ badges, type, userId, currentUserId }: B
                         thumbColor={visibility ? '#211B17' : '#f4f3f4'}
                     />
                 )}
-                {type === 'profile' && userId !== currentUserId && (
+                {type === 'profile' && (
                     <TouchableOpacity onPress={() => handleSeeAll(userId)} style={styles.seeAllContainer}>
                         <Text style={styles.seeAllText}>See all</Text>
                         <Icon name="chevron-forward" size={16} color="#211B17" />
                     </TouchableOpacity>
                 )}
             </View>
-            {visibility && ( // Only render the badges if visibility is true
+            {visibility && ( 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.badgeScrollView}>
                     {filteredBadges.map((badge, index) => (
                         <View

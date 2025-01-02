@@ -119,13 +119,47 @@ exports.findOne = async (req, res) => {
     }
 }
 
-exports.update = async (req, res) => {
+exports.updateUsername = async (req, res) => {
+    const userId = req.params.id;
+    const { name } = req.body;
+    
+    try {
+        if (!name) {
+            return res.status(400).json({
+                message: "Please provide a username"
+            })
+        }
+
+        let user = await Users.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: 'User not found'
+            })
+        }
+
+        user.name = name;
+
+        return res.status(200).json({
+            message: 'Username updated sucessfully',
+            data: user
+        })
+    } catch (error) {
+        console.error('Error updating username:', error);
+        return res.status(500).json({ 
+            message: "Something went wrong. Please try again later" 
+        }); 
+    }
+}
+
+exports.updateData = async (req, res) => {
     const userId = req.params.id;
     const { email, currentPassword, newPassword, confirmNewPassword } = req.body;
 
     try {
         if (!email || !currentPassword || !newPassword || !confirmNewPassword) {
-            return res.status(400).json({ msg: "Please provide some data." });
+            return res.status(400).json({ 
+                message: "Please provide some data." 
+            });
         }
 
         let user = await Users.findByPk(userId);
@@ -176,12 +210,14 @@ exports.updateAvatar = async (req, res) => {
 
         if (!user) {
             return res.status(404).json({
-                msg: "User not found"
+                message: "User not found"
             });
         }
 
         if (!avatar) {
-            return res.status(400).json({ msg: 'No file uploaded' });
+            return res.status(400).json({ 
+                message: 'No file uploaded' 
+            });
         }
 
         const b64 = Buffer.from(avatar.buffer).toString("base64");

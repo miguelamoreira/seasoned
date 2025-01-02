@@ -41,47 +41,39 @@ db.SeriesReviews = require("./SeriesReview.model.js")(sequelize, DataTypes);
 db.Genres = require("./Genre.model.js")(sequelize, DataTypes);
 db.PreferredGenres = require("./PreferredGenre.model.js")(sequelize, DataTypes);
 db.FavouriteSeries = require("./FavouriteSeries.model.js")(sequelize, DataTypes);
+db.FollowingUsers = require("./FollowingUsers.model.js")(sequelize, DataTypes);
+db.ViewingHistory = require("./ViewingHistory.model.js")(sequelize, DataTypes);
 
 // Users < EarnedBadges > Badges
-db.Users.hasMany(db.EarnedBadges, {
-    foreignKey: 'user_id',
-    as: 'earnedBadges'
-});
+db.Users.hasMany(db.EarnedBadges, { foreignKey: 'user_id', as: 'earnedBadges' });
 
-db.Badges.hasMany(db.EarnedBadges, {
-    foreignKey: 'badge_id',
-    as: 'earnedBadges'
-});
+db.Badges.hasMany(db.EarnedBadges, { foreignKey: 'badge_id', as: 'earnedBadges' });
 
 db.EarnedBadges.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
 db.EarnedBadges.belongsTo(db.Badges, { foreignKey: 'badge_id', as: 'badge' });
 
 // Users < FavouriteSeries > Series
-db.Users.hasMany(db.FavouriteSeries, {
-    foreignKey: 'user_id',
-    as: 'favouriteSeries'
-});
+db.Users.hasMany(db.FavouriteSeries, { foreignKey: 'user_id', as: 'favouriteSeries' });
 
-db.Series.hasMany(db.FavouriteSeries, {
-    foreignKey: 'series_api_id',
-    as: 'favouriteSeries'
-});
+db.Series.hasMany(db.FavouriteSeries, { foreignKey: 'series_api_id', as: 'favouriteSeries' });
 
 db.FavouriteSeries.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
 db.FavouriteSeries.belongsTo(db.Series, { foreignKey: 'series_api_id', as: 'series' });
 
 // Users < PreferredGenres > Genres
-db.Users.hasMany(db.PreferredGenres, {
-    foreignKey: 'user_id',
-    as: 'preferredGenres'
-});
+db.Users.hasMany(db.PreferredGenres, { foreignKey: 'user_id', as: 'preferredGenres' });
 
-db.Genres.hasMany(db.PreferredGenres, {
-    foreignKey: 'genre_id',
-    as: 'preferredGenres'
-})
+db.Genres.hasMany(db.PreferredGenres, { foreignKey: 'genre_id', as: 'preferredGenres' })
 
 db.PreferredGenres.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
 db.PreferredGenres.belongsTo(db.Genres, { foreignKey: 'genre_id', as: 'genre' });
+
+// Users <-> FollowingUsers (following)
+db.Users.hasMany(db.FollowingUsers, { foreignKey: 'user1_id', as: 'followings' });
+db.FollowingUsers.belongsTo(db.Users, { foreignKey: 'user2_id', as: 'followingUser' });
+
+// Users <-> FollowingUsers (followers)
+db.Users.hasMany(db.FollowingUsers, { foreignKey: 'user2_id', as: 'followers' });
+db.FollowingUsers.belongsTo(db.Users, { foreignKey: 'user1_id', as: 'followerUser' });
 
 module.exports = db;

@@ -11,6 +11,7 @@ const usersController = require("../controllers/users.controller");
 const badgesController = require("../controllers/badges.controller")
 const favouriteSeriesController = require("../controllers/favouriteSeries.controller")
 const genresController = require("../controllers/genres.controller")
+const followingUsersController = require("../controllers/followingUsers.controller")
 
 router.route("/login")
     .post(usersController.login);
@@ -20,10 +21,13 @@ router.route("/")
 
 router.route("/:id")
     .get(usersController.findOne)
-    .patch(usersController.update)
+    .patch(usersController.updateData)
 
 router.route("/:id/avatar")
     .patch(upload.single('avatar'), usersController.updateAvatar)
+
+router.route("/:id/username")
+    .patch(usersController.updateUsername)
 
 router.route("/:id/earnedBadges")
     .get(badgesController.findEarnedBadges)
@@ -46,4 +50,14 @@ router.route("/:id/preferredGenres")
     .post(genresController.addPreferredGenre)
     .delete(genresController.deletePreferredGenre)
 
+router.route("/:id/following")
+    .get(followingUsersController.getFollowingUsers)
+    .post(followingUsersController.addFollowing)
+
+router.route("/:id/followers")
+    .get(followingUsersController.getFollowers)
+
+router.route("/:id/relationships")
+    .delete(followingUsersController.removeRelationships)
+    
 module.exports = router;
