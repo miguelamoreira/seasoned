@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, FlatList, View, Image } from 'react-native';
+import { SafeAreaView, StyleSheet, FlatList, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -15,48 +15,38 @@ import ProfileOptions from '@/components/users/ProfileOptions';
 import TabBar from '@/components/TabBar';
 
 import { fetchBadges } from '@/api/badgesApi';
+import { findUserById } from '@/api/userApi';
 
-const user = {
-  id: 1,
-  username: 'joshua31',
-  followers: 250,
-  following: 500,
-  avatar: 'https://via.placeholder.com/100',
-  statsData: {
-    episodes: 451,
-    months: 20,
-    weeks: 3,
-    days: 4,
-    thisYearEpisodes: 50,
-  },
-  favourites: [
-    { id: '1', image: 'https://via.placeholder.com/100' },
-    { id: '2', image: 'https://via.placeholder.com/100' },
-    { id: '3', image: 'https://via.placeholder.com/100' },
-  ],
-};
+interface UserStatsData {
+    episodes: number;
+    months: number;
+    weeks: number;
+    days: number;
+    thisYearEpisodes: number;
+}
 
-const otherUser = {
-  id: 2,
-  username: 'another_user',
-  followers: 123,
-  following: 456,
-  avatar: 'https://via.placeholder.com/100',
-  statsData: {
-    episodes: 302,
-    months: 15,
-    weeks: 2,
-    days: 5,
-    thisYearEpisodes: 80,
-  },
-  favourites: [
-    { id: '1', image: 'https://via.placeholder.com/100' },
-    { id: '2', image: 'https://via.placeholder.com/100' },
-    { id: '3', image: 'https://via.placeholder.com/100' },
-  ],
-};
+interface FavouriteShow {
+    id: string;
+    image: string;
+}
+
+interface UserProfile {
+    id: number;
+    username: string;
+    followers: number;
+    following: number;
+    avatar: string;
+    statsData: UserStatsData;
+    favourites: FavouriteShow[];
+}
 
 const userGenres = ['Drama', 'Action', 'Thriller', 'Comedy', 'Adventure', 'Fantasy'];
+
+const userFavourites: FavouriteShow[] = [
+    { id: '1', image: 'https://via.placeholder.com/100' },
+    { id: '2', image: 'https://via.placeholder.com/100' },
+    { id: '3', image: 'https://via.placeholder.com/100' },
+];
 
 export default function UserProfileScreen() {
     const router = useRouter();
@@ -65,9 +55,8 @@ export default function UserProfileScreen() {
     const [isViewingOtherUser, setIsViewingOtherUser] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userId, setUserId] = useState<number | null>(null);
-    const [userData, setUserData] = useState(null);
-    const [currentPage, setCurrentPage] = useState<string>('Profile');
-    const [badges, setBadges] = useState([]);
+    const [userData, setUserData] = useState<UserProfile | null>(null);
+    const [badges, setBadges] = useState<any[]>([]);
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -93,6 +82,19 @@ export default function UserProfileScreen() {
 
     useEffect(() => {
         if (userId) {
+            findUserById(userId)
+                .then((fetchedUserData) => {
+                    console.log('user data: ', fetchedUserData);
+                    setUserData(fetchedUserData);
+                })
+                .catch((error) => {
+                    console.error('Error fetching user data:', error);
+                });
+        }
+    }, [userId]);
+
+    useEffect(() => {
+        if (userId) {
             fetchBadges(userId)
                 .then((fetchedBadges) => {
                     const sortedBadges = fetchedBadges.sort((a: { earned: boolean; }, b: { earned: boolean; }) => {
@@ -108,16 +110,16 @@ export default function UserProfileScreen() {
         }
     },  [userId]);
 
-    const handleSaveProfile = () => {
-      setType('profile');
-    };
+    const handleSaveProfile = (updatedUsername: string) => {
+      if (userData) {
+          const updatedUserData = { ...userData, username: updatedUsername };
+          setUserData(updatedUserData);
+          setType('profile'); 
+      }
+  };  
 
     const handleEditProfile = () => {
       setType('edit');
-    };
-
-    const toggleViewOtherUser = (id: number) => {
-      router.push(`/users/${id}`);
     };
 
     const handleAddShow = () => {
@@ -150,16 +152,30 @@ export default function UserProfileScreen() {
         if (isViewingOtherUser) {
           return (
             <>
-              <OptionsTab type="back" onBackPress={() => router.back()}></OptionsTab>
-              <OtherUserHeader username={otherUser.username} followers={otherUser.followers} following={otherUser.following} profileImage={otherUser.avatar}
-                onFollowToggle={() => console.log('Follow/Unfollow toggled')} userId={otherUser.id}
+              <OptionsTab type="back" onBackPress={() => router.back()} />
+              <OtherUserHeader 
+                username={userData?.username ?? ''} 
+                followers={userData?.followers ?? 0} 
+                following={userData?.following ?? 0} 
+                profileImage={userData?.avatar ?? ''} 
+                onFollowToggle={() => console.log('Follow/Unfollow toggled')} 
+                userId={userData?.id ?? -1}
               />
             </>
           );
         } else {
           return (
-            <ProfileHeader username={user.username} followers={user.followers} following={user.following} profileImage={user.avatar} onEditProfile={handleEditProfile}
-              onSettingsPress={() => router.push(`/users/${userId}/configurations`)} onQRPress={() => router.push(`/users/${userId}/qrcode`)} type={type} onSaveProfile={handleSaveProfile}
+            <ProfileHeader 
+              username={userData?.username ?? ''} 
+              followers={userData?.followers ?? 0} 
+              following={userData?.following ?? 0} 
+              profileImage={userData?.avatar ?? ''} 
+              userId={userData?.id ?? -1}
+              onEditProfile={handleEditProfile}
+              onSettingsPress={() => router.push(`/users/${userId}/configurations`)} 
+              onQRPress={() => router.push(`/users/${userId}/qrcode`)} 
+              type={type} 
+              onSaveProfile={handleSaveProfile}
             />
           );
         }
@@ -167,9 +183,9 @@ export default function UserProfileScreen() {
 
       switch (item) {
         case 'stats':
-          return <ProfileStats stats={user.statsData} type={type} />;
+          return <ProfileStats stats={userData?.statsData ?? { episodes: 0, months: 0, weeks: 0, days: 0, thisYearEpisodes: 0 }} type={type} />;
         case 'favourites':
-          return <ProfileFavourites type={type} shows={user.favourites} onAddShow={handleAddShow} onRemoveShow={(id) => console.log(`Remove Show with ID: ${id}`)} />;
+          return <ProfileFavourites type={type} shows={userFavourites} onAddShow={handleAddShow} onRemoveShow={(id) => console.log(`Remove Show with ID: ${id}`)} />;
         case 'genres':
           return <ProfileGenres genres={userGenres} type={type} />;
         case 'badges':
@@ -187,8 +203,14 @@ export default function UserProfileScreen() {
 
     return (
       <SafeAreaView style={styles.mainContainer}>
-        <FlatList data={sections} renderItem={renderItem} keyExtractor={(item) => item} contentContainerStyle={styles.flatListContent} showsVerticalScrollIndicator={false} />
-        <TabBar isLoggedIn={isLoggedIn} currentPage={currentPage} userId={userId} />
+        <FlatList 
+          data={sections} 
+          renderItem={renderItem} 
+          keyExtractor={(item) => item} 
+          contentContainerStyle={styles.flatListContent} 
+          showsVerticalScrollIndicator={false} 
+        />
+        <TabBar isLoggedIn={isLoggedIn} currentPage="Profile" userId={userId} />
       </SafeAreaView>
     );
 }

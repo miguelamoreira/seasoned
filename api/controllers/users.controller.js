@@ -8,6 +8,8 @@ require("dotenv").config();
 const Users = db.Users;
 const Genres = db.Genres;
 const PreferredGenres = db.PreferredGenres;
+const FollowingUsers = db.FollowingUsers;
+const ViewingHistory = db.ViewingHistory;
 
 const cloudinary = require('../config/cloudinary.config.js');
 
@@ -100,24 +102,72 @@ exports.findOne = async (req, res) => {
     const userId = req.params.id;
 
     try {
-        let user = await Users.findByPk(userId);
-        
+        const user = await Users.findByPk(userId, {
+            include: [
+                {
+                    model: FollowingUsers,
+                    as: 'followings', 
+                    attributes: ['user1_id'],
+                    include: {
+                        model: Users,
+                        as: 'followingUser',
+                        attributes: ['user_id', 'name', 'avatar']
+                    }
+                },
+                {
+                    model: FollowingUsers,
+                    as: 'followers', 
+                    attributes: ['user2_id'],
+                    include: {
+                        model: Users,
+                        as: 'followerUser',
+                        attributes: ['user_id', 'name', 'avatar']
+                    }
+                },
+                {
+                    model: ViewingHistory,
+                    as: 'viewingHistory', 
+                    attributes: ['series_api_id', 'episode_api_id', 'watch_date', 'time_watched', 'episode_progress']
+                }
+            ]
+        });
+
         if (!user) {
             return res.status(404).json({
                 message: 'User not found'
-            })
+            });
         }
+
+        const viewingHistory = Array.isArray(user.viewingHistory) ? user.viewingHistory : [];
+
+        const formattedUser = {
+            id: user.user_id,
+            username: user.name,
+            avatar: user.avatar,
+            followers: user.followers.length,
+            following: user.followings.length,
+            statsData: {
+                episodes: viewingHistory.length,
+                months: Math.floor(user.total_time_spent / 30),
+                weeks: Math.floor(user.total_time_spent / 7),
+                days: Math.floor(user.total_time_spent / 24),
+                thisYearEpisodes: viewingHistory.filter(history => new Date(history.watch_date).getFullYear() === new Date().getFullYear()).length
+            }
+        };
 
         return res.status(200).json({
             message: 'User retrieved successfully',
-            data: user
-        })
+            data: formattedUser
+        });
+
     } catch (error) {
+        console.error('Error fetching user: ', error);
         return res.status(500).json({
             message: 'Something went wrong. Please try again later.'
-        })
+        });
     }
-}
+};
+
 
 exports.updateUsername = async (req, res) => {
     const userId = req.params.id;
@@ -125,9 +175,7 @@ exports.updateUsername = async (req, res) => {
     
     try {
         if (!name) {
-            return res.status(400).json({
-                message: "Please provide a username"
-            })
+            return
         }
 
         let user = await Users.findByPk(userId);
@@ -138,6 +186,7 @@ exports.updateUsername = async (req, res) => {
         }
 
         user.name = name;
+        user.save();
 
         return res.status(200).json({
             message: 'Username updated sucessfully',
@@ -232,7 +281,8 @@ exports.updateAvatar = async (req, res) => {
 
         await user.save();
         return res.status(200).json({ 
-            message: `User's avatar updated successfully.` 
+            message: `User's avatar updated successfully.`,
+            data: user.avatar
         });
     } catch (error) {
         console.error('error: ', error)

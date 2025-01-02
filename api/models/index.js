@@ -76,4 +76,8 @@ db.FollowingUsers.belongsTo(db.Users, { foreignKey: 'user2_id', as: 'followingUs
 db.Users.hasMany(db.FollowingUsers, { foreignKey: 'user2_id', as: 'followers' });
 db.FollowingUsers.belongsTo(db.Users, { foreignKey: 'user1_id', as: 'followerUser' });
 
+// Users <-> ViewingHistory
+db.Users.hasOne(db.ViewingHistory, { foreignKey: 'user_id', as: 'viewingHistory', onDelete: 'CASCADE' });
+db.ViewingHistory.belongsTo(db.Users, { foreignKey: 'users_id', as: 'user' });
+
 module.exports = db;

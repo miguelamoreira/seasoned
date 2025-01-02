@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import Icon from 'react-native-vector-icons/AntDesign';
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 
 import ProfileModal from './ProfileModal';
+import { updateUsername, updateUserAvatar } from '@/api/userApi';
 
 type ProfileHeaderProps = {
     type: 'profile' | 'edit';
@@ -12,20 +14,36 @@ type ProfileHeaderProps = {
     followers: number;
     following: number;
     profileImage: string;
+    userId: number;
     onEditProfile: () => void;
     onSaveProfile: (newUsername: string) => void;
     onSettingsPress: () => void;
     onQRPress: () => void;
 };
 
-export default function ProfileHeader({ type, username, followers, following, profileImage, onEditProfile, onSaveProfile, onSettingsPress, onQRPress }: ProfileHeaderProps) {
+export default function ProfileHeader({ type, username, followers, following, profileImage, userId, onEditProfile, onSaveProfile, onSettingsPress, onQRPress }: ProfileHeaderProps) {
     const [editedUsername, setEditedUsername] = useState(username);
     const [isProfileModalVisible, setIsProfileModalVisible] = useState(false); 
+    const [newProfileImage, setNewProfileImage] = useState(profileImage);
     const router = useRouter();
 
-    const handleSave = () => {
-      onSaveProfile(editedUsername);
-    };
+    useEffect(() => {
+      setNewProfileImage(profileImage);
+    }, [profileImage]);
+
+    const handleSave = async () => {
+      try {
+          if (editedUsername.trim() === '') {
+              onSaveProfile(username);
+              return;
+          }
+
+          await updateUsername(userId, editedUsername);
+          onSaveProfile(editedUsername);
+      } catch (error) {
+          console.error("Failed to update username:", error);
+      }
+  };
 
     const openProfileModal = () => {
       setIsProfileModalVisible(true);
@@ -33,6 +51,64 @@ export default function ProfileHeader({ type, username, followers, following, pr
 
     const closeProfileModal = () => {
       setIsProfileModalVisible(false);
+    };
+
+    const pickAvatar = async () => {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const avatarUri = result.assets[0].uri;
+        if (avatarUri) {
+          try {
+            const avatarFile = {
+              uri: avatarUri,
+              type: 'image/jpeg',
+              name: 'avatar.jpg',
+            };
+            const updatedAvatar = await updateUserAvatar(userId, avatarFile);
+            console.log('avatar: ', updatedAvatar.data);
+            setNewProfileImage(updatedAvatar.data);
+            closeProfileModal();
+          } catch (error) {
+            console.error("Failed to update avatar:", error);
+          }
+        }
+      }
+    };
+
+    const handleTakePicture = async () => {
+        const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            try {
+              const avatarFile = {
+                uri: result.assets[0].uri,
+                type: 'image/jpeg',
+                name: 'avatar.jpg',
+              };
+              const updatedAvatar = await updateUserAvatar(userId, avatarFile);
+              console.log('avatar: ', updatedAvatar.avatar);
+              
+              setNewProfileImage(updatedAvatar.data);
+              closeProfileModal();
+            } catch (error) {
+              console.error("Failed to update avatar:", error);
+            }
+        }
+    };
+
+    const handleRemoveAvatar = () => {
+        setNewProfileImage('');
+        closeProfileModal();
     };
 
     const handleFollowersPress = (userId: number) => {
@@ -48,14 +124,13 @@ export default function ProfileHeader({ type, username, followers, following, pr
             params: { activeTab: 'Following' },
         });
     };
-  
 
     return (
       <View style={styles.headerContainer}>
         { type === 'edit' ? (
           <>
           <Shadow distance={2} startColor="#211B17" offset={[2, 4]}>
-            <Image style={styles.profileImage} source={{ uri: profileImage }} />
+            <Image style={styles.profileImage} source={{ uri: newProfileImage }} />
           </Shadow>
           <TouchableOpacity style={styles.editAvatar} activeOpacity={0.9} onPress={openProfileModal}>
             <Icon name="edit" size={20} color="#FFF4E0"></Icon>
@@ -63,7 +138,7 @@ export default function ProfileHeader({ type, username, followers, following, pr
           </>
         ) : (
           <Shadow distance={2} startColor="#211B17" offset={[2, 4]}>
-            <Image style={styles.profileImage} source={{ uri: profileImage }} />
+            <Image style={styles.profileImage} source={{ uri: newProfileImage }} />
           </Shadow>
         ) }
 
@@ -75,7 +150,7 @@ export default function ProfileHeader({ type, username, followers, following, pr
                   style={styles.input}
                   value={editedUsername}
                   onChangeText={setEditedUsername}
-                  placeholder="Enter new username"
+                  placeholder={username}
                   placeholderTextColor="#FFF4E080"
                 />
               </Shadow>
@@ -128,9 +203,9 @@ export default function ProfileHeader({ type, username, followers, following, pr
         <ProfileModal 
           isVisible={isProfileModalVisible}
           onClose={closeProfileModal}
-          onTakePicture={() => console.log('Take picture pressed')}
-          onSelectFromGallery={() => console.log('Select from gallery pressed')}
-          onRemoveAvatar={() => console.log('Remove avatar pressed')}
+          onTakePicture={handleTakePicture}
+          onSelectFromGallery={pickAvatar}
+          onRemoveAvatar={handleRemoveAvatar}
         ></ProfileModal>
       </View>
     );

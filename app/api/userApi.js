@@ -3,7 +3,7 @@ import apiClient from './apiClient'
 export const findUserById = async (id) => {
     try {
         const { data } = await apiClient.get(`/users/${id}`);
-        return data;
+        return data.data;
     } catch (error) {
         console.error('Error fetching user:', error);
         throw new Error('Failed to fetch user. Please try again later.');
@@ -12,7 +12,7 @@ export const findUserById = async (id) => {
 
 export const updateUsername = async (id, name) => {
     try {
-        const { data } = await apiClient.put(`/users/${id}/username`, { name });
+        const { data } = await apiClient.patch(`/users/${id}/username`, { name });
         return data;
     } catch (error) {
         console.error('Error updating username:', error);
@@ -22,7 +22,7 @@ export const updateUsername = async (id, name) => {
 
 export const updateUserData = async (id, email, currentPassword, newPassword, confirmNewPassword) => {
     try {
-        const { data } = await apiClient.put(`/users/${id}`, {
+        const { data } = await apiClient.patch(`/users/${id}`, {
             email,
             currentPassword,
             newPassword,
@@ -40,7 +40,7 @@ export const updateUserAvatar = async (id, avatarFile) => {
     formData.append('avatar', avatarFile);
 
     try {
-        const { data } = await apiClient.put(`/users/${id}/avatar`, formData, {
+        const { data } = await apiClient.patch(`/users/${id}/avatar`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
