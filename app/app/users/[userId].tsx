@@ -161,7 +161,7 @@ export default function UserProfileScreen() {
                             followers={userData?.followers ?? 0}
                             following={userData?.following ?? 0}
                             profileImage={userData?.avatar ?? ''}
-                            onFollowToggle={() => console.log('Follow/Unfollow toggled')}
+                            currentUser={String(loggedInUserId) ?? -1}
                             userId={userData?.id ?? -1}
                         />
                     </>

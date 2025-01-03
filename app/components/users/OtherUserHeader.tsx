@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { useRouter } from 'expo-router';
+
+import { addFollowing, removeRelationship, checkIfFollowing } from '@/api/relationshipsApi';
 
 type OtherUserHeaderProps = {
     userId: number;
@@ -9,20 +11,52 @@ type OtherUserHeaderProps = {
     followers: number;
     following: number;
     profileImage: string;
-    onFollowToggle: () => void;
+    currentUser: string;
 };
 
-export default function OtherUserHeader({ userId, username, followers, following, profileImage, onFollowToggle }: OtherUserHeaderProps) {
+export default function OtherUserHeader({ userId, username, followers, following, profileImage, currentUser }: OtherUserHeaderProps) {
     const [isFollowing, setIsFollowing] = useState(false);
+    const [followersCount, setFollowersCount] = useState(followers);
+    console.log("Followers prop:", followers);
+console.log("Followers state:", followersCount);
+
     const router = useRouter();
 
-    const handleFollowToggle = () => {
-        setIsFollowing((prev) => !prev);
-        onFollowToggle();
+    useEffect(() => {
+        setFollowersCount(followers || 0);
+    }, [followers]);
+
+    useEffect(() => {
+        const fetchFollowStatus = async () => {
+            try {
+                const result = await checkIfFollowing(Number(currentUser), userId);
+                setIsFollowing(result);
+            } catch (error) {
+                console.error('Error checking follow status:', error);
+            }
+        };
+
+        fetchFollowStatus();
+    }, [userId, currentUser]);
+
+    const handleFollow = async () => {
+        try {
+            await addFollowing(Number(currentUser), userId);
+            setIsFollowing(true);
+            setFollowersCount(prevCount => prevCount + 1);
+        } catch (error) {
+            console.error('Error following:', error);
+        }
     };
 
-    const navigateToProfile = () => {
-      router.back(); 
+    const handleUnfollow = async () => {
+        try {
+            await removeRelationship(Number(currentUser), userId, 'following');
+            setIsFollowing(false);
+            setFollowersCount((prevCount) => Math.max(0, prevCount - 1));
+        } catch (error) {
+            console.error('Error unfollowing:', error);
+        }
     };
 
     const handleFollowersPress = (userId: number) => {
@@ -47,16 +81,20 @@ export default function OtherUserHeader({ userId, username, followers, following
 
             <View style={styles.profileInfoContainer}>
                 <Text style={styles.username}>{username}</Text>
-                <Text style={styles.followsInfo} onPress={() => handleFollowersPress(userId)}>{followers} Followers</Text>
+                <Text style={styles.followsInfo} onPress={() => handleFollowersPress(userId)}>{followersCount} Followers</Text>
                 <Text style={styles.followsInfo} onPress={() => handleFollowingPress(userId)}>{following} Following</Text>
             </View>
 
             <Shadow distance={1} startColor={'#211B17'} offset={[1, 2]}>
-                <TouchableOpacity style={styles.editButton} onPress={handleFollowToggle}>
-                <Text style={styles.editButtonText}>
-                    {isFollowing ? 'Unfollow' : 'Follow'}
-                </Text>
-                </TouchableOpacity>
+                {isFollowing ? (
+                    <TouchableOpacity style={styles.followButton} onPress={handleUnfollow}>
+                        <Text style={styles.followButtonText}>Unfollow</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity style={styles.followButton} onPress={handleFollow}>
+                        <Text style={styles.followButtonText}>Follow</Text>
+                    </TouchableOpacity>
+                )}
             </Shadow>
         </View>
     );
@@ -92,7 +130,7 @@ const styles = StyleSheet.create({
       color: '#555',
       marginTop: 2,
     },
-    editButton: {
+    followButton: {
       backgroundColor: '#D8A84E',
       paddingVertical: 2,
       paddingHorizontal: 8,
@@ -101,7 +139,7 @@ const styles = StyleSheet.create({
       borderWidth: 2,
       alignItems: 'center',
     },
-    editButtonText: {
+    followButtonText: {
       fontSize: 14,
       fontWeight: 'bold',
       color: '#211B17',
