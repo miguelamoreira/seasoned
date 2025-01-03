@@ -58,6 +58,7 @@ router.route("/:id/followers")
     .get(followingUsersController.getFollowers)
 
 router.route("/:id/relationships")
+    .post(followingUsersController.isFollowing)
     .delete(followingUsersController.removeRelationships)
     
 module.exports = router;

@@ -59,6 +59,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'flex-start',
         marginBottom: 16,
+        paddingHorizontal: 16,
     },
     crossCheckContainer: {
         flexDirection: 'row',
