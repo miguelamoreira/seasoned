@@ -22,7 +22,21 @@ export default function OtherUserHeader({ userId, username, followers, following
     };
 
     const navigateToProfile = () => {
-      router.push(`/users/${userId}`); 
+      router.back(); 
+    };
+
+    const handleFollowersPress = (userId: number) => {
+      router.push({
+          pathname: `/users/${userId}/followers` as any,
+          params: { activeTab: 'Followers' },
+        });
+    };
+    
+    const handleFollowingPress = (userId: number) => {
+        router.push({
+            pathname: `/users/${userId}/followers` as any,
+            params: { activeTab: 'Following' },
+        });
     };
 
     return (
@@ -33,8 +47,8 @@ export default function OtherUserHeader({ userId, username, followers, following
 
             <View style={styles.profileInfoContainer}>
                 <Text style={styles.username}>{username}</Text>
-                <Text style={styles.followsInfo}>{followers} Followers</Text>
-                <Text style={styles.followsInfo}>{following} Following</Text>
+                <Text style={styles.followsInfo} onPress={() => handleFollowersPress(userId)}>{followers} Followers</Text>
+                <Text style={styles.followsInfo} onPress={() => handleFollowingPress(userId)}>{following} Following</Text>
             </View>
 
             <Shadow distance={1} startColor={'#211B17'} offset={[1, 2]}>
