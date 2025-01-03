@@ -15,35 +15,22 @@ type ProfileFavouritesProps = {
     shows: { series: Series }[];
     type: 'profile' | 'edit';
     onAddShow?: () => void;
-    onRemoveShow?: (id: number) => void; // The function that updates the parent state
+    onRemoveShow?: (id: number) => void;
     userId: number;
 };
 
 export default function ProfileFavourites({ shows, type, onAddShow, onRemoveShow, userId }: ProfileFavouritesProps) {
-    const displayShows =
-        type === 'edit'
-            ? [
-                  ...shows,
-                  ...new Array(3 - shows.length).fill({
-                      series: { series_api_id: -1, title: 'Add New', poster_url: '' },
-                  }),
-              ]
-            : [
-                  ...shows,
-                  ...new Array(3 - shows.length).fill({
-                      series: { series_api_id: -1, title: 'Add New', poster_url: '' },
-                  }),
-              ];
+    const displayShows = type === 'edit' 
+        ? [ ...shows, ...new Array(3 - shows.length).fill({ series: { series_api_id: -1, title: 'Add New', poster_url: '' }}),]
+        : [ ...shows, ...new Array(3 - shows.length).fill({ series: { series_api_id: -1, title: 'Add New', poster_url: '' }}) ];
 
     const handleRemoveShow = async (seriesId: number) => {
         try {
-            // Call the delete API
             await deleteFavouriteSeries(userId, seriesId);
             console.log('Favourite show removed successfully');
 
-            // Notify the parent component to remove the show from the list
             if (onRemoveShow) {
-                onRemoveShow(seriesId); // Call the callback passed from the parent to update the shows list
+                onRemoveShow(seriesId);
             }
         } catch (error) {
             console.log('Failed to remove favourite show: ', error);
@@ -76,7 +63,7 @@ export default function ProfileFavourites({ shows, type, onAddShow, onRemoveShow
                                 {type === 'edit' && (
                                     <TouchableOpacity
                                         style={styles.removeButton}
-                                        onPress={() => handleRemoveShow(item.series.series_api_id)} // Call the remove function here
+                                        onPress={() => handleRemoveShow(item.series.series_api_id)}
                                     >
                                         <FontAwesome name="close" size={48} color="#6A4A36" />
                                     </TouchableOpacity>
