@@ -16,7 +16,7 @@ import TabBar from '@/components/TabBar';
 
 import { fetchBadges } from '@/api/badgesApi';
 import { findUserById } from '@/api/userApi';
-import { useLocalSearchParams } from 'expo-router'; // Import useLocalSearchParams
+import { useLocalSearchParams } from 'expo-router';
 
 interface UserStatsData {
     episodes: number;
@@ -104,7 +104,7 @@ export default function UserProfileScreen() {
                     console.error('Error fetching badges:', error);
                 });
         }
-    }, [userIdParam]); 
+    }, [userIdParam]);
 
     const handleSaveProfile = (updatedUsername: string) => {
         if (userData) {
@@ -120,6 +120,17 @@ export default function UserProfileScreen() {
 
     const handleAddShow = () => {
         router.push(`/users/${userIdParam}/favourites`);
+    };
+
+    // Function to handle removing a favourite show
+    const handleRemoveShow = (seriesId: number) => {
+        if (userData) {
+            const updatedFavouriteSeries = userData.favouriteSeries.filter(show => show.series.series_api_id !== seriesId);
+            setUserData({
+                ...userData,
+                favouriteSeries: updatedFavouriteSeries,
+            });
+        }
     };
 
     const handleTabSelect = (label: string, navigateTo: string) => {
@@ -181,7 +192,7 @@ export default function UserProfileScreen() {
             case 'stats':
                 return <ProfileStats stats={userData?.statsData ?? { episodes: 0, months: 0, weeks: 0, days: 0, thisYearEpisodes: 0 }} type={type} />;
             case 'favourites':
-                return <ProfileFavourites type={type} shows={userData?.favouriteSeries ?? []} onAddShow={handleAddShow} onRemoveShow={(id) => console.log(`Remove Show with ID: ${id}`)} />;
+                return <ProfileFavourites type={type} shows={userData?.favouriteSeries ?? []} onAddShow={handleAddShow} onRemoveShow={handleRemoveShow} userId={Number(loggedInUserId)}/>;
             case 'genres':
                 return <ProfileGenres genres={userData?.preferredGenres ?? []} type={type} />;
             case 'badges':

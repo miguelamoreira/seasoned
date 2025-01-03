@@ -3,6 +3,8 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { FontAwesome } from '@expo/vector-icons';
 
+import { deleteFavouriteSeries } from '@/api/favouriteSeriesApi';
+
 type Series = {
     series_api_id: number;
     title: string;
@@ -10,53 +12,80 @@ type Series = {
 };
 
 type ProfileFavouritesProps = {
-    shows: { series: Series }[]; 
+    shows: { series: Series }[];
     type: 'profile' | 'edit';
     onAddShow?: () => void;
-    onRemoveShow?: (id: number) => void;
+    onRemoveShow?: (id: number) => void; // The function that updates the parent state
+    userId: number;
 };
 
-export default function ProfileFavourites({ shows, type, onAddShow, onRemoveShow }: ProfileFavouritesProps) {
-    const displayShows = type === 'edit' 
-        ? [...shows, ...new Array(3 - shows.length).fill({ series: { series_api_id: -1, title: 'Add New', poster_url: '' } })] 
-        : [...shows, ...new Array(3 - shows.length).fill({ series: { series_api_id: -1, title: 'Add New', poster_url: '' } })];
+export default function ProfileFavourites({ shows, type, onAddShow, onRemoveShow, userId }: ProfileFavouritesProps) {
+    const displayShows =
+        type === 'edit'
+            ? [
+                  ...shows,
+                  ...new Array(3 - shows.length).fill({
+                      series: { series_api_id: -1, title: 'Add New', poster_url: '' },
+                  }),
+              ]
+            : [
+                  ...shows,
+                  ...new Array(3 - shows.length).fill({
+                      series: { series_api_id: -1, title: 'Add New', poster_url: '' },
+                  }),
+              ];
+
+    const handleRemoveShow = async (seriesId: number) => {
+        try {
+            // Call the delete API
+            await deleteFavouriteSeries(userId, seriesId);
+            console.log('Favourite show removed successfully');
+
+            // Notify the parent component to remove the show from the list
+            if (onRemoveShow) {
+                onRemoveShow(seriesId); // Call the callback passed from the parent to update the shows list
+            }
+        } catch (error) {
+            console.log('Failed to remove favourite show: ', error);
+        }
+    };
 
     return (
-            <View style={styles.container}>
-                <Text style={styles.heading}>Favourite shows</Text>
-                <View style={styles.favouritesContainer}>
-                    {displayShows.map((item, index) => {
-                        if (item.series.series_api_id === -1) {
-                            return (
+        <View style={styles.container}>
+            <Text style={styles.heading}>Favourite shows</Text>
+            <View style={styles.favouritesContainer}>
+                {displayShows.map((item, index) => {
+                    if (item.series.series_api_id === -1) {
+                        return (
                             <Shadow key={index} distance={2} startColor={'#211B17'} offset={[2, 4]}>
                                 <View style={type === 'profile' ? styles.placeholderItem : styles.addNewItem}>
-                                {type === 'edit' && (
-                                    <TouchableOpacity style={styles.addNewItemButton} onPress={onAddShow}>
-                                        <FontAwesome name="plus" size={48} color="#6A4A36" />
-                                    </TouchableOpacity>
-                                )}
+                                    {type === 'edit' && (
+                                        <TouchableOpacity style={styles.addNewItemButton} onPress={onAddShow}>
+                                            <FontAwesome name="plus" size={48} color="#6A4A36" />
+                                        </TouchableOpacity>
+                                    )}
                                 </View>
                             </Shadow>
-                            );
-                        }
+                        );
+                    }
 
-            return (
-                    <Shadow key={item.series.series_api_id} distance={2} startColor={'#211B17'} offset={[2, 4]}>
-                        <View style={styles.showItem}>
-                            <Image style={styles.showImage} source={{ uri: item.series.poster_url }} />
-                            {type === 'edit' && (
-                            <TouchableOpacity
-                                style={styles.removeButton}
-                                onPress={() => onRemoveShow?.(item.series.series_api_id)}
-                            >
-                                <FontAwesome name="close" size={48} color="#6A4A36" />
-                            </TouchableOpacity>
-                            )}
-                        </View>
-                    </Shadow>
-            );
-            })}
-        </View>
+                    return (
+                        <Shadow key={item.series.series_api_id} distance={2} startColor={'#211B17'} offset={[2, 4]}>
+                            <View style={styles.showItem}>
+                                <Image style={styles.showImage} source={{ uri: item.series.poster_url }} />
+                                {type === 'edit' && (
+                                    <TouchableOpacity
+                                        style={styles.removeButton}
+                                        onPress={() => handleRemoveShow(item.series.series_api_id)} // Call the remove function here
+                                    >
+                                        <FontAwesome name="close" size={48} color="#6A4A36" />
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                        </Shadow>
+                    );
+                })}
+            </View>
         </View>
     );
 }
