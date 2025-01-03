@@ -12,6 +12,7 @@ const badgesController = require("../controllers/badges.controller")
 const favouriteSeriesController = require("../controllers/favouriteSeries.controller")
 const genresController = require("../controllers/genres.controller")
 const followingUsersController = require("../controllers/followingUsers.controller")
+const reviewsController = require("../controllers/reviews.controller")
 
 router.route("/login")
     .post(usersController.login);
@@ -61,5 +62,8 @@ router.route("/:id/followers")
 router.route("/:id/relationships")
     .post(followingUsersController.isFollowing)
     .delete(followingUsersController.removeRelationships)
+
+router.route("/:id/ratings")
+    .get(reviewsController.getRatingsGroupedByScore)
     
 module.exports = router;

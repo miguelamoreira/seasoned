@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, FlatList, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import OptionsTab from '@/components/OptionsTab';
@@ -16,7 +16,7 @@ import TabBar from '@/components/TabBar';
 
 import { fetchBadges } from '@/api/badgesApi';
 import { findUserById } from '@/api/userApi';
-import { useLocalSearchParams } from 'expo-router';
+import { fetchRatingsGroupedByScore } from '@/api/reviewsApi';
 
 interface UserStatsData {
     episodes: number;
@@ -24,11 +24,6 @@ interface UserStatsData {
     weeks: number;
     days: number;
     thisYearEpisodes: number;
-}
-
-interface FavouriteShow {
-    id: string;
-    image: string;
 }
 
 interface UserProfile {
@@ -42,6 +37,10 @@ interface UserProfile {
     preferredGenres: any[];
 }
 
+interface RatingsGroupedByScore {
+    [key: string]: number;
+}
+
 export default function UserProfileScreen() {
     const { userId: userIdParam } = useLocalSearchParams<{ userId: string }>(); 
     const router = useRouter();
@@ -53,6 +52,7 @@ export default function UserProfileScreen() {
     const [userData, setUserData] = useState<UserProfile | null>(null);
     const [badges, setBadges] = useState<any[]>([]);
     const [isViewingOtherUser, setIsViewingOtherUser] = useState(false); 
+    const [ratingsGroupedByScore, setRatingsGroupedByScore] = useState<RatingsGroupedByScore>({});
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -102,6 +102,19 @@ export default function UserProfileScreen() {
                 })
                 .catch((error) => {
                     console.error('Error fetching badges:', error);
+                });
+        }
+    }, [userIdParam]);
+
+    useEffect(() => {
+        if (userIdParam) {
+            fetchRatingsGroupedByScore(userIdParam)
+                .then((ratingsData) => {
+                    setRatingsGroupedByScore(ratingsData);
+                    console.log('ratingssss: ', ratingsData)
+                })
+                .catch((error) => {
+                    console.error('Error fetching ratings grouped by score:', error);
                 });
         }
     }, [userIdParam]);
@@ -195,11 +208,13 @@ export default function UserProfileScreen() {
             case 'genres':
                 return <ProfileGenres genres={userData?.preferredGenres ?? []} type={type} />;
             case 'badges':
-                return (
-                    <ProfileBadges badges={badges} type={type} userId={Number(userIdParam) ?? -1} currentUserId={loggedInUserId ?? -1}/>
-                );
+                return <ProfileBadges badges={badges} type={type} userId={Number(userIdParam) ?? -1} currentUserId={loggedInUserId ?? -1}/>;
             case 'ratings':
-                return <RatingDisplay type={type} ratings={[1, 3, 5, 15, 6]} average={4.5} />;
+                const ratingsArray = Object.values(ratingsGroupedByScore);
+                const totalRatings = ratingsArray.reduce((acc, curr) => acc + curr, 0);
+                const averageRating = ratingsArray.length > 0 ? totalRatings / ratingsArray.length : 0;
+    
+                return <RatingDisplay type={type} ratings={ratingsArray} average={averageRating} />;
             case 'userShows':
                 return <ProfileOptions title="User's Shows" options={userShowsOptions} type={type} />;
             case 'userActivity':

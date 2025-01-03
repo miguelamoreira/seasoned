@@ -43,6 +43,7 @@ db.PreferredGenres = require("./PreferredGenre.model.js")(sequelize, DataTypes);
 db.FavouriteSeries = require("./FavouriteSeries.model.js")(sequelize, DataTypes);
 db.FollowingUsers = require("./FollowingUsers.model.js")(sequelize, DataTypes);
 db.ViewingHistory = require("./ViewingHistory.model.js")(sequelize, DataTypes);
+db.Reviews = require("./Reviews.model.js")(sequelize, DataTypes);
 
 // Users < EarnedBadges > Badges
 db.Users.hasMany(db.EarnedBadges, { foreignKey: 'user_id', as: 'earnedBadges' });
@@ -78,6 +79,10 @@ db.FollowingUsers.belongsTo(db.Users, { foreignKey: 'user1_id', as: 'followerUse
 
 // Users <-> ViewingHistory
 db.Users.hasOne(db.ViewingHistory, { foreignKey: 'user_id', as: 'viewingHistory', onDelete: 'CASCADE' });
-db.ViewingHistory.belongsTo(db.Users, { foreignKey: 'users_id', as: 'user' });
+db.ViewingHistory.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
+
+// Users <-> Reviews
+db.Users.hasMany(db.Reviews, { foreignKey: 'user_id', as: 'reviews', onDelete: 'CASCADE' });
+db.Reviews.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
 
 module.exports = db;
