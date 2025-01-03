@@ -88,7 +88,6 @@ const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
         backgroundColor: '#FFF4E0',
-        paddingHorizontal: 16,
         paddingTop: 42,
         paddingBottom: 60,
     },
@@ -97,8 +96,6 @@ const styles = StyleSheet.create({
         color: 'red',
         fontSize: 18,
         marginTop: 20,
-    },
-    loader: {
-        marginTop: 30,
-    },
+        paddingHorizontal: 16,
+    }
 });

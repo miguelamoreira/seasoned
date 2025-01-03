@@ -49,14 +49,16 @@ export default function BadgesScreen() {
 
             <Text style={styles.heading}>Badges</Text>
 
+            <View style={{ paddingHorizontal: 16, }}>
             <Progress.Bar
                 progress={progress}
                 width={378}
                 color="#82AA59"
                 borderColor="#352A23"
                 unfilledColor="#352A23"
-                style={{ marginTop: 12, marginBottom: 16 }}
+                style={{ marginTop: 12, marginBottom: 16, }}
             />
+            </View>
 
             <FlatList
                 data={badges}  // Render sorted badges directly
@@ -83,7 +85,6 @@ const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
         backgroundColor: '#FFF4E0',
-        paddingHorizontal: 16,
         paddingTop: 42,
     },
     heading: {
@@ -91,9 +92,11 @@ const styles = StyleSheet.create({
         fontFamily: 'DMSerifText',
         lineHeight: 45,
         color: '#352A23',
+        paddingHorizontal: 16,
     },
     badgeGrid: {
         paddingBottom: 16, 
+        paddingHorizontal: 16,
     },
     badgeWrapper: {
         width: '48%', 

@@ -120,6 +120,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 24,
+        paddingHorizontal: 16,
     },
     imageLarge: {
         width: 220,
