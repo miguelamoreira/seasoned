@@ -15,7 +15,7 @@ export default function ProfileModal({ isVisible, onClose, onTakePicture, onSele
     const defaultAvatar = 'https://res.cloudinary.com/deru44tum/image/upload/v1735762796/defaultAvatar_dykcyh.png';
     
     return (
-        <Modal animationType="slide" transparent visible={isVisible} onRequestClose={onClose}>
+        <Modal animationType="slide" transparent visible={isVisible} onRequestClose={onClose} statusBarTranslucent={true}> 
         <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
             <View style={styles.header}>
