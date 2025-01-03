@@ -127,3 +127,29 @@ exports.removeRelationships = async (req, res) => {
         });
     }
 }
+
+exports.isFollowing = async (req, res) => {
+    const user1_id = req.params.id;
+    const { user2_id } = req.body;
+
+    try {
+        const existingFollowing = await FollowingUsers.findOne({ where: { user1_id, user2_id }});
+
+        if (existingFollowing) {
+            return res.status(200).json({
+                message: 'User1 is following user2.',
+                isFollowing: true,
+            });
+        } else {
+            return res.status(200).json({
+                message: 'User1 is not following user2.',
+                isFollowing: false,
+            });
+        }
+    } catch (error) {
+        console.error(`Error checking following relationship:`, error);
+        return res.status(500).json({
+            message: 'Something went wrong. Please try again later.',
+        });
+    }
+}

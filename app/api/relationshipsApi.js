@@ -21,8 +21,11 @@ export const getFollowers = async (userId) => {
 };
 
 export const addFollowing = async (user1_id, user2_id) => {
+    console.log('user1_id:', user1_id); // Log user1_id
+    console.log('user2_id:', user2_id);
+
     try {
-        const { data } = await apiClient.post(`/users/${user1_id}/following`, user2_id);
+        const { data } = await apiClient.post(`/users/${user1_id}/following`, { user2_id });
         return data;
     } catch (error) {
         console.error('Error adding following:', error);
@@ -42,5 +45,15 @@ export const removeRelationship = async (user1_id, user2_id, actionType) => {
     } catch (error) {
         console.error('Error removing relationship:', error);
         throw new Error('Failed to remove relationship. Please try again later.');
+    }
+};
+
+export const checkIfFollowing = async (user1_id, user2_id) => {
+    try {
+        const { data } = await apiClient.post(`/users/${user1_id}/relationships`, { user2_id });
+        return data.isFollowing;
+    } catch (error) {
+        console.error('Error checking if following:', error);
+        throw new Error('Failed to check if following. Please try again later.');
     }
 };
