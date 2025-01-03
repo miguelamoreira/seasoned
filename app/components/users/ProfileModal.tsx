@@ -8,9 +8,12 @@ type ProfileModalProps = {
     onTakePicture: () => void;
     onSelectFromGallery: () => void;
     onRemoveAvatar: () => void;
+    avatar: string;
 };
 
-export default function ProfileModal({ isVisible, onClose, onTakePicture, onSelectFromGallery, onRemoveAvatar }: ProfileModalProps) {
+export default function ProfileModal({ isVisible, onClose, onTakePicture, onSelectFromGallery, onRemoveAvatar, avatar }: ProfileModalProps) {
+    const defaultAvatar = 'https://res.cloudinary.com/deru44tum/image/upload/v1735762796/defaultAvatar_dykcyh.png';
+    
     return (
         <Modal animationType="slide" transparent visible={isVisible} onRequestClose={onClose}>
         <View style={styles.modalOverlay}>
@@ -31,10 +34,12 @@ export default function ProfileModal({ isVisible, onClose, onTakePicture, onSele
                 <Text style={styles.optionText}>Select from gallery</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.optionRow} onPress={onRemoveAvatar}>
-                <MaterialIcons name="delete" size={24} color="#EE6363" />
-                <Text style={styles.optionText}>Remove avatar</Text>
-            </TouchableOpacity>
+            {avatar !== defaultAvatar && (
+                        <TouchableOpacity style={styles.optionRow} onPress={onRemoveAvatar}>
+                            <MaterialIcons name="delete" size={24} color="#EE6363" />
+                            <Text style={styles.optionText}>Remove avatar</Text>
+                        </TouchableOpacity>
+            )}
             </View>
         </View>
         </Modal>

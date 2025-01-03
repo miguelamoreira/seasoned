@@ -50,7 +50,7 @@ const userFavourites: FavouriteShow[] = [
 ];
 
 export default function UserProfileScreen() {
-    const { userId: userIdParam } = useLocalSearchParams<{ userId: string }>(); // Get userId from URL params
+    const { userId: userIdParam } = useLocalSearchParams<{ userId: string }>(); 
     const router = useRouter();
 
     const [type, setType] = useState<'profile' | 'edit'>('profile');
@@ -59,7 +59,7 @@ export default function UserProfileScreen() {
     const [loggedInUserId, setLoggedInUserId] = useState<number | null>(null);
     const [userData, setUserData] = useState<UserProfile | null>(null);
     const [badges, setBadges] = useState<any[]>([]);
-    const [isViewingOtherUser, setIsViewingOtherUser] = useState(false); // Track if viewing own or another user profile
+    const [isViewingOtherUser, setIsViewingOtherUser] = useState(false); 
 
     useEffect(() => {
         const checkLoginStatus = async () => {

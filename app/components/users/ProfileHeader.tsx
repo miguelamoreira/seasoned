@@ -6,7 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 
 import ProfileModal from './ProfileModal';
-import { updateUsername, updateUserAvatar } from '@/api/userApi';
+import { updateUsername, updateUserAvatar, deleteUserAvatar } from '@/api/userApi';
 
 type ProfileHeaderProps = {
     type: 'profile' | 'edit';
@@ -105,9 +105,14 @@ export default function ProfileHeader({ type, username, followers, following, pr
         }
     };
 
-    const handleRemoveAvatar = () => {
-        setNewProfileImage('');
-        closeProfileModal();
+    const handleRemoveAvatar = async () => {
+        try {
+          const updatedAvatar = await deleteUserAvatar(userId);
+          setNewProfileImage(updatedAvatar.data);
+          closeProfileModal();
+        } catch (error) {
+          console.error("Failed to remove avatar:", error);
+        }
     };
 
     const handleFollowersPress = (userId: number) => {
@@ -205,6 +210,7 @@ export default function ProfileHeader({ type, username, followers, following, pr
           onTakePicture={handleTakePicture}
           onSelectFromGallery={pickAvatar}
           onRemoveAvatar={handleRemoveAvatar}
+          avatar={profileImage}
         ></ProfileModal>
       </View>
     );

@@ -51,3 +51,13 @@ export const updateUserAvatar = async (id, avatarFile) => {
         throw new Error('Failed to update avatar. Please try again later.');
     }
 };
+
+export const deleteUserAvatar = async (id) => {
+    try {
+        const { data } = await apiClient.delete(`/users/${id}/avatar`);
+        return data;
+    } catch (error) {
+        console.error('Error deleting avatar:', error);
+        throw new Error('Failed to delete avatar. Please try again later.');
+    }
+}

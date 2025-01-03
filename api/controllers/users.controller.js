@@ -291,3 +291,30 @@ exports.updateAvatar = async (req, res) => {
         });
     }
 };
+
+exports.deleteAvatar = async (req, res) => {
+    const userId = req.params.id;
+
+    try {   
+        let user = await Users.findByPk(userId);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        user.avatar = "https://res.cloudinary.com/deru44tum/image/upload/v1735762796/defaultAvatar_dykcyh.png";
+        user.save();
+
+        return res.status(200).json({
+            message: "Avatar removed successfully",
+            data: user.avatar
+        })
+    } catch (error) {
+        console.error('error: ', error);
+        return res.status(500).json({
+            message: "Something went wrong. Please try again later"
+        })
+    }
+}

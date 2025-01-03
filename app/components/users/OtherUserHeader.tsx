@@ -17,8 +17,6 @@ type OtherUserHeaderProps = {
 export default function OtherUserHeader({ userId, username, followers, following, profileImage, currentUser }: OtherUserHeaderProps) {
     const [isFollowing, setIsFollowing] = useState(false);
     const [followersCount, setFollowersCount] = useState(followers);
-    console.log("Followers prop:", followers);
-console.log("Followers state:", followersCount);
 
     const router = useRouter();
 

@@ -25,6 +25,7 @@ router.route("/:id")
 
 router.route("/:id/avatar")
     .patch(upload.single('avatar'), usersController.updateAvatar)
+    .delete(usersController.deleteAvatar)
 
 router.route("/:id/username")
     .patch(usersController.updateUsername)
