@@ -7,8 +7,9 @@ import OptionsTab from '@/components/OptionsTab';
 import TabMenu from '@/components/TabMenu';
 import SearchBar from '@/components/search/SearchBar';
 import UsersDisplay, { User } from '@/components/users/UsersDisplay';
+import EmptyState from '@/components/EmptyState';
 
-import { getFollowingUsers, getFollowers } from '@/api/relationshipsApi'
+import { getFollowingUsers, getFollowers } from '@/api/relationshipsApi';
 
 export default function FollowersFollowingScreen() {
     const { userId, activeTab: initialActiveTab } = useLocalSearchParams<{ userId: string; activeTab: string }>();
@@ -69,6 +70,10 @@ export default function FollowersFollowingScreen() {
         setFilteredData(filtered);
     }, [searchText, activeTab, followersData, followingData]);
 
+    const shouldShowEmptyState = (data: User[], type: 'Followers' | 'Following') => {
+        return data.length === 0 && activeTab === type;
+    };
+
     return (
         <SafeAreaView style={styles.mainContainer}>
             <OptionsTab type="back" onBackPress={() => router.push(`/users/${userIdString}`)} />
@@ -84,28 +89,28 @@ export default function FollowersFollowingScreen() {
             />
 
             <View style={styles.searchContainer}>
-                <SearchBar onFocus={handleSearchFocus} onBlur={handleSearchBlur} onChange={handleSearchChange} />
+                <SearchBar onFocus={handleSearchFocus} onBlur={handleSearchBlur} onChange={handleSearchChange} value={searchText} />
             </View>
 
             <View style={styles.listContainer}>
-                {activeTab === 'Followers' && filteredData.length > 0 ? (
+                {activeTab === 'Followers' && followersData.length > 0 ? (
                     <UsersDisplay
                         users={filteredData}
                         currentUser={currentUser?.toString() || ''} 
                         type="followers"
                     />
-                ) : activeTab === 'Followers' && filteredData.length === 0 ? (
-                    <Text style={styles.noDataText}>No followers found</Text>
+                ) : shouldShowEmptyState(followersData, 'Followers') ? (
+                    <EmptyState type="noFollowers" />
                 ) : null}
 
-                {activeTab === 'Following' && filteredData.length > 0 ? (
+                {activeTab === 'Following' && followingData.length > 0 ? (
                     <UsersDisplay
                         users={filteredData}
                         currentUser={currentUser?.toString() || ''}
                         type="following"
                     />
-                ) : activeTab === 'Following' && filteredData.length === 0 ? (
-                    <Text style={styles.noDataText}>Not following anyone</Text>
+                ) : shouldShowEmptyState(followingData, 'Following') ? (
+                    <EmptyState type="noFollowing" />
                 ) : null}
             </View>
         </SafeAreaView>

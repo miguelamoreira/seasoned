@@ -62,7 +62,6 @@ export default function RegisterScreen() {
         try {
             const data = await createUser(payload);
             console.log('Response from server:', data);
-            alert('Registration successful!');
             router.push('/signin'); 
         } catch (error) {
             console.error('Registration error:', error);

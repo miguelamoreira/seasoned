@@ -19,14 +19,10 @@ export default function SignInScreen() {
             if (response?.success && response.accessToken) {
                 await AsyncStorage.setItem('userToken', response.accessToken);
                 await AsyncStorage.setItem('userId', response.loggedUserId.toString());
-                Alert.alert('Success', 'You are logged in!');
                 router.push('/homepage');
-            } else {
-                Alert.alert('Login Failed', response?.success ? 'No access token returned.' : 'Invalid response from server.');
-            }
+            } 
         } catch (error) {
             console.log(error);
-            Alert.alert('Login Failed', 'An error occurred, please try again.');
         }
     };    
 
