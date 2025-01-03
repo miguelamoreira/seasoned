@@ -1,5 +1,6 @@
 const db = require("../models/index.js");
 const { ValidationError, Sequelize, where } = require("sequelize");
+const axios = require("axios");
 
 const Users = db.Users;
 const Series = db.Series;
@@ -38,40 +39,64 @@ exports.findAllFavouriteSeries = async (req, res) => {
 
 exports.addFavouriteSeries = async (req, res) => {
     const userId = req.params.id;
-    const { seriesId } = req.body;
+    const { seriesId } = req.body; 
+
+    if (!seriesId) {
+        return res.status(400).json({
+            message: 'Series ID is required.',
+        });
+    }
 
     try {
-        const count = await FavouriteSeries.count({ where: { user_id: userId } })
-        if (count >= 3) {
+        let series = await Series.findOne({ where: { series_api_id: seriesId } });
+
+        if (!series) {
+            const apiResponse = await axios.get(`https://api.tvmaze.com/shows/${seriesId}?embed=seasons`);
+            const apiData = apiResponse.data;
+            console.log('API DATA: ', apiData);
+            
+
+            const totalSeasons = apiData._embedded?.seasons.length || 0;
+
+            series = await Series.create({
+                series_api_id: apiData.id,
+                title: apiData.name,
+                description: apiData.summary?.replace(/<\/?[^>]+(>|$)/g, ""),
+                release_date: apiData.premiered,
+                genre: apiData.genres.join(', '), 
+                total_seasons: totalSeasons,
+                average_rating: apiData.rating?.average || null,
+                poster_url: apiData.image?.original || null,
+            });
+        }
+
+        const favouriteCount = await FavouriteSeries.count({ where: { user_id: userId } });
+        if (favouriteCount >= 3) {
             return res.status(400).json({
-                message: 'A user can have a maximum of 3 favourites'
+                message: 'A user can have a maximum of 3 favourites',
             })
         }
 
-        const existingFavourite = await FavouriteSeries.findOne({ where: { user_id: userId, series_api_id: seriesId } })
+        const existingFavourite = await FavouriteSeries.findOne({ where: { user_id: userId, series_api_id: seriesId }})
         if (existingFavourite) {
             return res.status(400).json({
-                message: 'The user already has this series in their favourites'
+                message: 'The user already has this series in their favourites',
             })
         }
 
-        const newFavourite = await FavouriteSeries.create({
-            user_id: userId,
-            series_api_id: seriesId,
-            display_order: count + 1,
-        })
+        const newFavourite = await FavouriteSeries.create({ user_id: userId, series_api_id: seriesId, display_order: favouriteCount + 1,})
 
         return res.status(200).json({
             message: 'Series added to favourites successfully',
-            data: newFavourite
+            data: newFavourite,
         })
     } catch (error) {
-        console.error('Error adding favourite series:', error);
+        console.error('Error adding favourite series: ', error);
         return res.status(500).json({
-            message: 'Something went wrong. Please try again later.'
+            message: 'Something went wrong. Please try again later.',
         });
     }
-}
+};
 
 exports.deleteFavouriteSeries = async (req, res) => {
     const userId = req.params.id;

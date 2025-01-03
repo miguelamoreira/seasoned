@@ -5,6 +5,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import OptionsTab from '@/components/OptionsTab';
 import SearchBar from '@/components/search/SearchBar';
 import SeriesDisplay, { Series } from '@/components/series/SeriesDisplay';
+import EmptyState from '@/components/EmptyState';
 
 import { searchShows } from '@/api/tvAPI';
 
@@ -16,7 +17,6 @@ export default function AddFavouritesScreen() {
     const [searchText, setSearchText] = useState<string>('');
     const [searchResults, setSearchResults] = useState<Series[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
 
     const handleSearchFocus = () => setIsFocused(true);
     const handleSearchBlur = () => setIsFocused(false);
@@ -30,22 +30,24 @@ export default function AddFavouritesScreen() {
 
         const fetchShows = async () => {
             setIsLoading(true);
-            setError(null);
 
             try {
                 const result = await searchShows(searchText);
                 if (result.shows) {
                     const formattedShows: Series[] = result.shows.map((show: any) => ({
-                        id: show.show.id,
+                        series_api_id: show.show.id,
                         name: show.show.name,
                         image: show.show.image?.medium ?? '',
                         rating: show.show.rating?.average ?? 0,
                         language: show.show.language,
                     }));
                     setSearchResults(formattedShows);
+                    console.log(formattedShows);
+                } else {
+                    setSearchResults([]);
                 }
             } catch (err) {
-                setError('Failed to fetch shows. Please try again.');
+                setSearchResults([]);
             } finally {
                 setIsLoading(false);
             }
@@ -54,9 +56,11 @@ export default function AddFavouritesScreen() {
         fetchShows();
     }, [searchText]);
 
+    const shouldShowEmptyState = searchText.trim().length > 0 && searchResults.length === 0;
+
     return (
         <SafeAreaView style={styles.mainContainer}>
-            <OptionsTab type="cross-check" onCheckPress={() => router.back()} onCrossPress={() => router.back()} />
+            <OptionsTab type="cross-check" onCheckPress={() => router.push(`/users/${userId}`)} onCrossPress={() => router.back()} />
 
             <Text style={styles.heading}>Add favourite</Text>
 
@@ -66,11 +70,11 @@ export default function AddFavouritesScreen() {
 
             {isLoading ? (
                 <ActivityIndicator size="large" color="#000" />
-            ) : error ? (
-                <Text style={styles.errorText}>{error}</Text>
+            ) : shouldShowEmptyState ? (
+                <EmptyState type="404" />
             ) : (
                 <View style={{ paddingHorizontal: 16 }}>
-                    <SeriesDisplay series={searchResults} type="add" />
+                    <SeriesDisplay series={searchResults} type="add" userId={Number(userId)} />
                 </View>
             )}
         </SafeAreaView>
@@ -92,12 +96,6 @@ const styles = StyleSheet.create({
     },
     searchContainer: {
         marginBottom: 16,
-        paddingHorizontal: 16,
-    },
-    errorText: {
-        color: 'red',
-        fontSize: 16,
-        textAlign: 'center',
         paddingHorizontal: 16,
     },
 });
