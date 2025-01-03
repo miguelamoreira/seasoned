@@ -7,9 +7,10 @@ type SearchBarProps = {
     onFocus: () => void;
     onBlur: () => void;
     onChange: (text: string) => void;
+    value: string; 
 };
 
-export default function SearchBar({ onFocus, onBlur, onChange }: SearchBarProps) {
+export default function SearchBar({ onFocus, onBlur, onChange, value }: SearchBarProps) {
     return (
         <View style={styles.searchBarContainer}>
             <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
@@ -22,6 +23,7 @@ export default function SearchBar({ onFocus, onBlur, onChange }: SearchBarProps)
                         onFocus={onFocus}
                         onBlur={onBlur}
                         onChangeText={onChange}
+                        value={value}
                     />
                 </View>
             </Shadow>

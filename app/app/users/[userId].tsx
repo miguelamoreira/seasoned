@@ -122,7 +122,6 @@ export default function UserProfileScreen() {
         router.push(`/users/${userIdParam}/favourites`);
     };
 
-    // Function to handle removing a favourite show
     const handleRemoveShow = (seriesId: number) => {
         if (userData) {
             const updatedFavouriteSeries = userData.favouriteSeries.filter(show => show.series.series_api_id !== seriesId);

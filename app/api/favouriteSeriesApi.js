@@ -1,8 +1,21 @@
 import apiClient from './apiClient'
 
-export const addFavouriteSeries = async (userId, seriesId) => {
+export const fetchFavouriteSeries = async (userId) => {
     try {
-        const { data } = await apiClient.post(`/users/${userId}/favourites`, { seriesId });
+        const { data } = await apiClient.get(`/users/${userId}/favourites`);
+        return data;
+    } catch (error) {
+        console.error('Error when fetching favourite shows: ', error);
+        throw new Error('Failed to fetch favourite series.')
+    }
+} 
+ 
+export const addFavouriteSeries = async (userId, seriesId) => {
+    console.log('API userId: ', userId);
+    console.log('API seriesID: ', seriesId);
+
+    try {
+        const { data } = await apiClient.post(`/users/${userId}/favourites`,  { seriesId });
         return data;
     } catch (error) {
         console.error('Error adding new favourite series:', error);
