@@ -10,6 +10,8 @@ const Genres = db.Genres;
 const PreferredGenres = db.PreferredGenres;
 const FollowingUsers = db.FollowingUsers;
 const ViewingHistory = db.ViewingHistory;
+const FavouriteSeries = db.FavouriteSeries;
+const Series = db.Series;
 
 const cloudinary = require('../config/cloudinary.config.js');
 
@@ -128,6 +130,25 @@ exports.findOne = async (req, res) => {
                     model: ViewingHistory,
                     as: 'viewingHistory', 
                     attributes: ['series_api_id', 'episode_api_id', 'watch_date', 'time_watched', 'episode_progress']
+                },
+                {
+                    model: PreferredGenres,
+                    as: 'preferredGenres',
+                    include: {
+                        model: Genres,
+                        as: 'genres',
+                        attributes: ['genre_id', 'genre_name']
+                    }
+                },
+                {
+                    model: FavouriteSeries,
+                    as: 'favouriteSeries',
+                    include: {
+                        model: Series,
+                        as: 'series',
+                        attributes: ['series_api_id', 'title', 'poster_url']
+
+                    }
                 }
             ]
         });
@@ -140,12 +161,29 @@ exports.findOne = async (req, res) => {
 
         const viewingHistory = Array.isArray(user.viewingHistory) ? user.viewingHistory : [];
 
+        const formattedPreferredGenres = user.preferredGenres.map(preferredGenre => ({
+            genre: {
+                genre_id: preferredGenre.genres.genre_id,
+                genre_name: preferredGenre.genres.genre_name
+            }
+        }));
+
+        const formattedFavouriteSeries = user.favouriteSeries.map(favouriteShow => ({
+            series: {
+                series_api_id: favouriteShow.series.series_api_id,
+                title: favouriteShow.series.title,
+                poster_url: favouriteShow.series.poster_url,
+            }
+        }))
+
         const formattedUser = {
             id: user.user_id,
             username: user.name,
             avatar: user.avatar,
             followers: user.followers.length,
             following: user.followings.length,
+            favouriteSeries: formattedFavouriteSeries,
+            preferredGenres: formattedPreferredGenres,
             statsData: {
                 episodes: viewingHistory.length,
                 months: Math.floor(user.total_time_spent / 30),
@@ -167,7 +205,6 @@ exports.findOne = async (req, res) => {
         });
     }
 };
-
 
 exports.updateUsername = async (req, res) => {
     const userId = req.params.id;

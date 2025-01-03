@@ -38,16 +38,9 @@ interface UserProfile {
     following: number;
     avatar: string;
     statsData: UserStatsData;
-    favourites: FavouriteShow[];
+    favouriteSeries: any[];
+    preferredGenres: any[];
 }
-
-const userGenres = ['Drama', 'Action', 'Thriller', 'Comedy', 'Adventure', 'Fantasy'];
-
-const userFavourites: FavouriteShow[] = [
-    { id: '1', image: 'https://via.placeholder.com/100' },
-    { id: '2', image: 'https://via.placeholder.com/100' },
-    { id: '3', image: 'https://via.placeholder.com/100' },
-];
 
 export default function UserProfileScreen() {
     const { userId: userIdParam } = useLocalSearchParams<{ userId: string }>(); 
@@ -86,7 +79,7 @@ export default function UserProfileScreen() {
     useEffect(() => {
         if (userIdParam) {
             const userIdFromParams = parseInt(userIdParam);
-            setIsViewingOtherUser(userIdFromParams !== loggedInUserId); // Compare with logged-in user's ID
+            setIsViewingOtherUser(userIdFromParams !== loggedInUserId); 
             findUserById(userIdFromParams)
                 .then((fetchedUserData) => {
                     setUserData(fetchedUserData);
@@ -99,7 +92,7 @@ export default function UserProfileScreen() {
 
     useEffect(() => {
         if (userIdParam) {
-            fetchBadges(userIdParam) // Fetch badges for the user from the URL
+            fetchBadges(userIdParam) 
                 .then((fetchedBadges) => {
                     const sortedBadges = fetchedBadges.sort((a: { earned: boolean; }, b: { earned: boolean; }) => {
                         if (a.earned === b.earned) return 0;
@@ -111,7 +104,7 @@ export default function UserProfileScreen() {
                     console.error('Error fetching badges:', error);
                 });
         }
-    }, [userIdParam]); // Re-fetch badges whenever userIdParam changes
+    }, [userIdParam]); 
 
     const handleSaveProfile = (updatedUsername: string) => {
         if (userData) {
@@ -188,17 +181,12 @@ export default function UserProfileScreen() {
             case 'stats':
                 return <ProfileStats stats={userData?.statsData ?? { episodes: 0, months: 0, weeks: 0, days: 0, thisYearEpisodes: 0 }} type={type} />;
             case 'favourites':
-                return <ProfileFavourites type={type} shows={userFavourites} onAddShow={handleAddShow} onRemoveShow={(id) => console.log(`Remove Show with ID: ${id}`)} />;
+                return <ProfileFavourites type={type} shows={userData?.favouriteSeries ?? []} onAddShow={handleAddShow} onRemoveShow={(id) => console.log(`Remove Show with ID: ${id}`)} />;
             case 'genres':
-                return <ProfileGenres genres={userGenres} type={type} />;
+                return <ProfileGenres genres={userData?.preferredGenres ?? []} type={type} />;
             case 'badges':
                 return (
-                    <ProfileBadges
-                        badges={badges}
-                        type={type}
-                        userId={Number(userIdParam) ?? -1}  // Use userIdParam for badges fetching
-                        currentUserId={loggedInUserId ?? -1} // Ensure badges match user in URL
-                    />
+                    <ProfileBadges badges={badges} type={type} userId={Number(userIdParam) ?? -1} currentUserId={loggedInUserId ?? -1}/>
                 );
             case 'ratings':
                 return <RatingDisplay type={type} ratings={[1, 3, 5, 15, 6]} average={4.5} />;

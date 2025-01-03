@@ -1,54 +1,62 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import {Shadow} from 'react-native-shadow-2'; 
+import { Shadow } from 'react-native-shadow-2';
 import { FontAwesome } from '@expo/vector-icons';
 
-type Show = {
-    id: string;
-    image: string;
+type Series = {
+    series_api_id: number;
+    title: string;
+    poster_url: string;
 };
 
 type ProfileFavouritesProps = {
-    shows: Show[];
+    shows: { series: Series }[]; 
     type: 'profile' | 'edit';
     onAddShow?: () => void;
-    onRemoveShow?: (id: string) => void;
+    onRemoveShow?: (id: number) => void;
 };
 
 export default function ProfileFavourites({ shows, type, onAddShow, onRemoveShow }: ProfileFavouritesProps) {
-    const displayShows = type === 'edit'
-        ? [...shows.slice(0, 2), { id: 'add-new', image: '' }]
-        : shows.slice(0, 3);
+    const displayShows = type === 'edit' 
+        ? [...shows, ...new Array(3 - shows.length).fill({ series: { series_api_id: -1, title: 'Add New', poster_url: '' } })] 
+        : [...shows, ...new Array(3 - shows.length).fill({ series: { series_api_id: -1, title: 'Add New', poster_url: '' } })];
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.heading}>Favourite shows</Text>
-            <View style={styles.favouritesContainer}>
-                {displayShows.map((item) => {
-                    if (item.id === 'add-new' && type === 'edit') {
-                        return (
-                            <Shadow key={item.id} distance={2} startColor={'#211B17'} offset={[2, 4]}>
-                                <TouchableOpacity style={styles.addNewItem} onPress={onAddShow}>
-                                    <FontAwesome name="plus" size={48} color="#6A4A36" />
-                                </TouchableOpacity>
-                            </Shadow>
-                        );
-                    }
-
-                    return (
-                        <Shadow key={item.id} distance={2} startColor={'#211B17'} offset={[2, 4]}>
-                            <View style={styles.showItem}>
-                                <Image style={styles.showImage} source={{ uri: item.image }} />
+            <View style={styles.container}>
+                <Text style={styles.heading}>Favourite shows</Text>
+                <View style={styles.favouritesContainer}>
+                    {displayShows.map((item, index) => {
+                        if (item.series.series_api_id === -1) {
+                            return (
+                            <Shadow key={index} distance={2} startColor={'#211B17'} offset={[2, 4]}>
+                                <View style={type === 'profile' ? styles.placeholderItem : styles.addNewItem}>
                                 {type === 'edit' && (
-                                    <TouchableOpacity style={styles.removeButton} onPress={() => onRemoveShow?.(item.id)}>
-                                        <FontAwesome name="close" size={48} color="#6A4A36" />
+                                    <TouchableOpacity style={styles.addNewItemButton} onPress={onAddShow}>
+                                        <FontAwesome name="plus" size={48} color="#6A4A36" />
                                     </TouchableOpacity>
                                 )}
-                            </View>
-                        </Shadow>
-                    );
-                })}
-            </View>
+                                </View>
+                            </Shadow>
+                            );
+                        }
+
+            return (
+                    <Shadow key={item.series.series_api_id} distance={2} startColor={'#211B17'} offset={[2, 4]}>
+                        <View style={styles.showItem}>
+                            <Image style={styles.showImage} source={{ uri: item.series.poster_url }} />
+                            {type === 'edit' && (
+                            <TouchableOpacity
+                                style={styles.removeButton}
+                                onPress={() => onRemoveShow?.(item.series.series_api_id)}
+                            >
+                                <FontAwesome name="close" size={48} color="#6A4A36" />
+                            </TouchableOpacity>
+                            )}
+                        </View>
+                    </Shadow>
+            );
+            })}
+        </View>
         </View>
     );
 }
@@ -68,6 +76,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        flexWrap: 'wrap',
     },
     showItem: {
         width: 100,
@@ -93,11 +102,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    removeIcon: {
-        color: '#6A4A36',
-        fontSize: 48,
-        fontWeight: 'bold',
-    },
     addNewItem: {
         width: 100,
         height: 120,
@@ -108,8 +112,18 @@ const styles = StyleSheet.create({
         borderColor: '#211B17',
         borderWidth: 2,
     },
-    addIcon: {
-        fontSize: 48,
-        color: '#6A4A36',
+    addNewItemButton: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    placeholderItem: {
+        width: 100,
+        height: 120,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#F5E0CE',
+        borderRadius: 8,
+        borderColor: '#211B17',
+        borderWidth: 2,
     },
 });

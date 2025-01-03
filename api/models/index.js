@@ -66,7 +66,7 @@ db.Users.hasMany(db.PreferredGenres, { foreignKey: 'user_id', as: 'preferredGenr
 db.Genres.hasMany(db.PreferredGenres, { foreignKey: 'genre_id', as: 'preferredGenres' })
 
 db.PreferredGenres.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
-db.PreferredGenres.belongsTo(db.Genres, { foreignKey: 'genre_id', as: 'genre' });
+db.PreferredGenres.belongsTo(db.Genres, { foreignKey: 'genre_id', as: 'genres' });
 
 // Users <-> FollowingUsers (following)
 db.Users.hasMany(db.FollowingUsers, { foreignKey: 'user1_id', as: 'followings' });

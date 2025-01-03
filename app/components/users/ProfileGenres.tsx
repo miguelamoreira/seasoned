@@ -4,16 +4,12 @@ import { Shadow } from 'react-native-shadow-2';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 type ProfileGenresProps = {
-  genres: string[];
+  genres: { genre: { genre_id: number; genre_name: string } }[];
   type?: 'profile' | 'edit';
   onRemoveGenre?: (genre: string) => void;
 };
 
-export default function ProfileGenres({
-  genres,
-  type = 'profile',
-  onRemoveGenre,
-}: ProfileGenresProps) {
+export default function ProfileGenres({ genres, type = 'profile', onRemoveGenre }: ProfileGenresProps) {
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
 
   const toggleGenreSelection = (genre: string) => {
@@ -28,34 +24,39 @@ export default function ProfileGenres({
     <View style={styles.container}>
       <Text style={styles.title}>Favourite genres</Text>
       <View style={styles.genresContainer}>
-        {genres.map((genre, index) => {
-          const isSelected = selectedGenres.includes(genre);
+        {genres.map((genreItem, index) => {
+          const genre = genreItem.genre; 
+          const genreName = genre.genre_name;
+          const isSelected = selectedGenres.includes(genreName);
           const isEditable = type === 'edit';
 
-            const GenreTag = (
-                <View style={[ styles.genreTag, isEditable && (isSelected ? styles.selectedTag : styles.unselectedTag),
-                    !isEditable && { backgroundColor: index % 2 === 0 ? '#EE6363' : '#82AA59'},
-                ]}
-                >
-                <TouchableOpacity style={styles.genreContent} onPress={isEditable ? () => toggleGenreSelection(genre) : undefined}>
-                    <Text style={styles.genreText}>{genre}</Text>
-                    {isEditable && isSelected && (
-                    <Ionicons name="close" size={20}></Ionicons>
-                    )}
-                </TouchableOpacity>
+          const GenreTag = (
+            <View
+              style={[
+                styles.genreTag,
+                isEditable && (isSelected ? styles.selectedTag : styles.unselectedTag),
+                !isEditable && { backgroundColor: index % 2 === 0 ? '#EE6363' : '#82AA59' },
+              ]}
+            >
+              <TouchableOpacity
+                style={styles.genreContent}
+                onPress={isEditable ? () => toggleGenreSelection(genreName) : undefined}
+              >
+                <Text style={styles.genreText}>{genreName}</Text>
+                {isEditable && isSelected && <Ionicons name="close" size={20} />}
+              </TouchableOpacity>
+            </View>
+          );
 
-                </View>
+          if (type === 'profile' || (isEditable && isSelected)) {
+            return (
+              <Shadow key={index} distance={2} startColor={'#211B17'} offset={[1, 2]} style={styles.shadowWrapper}>
+                {GenreTag}
+              </Shadow>
             );
+          }
 
-            if (type === 'profile' || (isEditable && isSelected)) {
-                return (
-                <Shadow key={index} distance={2} startColor={'#211B17'} offset={[1, 2]} style={styles.shadowWrapper}>
-                    {GenreTag}
-                </Shadow>
-                );
-            }
-
-            return <View key={index}>{GenreTag}</View>;
+          return <View key={index}>{GenreTag}</View>;
         })}
       </View>
     </View>
