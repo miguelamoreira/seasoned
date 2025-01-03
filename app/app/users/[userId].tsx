@@ -17,6 +17,7 @@ import TabBar from '@/components/TabBar';
 import { fetchBadges } from '@/api/badgesApi';
 import { findUserById } from '@/api/userApi';
 import { fetchRatingsGroupedByScore } from '@/api/reviewsApi';
+import { fetchComparisonGenres } from '@/api/genresApi';
 
 interface UserStatsData {
     episodes: number;
@@ -54,6 +55,7 @@ export default function UserProfileScreen() {
     const [badges, setBadges] = useState<any[]>([]);
     const [isViewingOtherUser, setIsViewingOtherUser] = useState(false); 
     const [ratingsGroupedByScore, setRatingsGroupedByScore] = useState<RatingsGroupedByScore>({});
+    const [genres, setGenres] = useState<any[]>([]);
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -112,10 +114,28 @@ export default function UserProfileScreen() {
             fetchRatingsGroupedByScore(userIdParam)
                 .then((ratingsData) => {
                     setRatingsGroupedByScore(ratingsData);
-                    console.log('ratingssss: ', ratingsData)
                 })
                 .catch((error) => {
                     console.error('Error fetching ratings grouped by score:', error);
+                });
+        }
+    }, [userIdParam]);
+
+    useEffect(() => {
+        if (userIdParam) {
+            fetchComparisonGenres(userIdParam)
+                .then((response) => {
+                    const fetchedGenres = response?.data;
+                    if (Array.isArray(fetchedGenres)) {
+                        const sortedGenres = fetchedGenres.sort((a: { selected: boolean; }, b: { selected: boolean; }) => {
+                            if (a.selected === b.selected) return 0;
+                            return a.selected ? -1 : 1;
+                        });
+                        setGenres(sortedGenres);
+                    } 
+                })
+                .catch((error) => {
+                    console.error('Error fetching genres:', error);
                 });
         }
     }, [userIdParam]);
@@ -126,6 +146,10 @@ export default function UserProfileScreen() {
             setUserData(updatedUserData);
             setType('profile');
         }
+    };
+
+    const handleGenresChange = (updatedGenres: { genre_id: number; genre_name: string; selected: boolean }[]) => {
+        setGenres(updatedGenres); 
     };
 
     const handleEditProfile = () => {
@@ -207,14 +231,13 @@ export default function UserProfileScreen() {
             case 'favourites':
                 return <ProfileFavourites type={type} shows={userData?.favouriteSeries ?? []} onAddShow={handleAddShow} onRemoveShow={handleRemoveShow} userId={Number(loggedInUserId)}/>;
             case 'genres':
-                return <ProfileGenres genres={userData?.preferredGenres ?? []} type={type} />;
+                return <ProfileGenres genres={genres} type={type} userId={loggedInUserId ?? -1} onGenresChange={handleGenresChange}/>;
             case 'badges':
                 return <ProfileBadges badges={badges} type={type} userId={Number(userIdParam) ?? -1} currentUserId={loggedInUserId ?? -1} badgesVisibility={userData?.badgesVisibility ?? true}/>;
             case 'ratings':
                 const ratingsArray = Object.values(ratingsGroupedByScore);
                 const totalRatings = ratingsArray.reduce((acc, curr) => acc + curr, 0);
                 const averageRating = ratingsArray.length > 0 ? totalRatings / ratingsArray.length : 0;
-    
                 return <RatingDisplay type={type} ratings={ratingsArray} average={averageRating} />;
             case 'userShows':
                 return <ProfileOptions title="User's Shows" options={userShowsOptions} type={type} />;

@@ -54,6 +54,46 @@ exports.findAllPreferredGenres = async (req, res) => {
     }
 }
 
+exports.findGenresComparison = async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const allGenres = await Genre.findAll();
+
+        const preferredGenres = await PreferredGenres.findAll({
+            where: { user_id: userId },
+            include: [
+                {
+                    model: Genre,
+                    as: 'genres',
+                    attributes: ['genre_id', 'genre_name']
+                }
+            ]
+        })
+
+        const preferredGenresIds = preferredGenres.map((preferredGenre) => {
+            return preferredGenre.genres ? preferredGenre.genres.genre_id : null;
+        }).filter((genreId) => genreId !== null);
+
+        const preferredGenresSelected = allGenres.map((genre) => {
+            return {
+                ...genre.dataValues,
+                selected: preferredGenresIds.includes(genre.genre_id)
+            }
+        })
+
+        return res.status(200).json({
+            message: 'Genres comparison retrieved successfully',
+            data: preferredGenresSelected
+        })
+    } catch (error) {
+        console.error('Error fetching genres for user:', error);
+        return res.status(500).json({
+            message: 'Something went wrong. Please try again later.'
+        });
+    }
+};
+
 exports.addPreferredGenre = async (req, res) => {
     try {
         const genreExists = await Genre.findOne({ where: { genre_id: req.body.genre_id }})

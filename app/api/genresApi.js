@@ -13,13 +13,10 @@ export const fetchGenres = async () => {
     }
 }
 
-export const fetchPreferredGenres = async (userId) => {
+export const fetchComparisonGenres = async (userId) => {
     try {
         const response = await apiClient.get(`/users/${userId}/preferredGenres`);
-        return response.data.data.map((genre) => ({
-            id: genre.genre_id,
-            name: genre.genre_name,
-        }));
+        return response.data;
     } catch (error) {
         console.error('Failed to fetch preferred genres:', error.response ? error.response.data : error.message);
         throw error;

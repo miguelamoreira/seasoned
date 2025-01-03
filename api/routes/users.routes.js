@@ -48,7 +48,7 @@ router.route("/:id/favourites")
     .delete(favouriteSeriesController.deleteFavouriteSeries)
 
 router.route("/:id/preferredGenres")
-    .get(genresController.findAllPreferredGenres)
+    .get(genresController.findGenresComparison)
     .post(genresController.addPreferredGenre)
     .delete(genresController.deletePreferredGenre)
 
