@@ -166,13 +166,13 @@ const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
         backgroundColor: '#FFF4E0',
-        paddingHorizontal: 16,
         paddingVertical: 42,
         color: '#211B17'
     },
     headingContainer: {
         marginTop: 20,
         alignItems: 'center',
+        paddingHorizontal: 16,
     },
     heading: {
         fontFamily: 'DMSerifText',
@@ -182,6 +182,7 @@ const styles = StyleSheet.create({
     },
     formContainer: {
         marginTop: 40,
+        paddingHorizontal: 16,
     },
     inputGroup: {
         marginBottom: 20,

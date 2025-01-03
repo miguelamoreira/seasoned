@@ -31,6 +31,9 @@ export const addFollowing = async (user1_id, user2_id) => {
 };
 
 export const removeRelationship = async (user1_id, user2_id, actionType) => {
+    console.log('user1_id:', user1_id); // Log user1_id
+    console.log('user2_id:', user2_id);
+
     try {
         const { data } = await apiClient.delete(`/users/${user1_id}/relationships`, {
             data: { user2_id, actionType }

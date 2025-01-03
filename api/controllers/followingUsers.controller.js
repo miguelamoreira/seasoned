@@ -33,9 +33,10 @@ exports.getFollowingUsers = async (req, res) => {
 
 exports.addFollowing = async (req, res) => {
     const user1_id = req.params.id; 
-    const user2_id = req.body;
+    const { user2_id } = req.body;
 
     try {
+        
         if (user1_id === user2_id) {
             return res.status(400).json({
                 message: 'A user cannot follow themselves'

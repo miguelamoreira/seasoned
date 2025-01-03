@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import OptionsTab from '@/components/OptionsTab';
 import TabMenu from '@/components/TabMenu';
@@ -11,6 +12,7 @@ import { getFollowingUsers, getFollowers } from '@/api/relationshipsApi'
 
 export default function FollowersFollowingScreen() {
     const { userId, activeTab: initialActiveTab } = useLocalSearchParams<{ userId: string; activeTab: string }>();
+    
     const userIdString = Number(userId);
     const router = useRouter();
 
@@ -22,6 +24,7 @@ export default function FollowersFollowingScreen() {
     );
     const [followersData, setFollowersData] = useState<User[]>([]);
     const [followingData, setFollowingData] = useState<User[]>([]);
+    const [currentUser, setCurrentUser] = useState<number | null>(null);
 
     const handleSearchFocus = () => setIsFocused(true);
     const handleSearchBlur = () => setIsFocused(false);
@@ -48,6 +51,15 @@ export default function FollowersFollowingScreen() {
             fetchFollowing();
         }
     }, [activeTab]);
+
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            const loggedInUserId = await AsyncStorage.getItem('userId');
+            setCurrentUser(loggedInUserId ? Number(loggedInUserId) : null);
+        };
+
+        fetchCurrentUser();
+    }, []);
 
     useEffect(() => {
         const data = activeTab === 'Followers' ? followersData : followingData;
@@ -79,7 +91,7 @@ export default function FollowersFollowingScreen() {
                 {activeTab === 'Followers' && filteredData.length > 0 ? (
                     <UsersDisplay
                         users={filteredData}
-                        currentUser={userId} 
+                        currentUser={currentUser?.toString() || ''} 
                         type="followers"
                     />
                 ) : activeTab === 'Followers' && filteredData.length === 0 ? (
@@ -89,7 +101,7 @@ export default function FollowersFollowingScreen() {
                 {activeTab === 'Following' && filteredData.length > 0 ? (
                     <UsersDisplay
                         users={filteredData}
-                        currentUser={userId} 
+                        currentUser={currentUser?.toString() || ''}
                         type="following"
                     />
                 ) : activeTab === 'Following' && filteredData.length === 0 ? (
@@ -104,20 +116,22 @@ const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
         backgroundColor: '#FFF4E0',
-        paddingHorizontal: 16,
         paddingTop: 42,
         paddingBottom: 60,
     },
     searchContainer: {
         marginVertical: 16,
+        paddingHorizontal: 16,
     },
     listContainer: {
         flex: 1,
+        paddingHorizontal: 16,
     },
     noDataText: {
         fontSize: 16,
         color: '#888',
         textAlign: 'center',
         marginTop: 20,
+        paddingHorizontal: 16,
     },
 });
