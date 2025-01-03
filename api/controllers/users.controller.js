@@ -190,7 +190,8 @@ exports.findOne = async (req, res) => {
                 weeks: Math.floor(user.total_time_spent / 7),
                 days: Math.floor(user.total_time_spent / 24),
                 thisYearEpisodes: viewingHistory.filter(history => new Date(history.watch_date).getFullYear() === new Date().getFullYear()).length
-            }
+            },
+            badgesVisibility: user.badges_visibility
         };
 
         return res.status(200).json({

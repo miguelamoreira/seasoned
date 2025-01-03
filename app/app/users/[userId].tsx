@@ -35,6 +35,7 @@ interface UserProfile {
     statsData: UserStatsData;
     favouriteSeries: any[];
     preferredGenres: any[];
+    badgesVisibility: boolean;
 }
 
 interface RatingsGroupedByScore {
@@ -208,7 +209,7 @@ export default function UserProfileScreen() {
             case 'genres':
                 return <ProfileGenres genres={userData?.preferredGenres ?? []} type={type} />;
             case 'badges':
-                return <ProfileBadges badges={badges} type={type} userId={Number(userIdParam) ?? -1} currentUserId={loggedInUserId ?? -1}/>;
+                return <ProfileBadges badges={badges} type={type} userId={Number(userIdParam) ?? -1} currentUserId={loggedInUserId ?? -1} badgesVisibility={userData?.badgesVisibility ?? true}/>;
             case 'ratings':
                 const ratingsArray = Object.values(ratingsGroupedByScore);
                 const totalRatings = ratingsArray.reduce((acc, curr) => acc + curr, 0);

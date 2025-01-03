@@ -19,20 +19,16 @@ type BadgesDisplayProps = {
     type: 'profile' | 'edit';
     userId: number;
     currentUserId: number;
+    badgesVisibility: boolean;
 };
 
-export default function ProfileBadges({ badges, type, userId, currentUserId }: BadgesDisplayProps) {
+export default function ProfileBadges({ badges, type, userId, currentUserId, badgesVisibility }: BadgesDisplayProps) {
     const router = useRouter();
-    const [visibility, setVisibility] = useState(true); 
-    const [filteredBadges, setFilteredBadges] = useState(badges);
+    const [visibility, setVisibility] = useState(badgesVisibility);
 
     useEffect(() => {
-        if (type === 'profile' && userId !== currentUserId) {
-            setFilteredBadges(visibility ? badges : badges.filter((badge) => badge.earned));
-        } else {
-            setFilteredBadges(badges);
-        }
-    }, [visibility, badges, type, userId, currentUserId]);
+        setVisibility(badgesVisibility);
+    }, [badgesVisibility]);
 
     const handleToggleVisibility = async (value: boolean) => {
         setVisibility(value);
@@ -70,14 +66,14 @@ export default function ProfileBadges({ badges, type, userId, currentUserId }: B
                     </TouchableOpacity>
                 )}
             </View>
-            {visibility && ( 
+            {visibility || userId === currentUserId && (
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.badgeScrollView}>
-                    {filteredBadges.map((badge, index) => (
+                    {badges.map((badge, index) => (
                         <View
                             key={index}
                             style={[
                                 styles.badgeContainer,
-                                { opacity: visibility || userId === currentUserId ? 1 : 0.5 },
+                                { opacity: badge.earned ? 1 : 0.5 },
                                 index === 0 && { marginLeft: 16 },
                             ]}
                         >
