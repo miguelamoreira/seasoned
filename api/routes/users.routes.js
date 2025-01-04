@@ -23,6 +23,7 @@ router.route("/")
 router.route("/:id")
     .get(usersController.findOne)
     .patch(usersController.updateData)
+    .delete(usersController.deleteUser)
 
 router.route("/:id/avatar")
     .patch(upload.single('avatar'), usersController.updateAvatar)

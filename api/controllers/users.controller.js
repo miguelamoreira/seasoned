@@ -179,6 +179,7 @@ exports.findOne = async (req, res) => {
         const formattedUser = {
             id: user.user_id,
             username: user.name,
+            email: user.email,
             avatar: user.avatar,
             followers: user.followers.length,
             following: user.followings.length,
@@ -348,6 +349,31 @@ exports.deleteAvatar = async (req, res) => {
         return res.status(200).json({
             message: "Avatar removed successfully",
             data: user.avatar
+        })
+    } catch (error) {
+        console.error('error: ', error);
+        return res.status(500).json({
+            message: "Something went wrong. Please try again later"
+        })
+    }
+}
+
+exports.deleteUser = async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const user = await Users.findByPk(userId);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            })
+        }
+
+        await Users.destroy({ where: { user_id: userId } });
+
+        return res.status(200).json({
+            message: "User deleted successfully"
         })
     } catch (error) {
         console.error('error: ', error);
