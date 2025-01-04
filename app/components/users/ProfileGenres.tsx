@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 import { addPreferredGenre, deletePreferredGenre } from '@/api/genresApi'; 
 
@@ -73,7 +73,7 @@ export default function ProfileGenres({ genres, userId, type = 'profile', onGenr
                 onPress={isEditable ? () => toggleGenreSelection(genre_name, genre_id) : undefined}
               >
                 <Text style={styles.genreText}>{genre_name}</Text>
-                {isEditable && isSelected && <Ionicons name="close" size={20} />}
+                {isEditable && isSelected && <FontAwesome name="close" size={20} />}
               </TouchableOpacity>
             </View>
           );
