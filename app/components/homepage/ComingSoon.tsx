@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { Shadow } from 'react-native-shadow-2';
+
+const windowWidth = Dimensions.get('window').width;
 
 type CardProps = {
     imageUri: string;
@@ -51,7 +53,7 @@ const styles = StyleSheet.create({
     comingContainer: {
         marginTop: 20,
         flex: 1,
-        width: 400,
+        width: windowWidth - 16,
         height: 230
     },
     heading: {

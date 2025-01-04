@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
@@ -9,6 +9,8 @@ interface OptionsButtonProps {
     onPress: () => void; 
     navigateTo?: string; 
 }
+
+const windowWidth = Dimensions.get('window').width;
 
 export default function OptionsButton({ option, onPress, navigateTo }: OptionsButtonProps) {
     const router = useRouter();
@@ -82,7 +84,7 @@ export default function OptionsButton({ option, onPress, navigateTo }: OptionsBu
 
     return (
         <View>
-        <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]} style={{ width: 378 }}>
+        <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]} style={{ width: windowWidth - 32 }}>
             <TouchableOpacity style={styles.button} activeOpacity={0.9} onPress={handlePress}>
             <View style={styles.actionText}>
                 {renderIconAndText()}
@@ -105,7 +107,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 2,
         borderColor: '#211B17',
-        width: 378,
+        width: windowWidth - 32,
     },
     actionText: {
         flexDirection: 'row',

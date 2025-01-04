@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Image, StyleSheet, SafeAreaView, View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { Image, StyleSheet, SafeAreaView, View, Text, TouchableOpacity, TextInput, Dimensions } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -7,6 +7,8 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import OptionsTab from '@/components/OptionsTab';
 import { fetchGenres } from '@/api/genresApi'
 import { createUser } from '@/api/authApi';
+
+const windowWidth = Dimensions.get('window').width;
 
 export default function RegisterScreen() {
     const [username, setUsername] = useState('');
@@ -193,7 +195,7 @@ const styles = StyleSheet.create({
     },
     input: {
         height: 48,
-        width: 378,
+        width: windowWidth - 32,
         paddingHorizontal: 12,
         backgroundColor: '#403127',
         borderRadius: 8,

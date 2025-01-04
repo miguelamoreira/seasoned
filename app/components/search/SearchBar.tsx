@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, Dimensions } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+
+const windowWidth = Dimensions.get('window').width;
 
 type SearchBarProps = {
     onFocus: () => void;
@@ -44,7 +46,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         borderRadius: 8,
         height: 48,
-        width: 378,
+        width: windowWidth - 32,
     },
     searchIcon: {
         marginHorizontal: 12,

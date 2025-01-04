@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, StyleSheet, SafeAreaView, View, Text, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native'; 
+import { Image, StyleSheet, SafeAreaView, View, Text, TouchableOpacity, TextInput, Dimensions, KeyboardAvoidingView, Platform, ScrollView } from 'react-native'; 
 import { Shadow } from 'react-native-shadow-2';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
@@ -7,10 +7,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import OptionsTab from '@/components/OptionsTab';
 import { login } from '@/api/authApi'
 
+const windowWidth = Dimensions.get('window').width;
+
 export default function SignInScreen() {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState("");
 
     const handleLogin = async () => {
         try {
@@ -22,6 +25,7 @@ export default function SignInScreen() {
                 router.push('/homepage');
             } 
         } catch (error) {
+            setErrorMessage("Failed to login. Please try again")
             console.log(error);
         }
     };    
@@ -50,6 +54,8 @@ export default function SignInScreen() {
                             </Shadow>
                         </View>
                     </View>
+
+                    {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
                     <View style={styles.optionsContainer}>
                         <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
@@ -98,7 +104,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     input: {
-        width: 378,
+        width: windowWidth - 32,
         height: 48,
         paddingHorizontal: 12,
         backgroundColor: '#403127',
@@ -135,5 +141,12 @@ const styles = StyleSheet.create({
     },
     boldText: {
         fontWeight: '700',
+    },
+    errorText: {
+        color: '#EE6363', 
+        fontSize: 14,
+        fontFamily: 'Arimo',
+        marginTop: 20,
+        textAlign: 'center',
     },
 });
