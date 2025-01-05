@@ -88,6 +88,57 @@ export default function SeriesDisplay({ series, type, userId }: SeriesProps) {
                     </View>
                 </View>
             )}
+            {type === 'progress' && (
+                <View style={styles.seriesContainer}> 
+                    <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
+                        <Image source={{ uri: item.image }} style={styles.seriesImage} />
+                    </Shadow>
+                    <View style={styles.seriesDetails}>
+                        <Text style={styles.seriesTitle}>
+                            {item.name} <Text style={styles.seriesYear}>{item.year}</Text>
+                        </Text>
+                        <Text style={styles.seriesSeasons}>
+                            {item.seasons > 1 ? `${item.seasons} seasons` : `${item.seasons} season`}
+                        </Text>
+                        <View style={styles.followingRow}>
+                            <Text style={styles.seriesCreator}>Created by <Text style={styles.seriesCreatorHighlight}>{item.creator}</Text></Text>
+                            {item.progress !== undefined && (
+                                <View style={styles.progressBarContainer}>
+                                    <Progress.Bar 
+                                        progress={item.progress / 100} 
+                                        width={240} 
+                                        color="#82AA59" 
+                                        borderColor="#352A23" 
+                                        unfilledColor="#352A23" 
+                                    />
+                                    <Text style={styles.progressText}>{`${Math.round(item.progress)}%`}</Text> 
+                                </View>
+                            )}
+                        </View>
+                    </View>
+                </View>
+            )}
+            {type === 'unreleased' && (
+                <View style={styles.seriesContainer}> 
+                    <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
+                        <Image source={{ uri: item.image }} style={styles.seriesImage} />
+                    </Shadow>
+                    <View style={styles.seriesDetails}>
+                        <Text style={styles.seriesTitle}>
+                            {item.name} <Text style={styles.seriesYear}>{item.year}</Text>
+                        </Text>
+                        <Text style={styles.seriesSeasons}>
+                            {item.seasons > 1 ? `${item.seasons} seasons` : `${item.seasons} season`}
+                        </Text>
+                        <View style={[styles.bottomRow, { marginTop: 56 }]}>
+                            <Text style={styles.date}>{item.date}</Text>
+                            <View style={styles.ratingContainer}>
+                                <FontAwesome name="bookmark" size={20} color="#82AA59"></FontAwesome>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            )}
             {type === 'add' && !isSeriesFavourite(item.series_api_id) && (
                 <View style={styles.seriesContainer}>
                     <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
