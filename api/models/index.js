@@ -44,6 +44,10 @@ db.FavouriteSeries = require("./FavouriteSeries.model.js")(sequelize, DataTypes)
 db.FollowingUsers = require("./FollowingUsers.model.js")(sequelize, DataTypes);
 db.ViewingHistory = require("./ViewingHistory.model.js")(sequelize, DataTypes);
 db.Reviews = require("./Reviews.model.js")(sequelize, DataTypes);
+db.FollowedSeries = require("./FollowedSeries.model.js")(sequelize, DataTypes);
+db.Watchlist = require("./Watchlist.model.js")(sequelize, DataTypes);
+db.DroppedSeries = require("./DroppedSeries.model.js")(sequelize, DataTypes);
+db.WatchedSeries = require("./WatchedSeries.model.js")(sequelize, DataTypes);
 
 // Users < EarnedBadges > Badges
 db.Users.hasMany(db.EarnedBadges, { foreignKey: 'user_id', as: 'earnedBadges' });
@@ -84,5 +88,33 @@ db.ViewingHistory.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
 // Users <-> Reviews
 db.Users.hasMany(db.Reviews, { foreignKey: 'user_id', as: 'reviews', onDelete: 'CASCADE' });
 db.Reviews.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
+
+// Users < FollowedSeries > Series
+db.Users.hasMany(db.FollowedSeries, { foreignKey: 'user_id', as: 'followedSeries' });
+db.Series.hasMany(db.FollowedSeries, { foreignKey: 'series_api_id', as: 'followedSeries' });
+
+db.FollowedSeries.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
+db.FollowedSeries.belongsTo(db.Series, { foreignKey: 'series_api_id', as: 'series' });
+
+// Users < Watchlist > Series
+db.Users.hasMany(db.Watchlist, { foreignKey: 'user_id', as: 'watchlist' });
+db.Series.hasMany(db.Watchlist, { foreignKey: 'series_api_id', as: 'watchlist' });
+
+db.Watchlist.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
+db.Watchlist.belongsTo(db.Series, { foreignKey: 'series_api_id', as: 'series' });
+
+// Users < DroppedSeries > Series
+db.Users.hasMany(db.DroppedSeries, { foreignKey: 'user_id', as: 'droppedSeries' });
+db.Series.hasMany(db.DroppedSeries, { foreignKey: 'series_api_id', as: 'droppedSeries' });
+
+db.DroppedSeries.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
+db.DroppedSeries.belongsTo(db.Series, { foreignKey: 'series_api_id', as: 'series' });
+
+// Users < WatchedSeries > Series
+db.Users.hasMany(db.WatchedSeries, { foreignKey: 'user_id', as: 'watchedSeries' });
+db.Series.hasMany(db.WatchedSeries, { foreignKey: 'series_api_id', as: 'watchedSeries' });
+
+db.WatchedSeries.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
+db.WatchedSeries.belongsTo(db.Series, { foreignKey: 'series_api_id', as: 'series' });
 
 module.exports = db;
