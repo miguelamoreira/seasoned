@@ -26,6 +26,13 @@ module.exports = (sequelize, DataTypes) => {
         poster_url: { 
             type: DataTypes.TEXT 
         },
+        creator: {
+            type: DataTypes.STRING
+        },
+        released: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true,
+        }
     },{
         timestamps: false, 
         freezeTableName: true,

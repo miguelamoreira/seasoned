@@ -23,7 +23,7 @@ exports.getFollowedSeries = async (req, res) => {
                 {
                     model: Series,
                     as: 'series',
-                    attributes: [ 'series_api_id', 'title', 'description', 'release_date', 'genre', 'total_seasons', 'average_rating', 'poster_url'],
+                    attributes: [ 'series_api_id', 'title', 'description', 'release_date', 'genre', 'total_seasons', 'average_rating', 'poster_url', 'creator'],
                 },
             ],
         });
@@ -72,6 +72,14 @@ exports.addFollowedSeries = async (req, res) => {
 
             const totalSeasons = apiData._embedded?.seasons.length || 0;
 
+            const creatorResponse = await axios.get(`https://api.tvmaze.com/shows/${seriesId}?embed=crew`);
+            
+            const creators = creatorResponse.data._embedded.crew
+                .filter(member => member.type === 'Creator')
+                .map(creator => creator.person.name);
+            
+            const creatorNames = creators.length ? creators.join(', ') : 'Unknown';
+            
             series = await Series.create({
                 series_api_id: apiData.id,
                 title: apiData.name,
@@ -81,6 +89,7 @@ exports.addFollowedSeries = async (req, res) => {
                 total_seasons: totalSeasons,
                 average_rating: apiData.rating?.average || null,
                 poster_url: apiData.image?.original || null,
+                creator: creatorNames
             });
         }
 
