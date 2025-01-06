@@ -86,7 +86,7 @@ exports.getReviewById = async (req, res) => {
                 {
                     model: Series,
                     as: 'series', 
-                    attributes: ['title', 'description', 'poster_url', 'average_rating']
+                    attributes: ['title', 'description', 'poster_url', 'average_rating', 'release_date']
                 },
                 reviewId ? {
                     model: Episodes,
@@ -152,7 +152,7 @@ exports.getReviewsByUserId = async (req, res) => {
                 {
                     model: Series,
                     as: 'series',
-                    attributes: ['title', 'description', 'poster_url', 'average_rating']
+                    attributes: ['title', 'description', 'poster_url', 'average_rating', 'release_date']
                 },
                 {
                     model: ReviewComments,
@@ -199,7 +199,7 @@ exports.getReviewsBySeriesId = async (req, res) => {
                 {
                     model: Series,
                     as: 'series',
-                    attributes: ['title', 'description', 'poster_url', 'average_rating']
+                    attributes: ['title', 'description', 'poster_url', 'average_rating', 'release_date']
                 },
                 {
                     model: ReviewComments,

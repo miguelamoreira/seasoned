@@ -30,9 +30,14 @@ exports.getLikedReviews = async (req, res) => {
                     attributes: ['review_id', 'comment', 'score', 'series_api_id', 'episode_api_id', 'user_id'],
                     include: [
                         {
+                            model: Users,
+                            as: 'user',  
+                            attributes: ['user_id', 'name', 'avatar'], 
+                        },
+                        {
                             model: Series,
                             as: 'series',
-                            attributes: ['title', 'description', 'poster_url', 'average_rating'],
+                            attributes: ['title', 'description', 'poster_url', 'average_rating', 'release_date'],
                         },
                         {
                             model: Episodes,

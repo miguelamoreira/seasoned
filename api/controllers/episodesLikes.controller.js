@@ -6,6 +6,7 @@ const seriesUtil = require("../utils/series.js")
 
 const Users = db.Users;
 const Series = db.Series;
+const Seasons = db.Seasons;
 const Episodes = db.Episodes;
 const EpisodeLikes = db.EpisodeLikes;
 
@@ -29,9 +30,16 @@ exports.getLikedEpisodes = async (req, res) => {
                     attributes: ['episode_api_id', 'episode_title', 'season_id', 'episode_number', 'air_date', 'poster_url'],
                     include: [
                         {
-                            model: Series,
-                            as: 'series',
-                            attributes: ['series_api_id', 'title', 'description', 'poster_url', 'average_rating', 'creator', 'release_date'],
+                            model: Seasons,
+                            as: 'seasons',
+                            attributes: ['season_id', 'season_number'],
+                            include: [
+                                {
+                                    model: Series,
+                                    as: 'series',
+                                    attributes: ['series_api_id', 'title', 'description', 'poster_url', 'average_rating', 'creator', 'release_date'],
+                                },
+                            ],
                         },
                     ],
                 },
