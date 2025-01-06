@@ -47,6 +47,8 @@ db.FollowedSeries = require("./FollowedSeries.model.js")(sequelize, DataTypes);
 db.Watchlist = require("./Watchlist.model.js")(sequelize, DataTypes);
 db.DroppedSeries = require("./DroppedSeries.model.js")(sequelize, DataTypes);
 db.WatchedSeries = require("./WatchedSeries.model.js")(sequelize, DataTypes);
+db.SeriesLikes = require("./SeriesLikes.model.js")(sequelize, DataTypes);
+db.EpisodeLikes = require("./EpisodeLikes.model.js")(sequelize, DataTypes);
 
 // Users < EarnedBadges > Badges
 db.Users.hasMany(db.EarnedBadges, { foreignKey: 'user_id', as: 'earnedBadges' });
@@ -139,5 +141,21 @@ db.Series.hasMany(db.WatchedSeries, { foreignKey: 'series_api_id', as: 'watchedS
 
 db.WatchedSeries.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
 db.WatchedSeries.belongsTo(db.Series, { foreignKey: 'series_api_id', as: 'series' });
+
+// Series <-> SeriesLikes
+db.Series.hasMany(db.SeriesLikes, { foreignKey: 'series_api_id', as: 'seriesLikes' });
+db.SeriesLikes.belongsTo(db.Series, { foreignKey: 'series_api_id', as: 'series' });
+
+// Episodes <-> EpisodeLikes
+db.Episodes.hasMany(db.EpisodeLikes, { foreignKey: 'episode_api_id', as: 'episodesLikes' });
+db.EpisodeLikes.belongsTo(db.Episodes, { foreignKey: 'episode_api_id', as: 'episodes' });
+
+// Series <-> Seasons
+db.Series.hasMany(db.Seasons, { foreignKey: 'series_api_id', as: 'seasons', onDelete: 'CASCADE' });
+db.Seasons.belongsTo(db.Series, { foreignKey: 'series_api_id', as: 'series' })
+
+// Seasons <-> Episodes
+db.Seasons.hasMany(db.Episodes, { foreignKey: 'season_id', as: 'episodes', onDelete: 'CASCADE' });
+db.Episodes.belongsTo(db.Seasons, { foreignKey: 'season_id', as: 'seasons' })
 
 module.exports = db;

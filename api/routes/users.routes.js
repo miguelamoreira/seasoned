@@ -17,6 +17,9 @@ const followedSeriesController = require("../controllers/followedSeries.controll
 const droppedSeriesController = require("../controllers/droppedSeries.controller")
 const watchedSeriesController = require("../controllers/watchedSeries.controller")
 const watchlistController = require("../controllers/watchlist.controller")
+const episodeLikesController = require("../controllers/episodesLikes.controller")
+const seriesLikesController = require("../controllers/seriesLikes.controller")
+const reviewLikesController = require("../controllers/reviewLike.controller")
 
 router.route("/login")
     .post(usersController.login);
@@ -89,5 +92,20 @@ router.route("/:id/watchlist")
 
 router.route("/:id/reviews")
     .get(reviewsController.getReviewsByUserId)
+
+router.route("/:id/likes/episodes")
+    .get(episodeLikesController.getLikedEpisodes)
+    .post(episodeLikesController.likeEpisodes)
+    .delete(episodeLikesController.dislikeEpisodes)
+
+router.route("/:id/likes/series")
+    .get(seriesLikesController.getLikedSeries)
+    .post(seriesLikesController.likeSeries)
+    .delete(seriesLikesController.dislikeSeries)
+
+router.route("/:id/likes/reviews")
+    .get(reviewLikesController.getLikedReviews)
+    .post(reviewLikesController.likeReviews)
+    .delete(reviewLikesController.dislikeReviews)
     
 module.exports = router;

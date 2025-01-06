@@ -1,5 +1,8 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
+
+const windowHeight = Dimensions.get('window').height;
+const windowWidth = Dimensions.get('window').width;
 
 type EmptyStateType =
     | 'recentSearches'
@@ -59,6 +62,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 16,
+        position: 'absolute',
+        height: windowHeight / 1.5,
+        width: windowWidth,
     },
     image: {
         width: 325,

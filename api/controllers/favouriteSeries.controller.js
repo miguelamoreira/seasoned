@@ -2,6 +2,8 @@ const db = require("../models/index.js");
 const { ValidationError, Sequelize, where } = require("sequelize");
 const axios = require("axios");
 
+const seriesUtil = require("../utils/series.js")
+
 const Users = db.Users;
 const Series = db.Series;
 const FavouriteSeries = db.FavouriteSeries;
@@ -48,26 +50,9 @@ exports.addFavouriteSeries = async (req, res) => {
     }
 
     try {
-        let series = await Series.findOne({ where: { series_api_id: seriesId } });
-
+        const series = await Series.findOne({ where: { series_api_id: seriesId } });
         if (!series) {
-            const apiResponse = await axios.get(`https://api.tvmaze.com/shows/${seriesId}?embed=seasons`);
-            const apiData = apiResponse.data;
-            console.log('API DATA: ', apiData);
-            
-
-            const totalSeasons = apiData._embedded?.seasons.length || 0;
-
-            series = await Series.create({
-                series_api_id: apiData.id,
-                title: apiData.name,
-                description: apiData.summary?.replace(/<\/?[^>]+(>|$)/g, ""),
-                release_date: apiData.premiered,
-                genre: apiData.genres.join(', '), 
-                total_seasons: totalSeasons,
-                average_rating: apiData.rating?.average || null,
-                poster_url: apiData.image?.original || null,
-            });
+            await seriesUtil.addSeriesWithSeasonsAndEpisodes(seriesId);
         }
 
         const favouriteCount = await FavouriteSeries.count({ where: { user_id: userId } });

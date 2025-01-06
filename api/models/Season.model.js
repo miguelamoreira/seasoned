@@ -3,7 +3,6 @@ module.exports = (sequelize, DataTypes) => {
         season_id: { 
             type: DataTypes.INTEGER, 
             primaryKey: true,
-            autoIncrement: true, 
         },
         series_api_id: { 
             type: DataTypes.INTEGER, 
@@ -13,8 +12,9 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER, 
             allowNull: false 
         },
-        season_title: { 
-            type: DataTypes.STRING, 
+        episode_ids: { 
+            type: DataTypes.TEXT, 
+            allowNull: true 
         },
     },{
         timestamps: false, 
