@@ -26,6 +26,7 @@ router.route("/login")
 
 router.route("/")
     .post(usersController.create)
+    .get(usersController.findAll)
 
 router.route("/:id")
     .get(usersController.findOne)

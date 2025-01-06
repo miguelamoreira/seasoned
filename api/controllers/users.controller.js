@@ -100,6 +100,24 @@ exports.create = async (req, res) => {
     }
 }
 
+exports.findAll = async (req, res) => {
+    try {
+        const users = await Users.findAll({
+            attributes: ['user_id', 'name', 'avatar']
+        })
+
+        return res.status(200).json({
+            message: 'Users retrieved successfully',
+            data: users,
+        })
+    } catch (error) {
+        console.error('Error fetching users: ', error);
+        return res.status(500).json({
+            message: 'Something went wrong. Please try again later.'
+        });
+    }
+}
+
 exports.findOne = async (req, res) => {
     const userId = req.params.id;
 

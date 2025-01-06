@@ -3,6 +3,7 @@ const router = express.Router();
 require("dotenv").config();
 
 const reviewsController = require("../controllers/reviews.controller");
+const reviewCommentsController = require("../controllers/reviewComments.controller")
 
 router.route("/")
     .get(reviewsController.getReviews)
@@ -10,5 +11,9 @@ router.route("/")
 
 router.route("/:id")
     .get(reviewsController.getReviewById)
+
+router.route("/:id/comments")
+    .get(reviewCommentsController.getCommentsByReviewId)
+    .post(reviewCommentsController.addCommentToReview)
 
 module.exports = router;
