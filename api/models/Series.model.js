@@ -29,10 +29,6 @@ module.exports = (sequelize, DataTypes) => {
         creator: {
             type: DataTypes.STRING
         },
-        released: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true,
-        }
     },{
         timestamps: false, 
         freezeTableName: true,

@@ -18,5 +18,8 @@ app.get("/", function (req, res) {
 app.use("/users", require("./routes/users.routes.js"));
 app.use("/genres", require("./routes/genres.routes.js"));
 app.use("/badges", require("./routes/badges.routes.js"));
+app.use("/reviews", require("./routes/reviews.routes.js"))
+app.use("/series", require("./routes/series.routes.js"))
+app.use("/episodes", require("./routes/episodes.routes.js"))
 
 app.listen(port, () => console.log(`App listening at http://${host}:${port}/`));

@@ -20,6 +20,9 @@ module.exports = (sequelize, DataTypes) => {
         air_date: { 
             type: DataTypes.DATE 
         },
+        poster_url: { 
+            type: DataTypes.TEXT 
+        },
     },{
         timestamps: false, 
         freezeTableName: true,

@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         episode_api_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
         },
         score: {
             type: DataTypes.INTEGER,

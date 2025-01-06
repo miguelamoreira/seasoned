@@ -37,7 +37,6 @@ db.ReviewComments = require("./ReviewComment.model.js")(sequelize, DataTypes);
 db.ReviewLikes = require("./ReviewLike.model.js")(sequelize, DataTypes);
 db.Seasons = require("./Season.model.js")(sequelize, DataTypes);
 db.Series = require("./Series.model.js")(sequelize, DataTypes);
-db.SeriesReviews = require("./SeriesReview.model.js")(sequelize, DataTypes);
 db.Genres = require("./Genre.model.js")(sequelize, DataTypes);
 db.PreferredGenres = require("./PreferredGenre.model.js")(sequelize, DataTypes);
 db.FavouriteSeries = require("./FavouriteSeries.model.js")(sequelize, DataTypes);
@@ -88,6 +87,30 @@ db.ViewingHistory.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
 // Users <-> Reviews
 db.Users.hasMany(db.Reviews, { foreignKey: 'user_id', as: 'reviews', onDelete: 'CASCADE' });
 db.Reviews.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' });
+
+// Users <-> ReviewComments
+db.Users.hasMany(db.ReviewComments, { foreignKey: 'user_id', as: 'comments' });
+db.ReviewComments.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' })
+
+// Users <-> ReviewLikes
+db.Users.hasMany(db.ReviewLikes, { foreignKey: 'user_id', as: 'likes' });
+db.ReviewLikes.belongsTo(db.Users, { foreignKey: 'user_id', as: 'user' })
+
+// Series <-> Reviews
+db.Series.hasMany(db.Reviews, { foreignKey: 'series_api_id', as: 'reviews' });
+db.Reviews.belongsTo(db.Series, { foreignKey: 'series_api_id', as: 'series' });
+
+// Episodes <-> Reviews
+db.Episodes.hasMany(db.Reviews, { foreignKey: 'episode_api_id', as: 'reviews' });
+db.Reviews.belongsTo(db.Episodes, { foreignKey: 'episode_api_id', as: 'episodes' });
+
+// Reviews <-> ReviewComments
+db.Reviews.hasMany(db.ReviewComments, { foreignKey: 'review_id', as: 'comments' });
+db.ReviewComments.belongsTo(db.Reviews, { foreignKey: 'review_id', as: 'reviews' })
+
+// Reviews <-> ReviewLikes
+db.Reviews.hasMany(db.ReviewLikes, { foreignKey: 'review_id', as: 'likes' });
+db.ReviewLikes.belongsTo(db.Reviews, { foreignKey: 'review_id', as: 'reviews' })
 
 // Users < FollowedSeries > Series
 db.Users.hasMany(db.FollowedSeries, { foreignKey: 'user_id', as: 'followedSeries' });
