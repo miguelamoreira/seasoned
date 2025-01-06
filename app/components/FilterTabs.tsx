@@ -15,7 +15,7 @@ type FilterTabsProps = {
   allowNoneSelected?: boolean; 
 };
 
-function FilterTabs(props: FilterTabsProps) {
+export default function FilterTabs(props: FilterTabsProps) {
   const { tabs, onTabChange, initialTab = null, allowNoneSelected = true } = props;
 
   const [selectedTab, setSelectedTab] = useState<TabKey>(initialTab); 
@@ -53,8 +53,6 @@ function FilterTabs(props: FilterTabsProps) {
   );
 }
 
-export default FilterTabs;
-
 const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: 'row',
@@ -63,7 +61,6 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 16,
     marginTop: 16,
-    paddingHorizontal: 16,
   },
   tab: {
     flexDirection: 'row',

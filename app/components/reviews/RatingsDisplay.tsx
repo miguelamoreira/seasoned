@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     },
     barContainer: {
         alignItems: 'center',
+        marginTop: 60,
     },
     bar: {
         width: 40,

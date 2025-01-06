@@ -235,10 +235,15 @@ export default function UserProfileScreen() {
             case 'badges':
                 return <ProfileBadges badges={badges} type={type} userId={Number(userIdParam) ?? -1} currentUserId={loggedInUserId ?? -1} badgesVisibility={userData?.badgesVisibility ?? true}/>;
             case 'ratings':
-                const ratingsArray = Object.values(ratingsGroupedByScore);
-                const totalRatings = ratingsArray.reduce((acc, curr) => acc + curr, 0);
-                const averageRating = ratingsArray.length > 0 ? totalRatings / ratingsArray.length : 0;
-                return <RatingDisplay type={type} ratings={ratingsArray} average={averageRating} />;
+                const ratingsArray = Object.entries(ratingsGroupedByScore);
+                const totalRatings = ratingsArray.reduce((acc, [score, count]) => {
+                    return acc + parseInt(score) * count;
+                }, 0);
+                const totalReviews = ratingsArray.reduce((acc, [, count]) => acc + count, 0);
+                const averageRating = totalReviews > 0 ? totalRatings / totalReviews : 0;
+                const counts = ratingsArray.map(([_, count]) => count);
+                
+                return <RatingDisplay type={type} ratings={counts} average={averageRating} />;
             case 'userShows':
                 return <ProfileOptions title="User's Shows" options={userShowsOptions} type={type} />;
             case 'userActivity':
