@@ -5,13 +5,16 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Star from 'react-native-vector-icons/AntDesign';
 import { useRouter } from 'expo-router';
 
+import { likeReview, dislikeReview } from '@/api/reviewLikesApi';
+
 type Review = {
+    user_id?: number | undefined;
     id: number;
     image?: string;
     title?: string;
     year?: number;
     review?: string;
-    likes?: number;
+    likes: number;
     comments?: number;
     username?: string;
     avatar?: string;
@@ -26,21 +29,41 @@ type ReviewsProps = {
     seriesId?: string;
     seasonNumber?: string;
     episodeNumber?: string;
+    userId?: number; 
 };
 
-export default function ReviewsDisplay({ reviews, type, page, seriesId, seasonNumber, episodeNumber }: ReviewsProps) {
+export default function ReviewsDisplay({ reviews, type, page, seriesId, seasonNumber, episodeNumber, userId }: ReviewsProps) {
     const [popularReviews, setPopularReviews] = useState(reviews);
     const router = useRouter();
 
-    const toggleLike = (index: number) => {
-        if (type !== 'own') {
-            const updatedReviews = [...popularReviews];
-            const targetReview = updatedReviews[index];
-            targetReview.likes = (targetReview.likes || 0) + (targetReview.liked ? -1 : 1);
+    const toggleLike = async (index: number) => {
+        const updatedReviews = [...popularReviews];
+        const targetReview = updatedReviews[index];
+    
+        try {
+            const user_id = userId;
+
+            if (targetReview.liked) {
+                await dislikeReview(user_id, targetReview.id);
+                targetReview.likes = (targetReview.likes ?? 0) - 1;
+    
+                if (user_id === targetReview.user_id) {
+                    const updatedReviewsWithoutDisliked = updatedReviews.filter(review => review.id !== targetReview.id);
+                    setPopularReviews(updatedReviewsWithoutDisliked);
+                    return; 
+                }
+            } else {
+                await likeReview(user_id, targetReview.id);
+                targetReview.likes = (targetReview.likes ?? 0) + 1;
+            }
+    
             targetReview.liked = !targetReview.liked;
+    
             setPopularReviews(updatedReviews);
+        } catch (error) {
+            console.error('Error toggling like:', error);
         }
-    };
+    };    
 
     const goToReviewDetails = (reviewId: number) => {
         if (page === 'episode') {
@@ -79,14 +102,14 @@ export default function ReviewsDisplay({ reviews, type, page, seriesId, seasonNu
                                 <View style={styles.statsRow}>
                                     <View style={styles.likeContainer}>
                                         <Text style={styles.reviewStats}>{review.likes}</Text>
-                                        <TouchableOpacity onPress={() => toggleLike(index)}>
+                                        <View>
                                             <Icon
                                                 name={review.liked ? 'heart' : 'heart-outline'}
                                                 size={18}
                                                 color={review.liked ? '#EE6363' : '#211B17'}
                                                 style={styles.icon}
                                             />
-                                        </TouchableOpacity>
+                                        </View>
                                     </View>
                                     <View style={styles.commentContainer}>
                                         <Text style={styles.reviewStats}>{review.comments}</Text>

@@ -153,6 +153,7 @@ export default function UsersActivityScreen() {
                         avatar: likedReview.reviews.user.avatar,
                         username: likedReview.reviews.user.name,
                         liked: true,
+                        user_id: likedReview.user_id,
                     }));
                     setLikedReviews(formattedLikedReviews);
                 } catch (error) {
@@ -184,7 +185,7 @@ export default function UsersActivityScreen() {
                     />
                 );
             case 'Reviews':
-                return <ReviewsDisplay reviews={likedReviews} type="notOwn" />;
+                return <ReviewsDisplay reviews={likedReviews} type="notOwn" userId={Number(userId)}/>;
             default:
                 return <EmptyState type="404" />;
         }

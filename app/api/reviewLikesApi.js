@@ -22,7 +22,7 @@ export const likeReview = async (userId, reviewId) => {
 
 export const dislikeReview = async (userId, reviewId) => {
     try {
-        const response = await apiClient.delete(`/users/${userId}/likes/reviews`, { reviewId });
+        const response = await apiClient.delete(`/users/${userId}/likes/reviews`, { data: { reviewId } });
         return response.data;
     } catch (error) {
         console.error('Error liking the review: ', error);
