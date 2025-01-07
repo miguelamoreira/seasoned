@@ -26,10 +26,12 @@ export default function ProfileBadges({ badges, type, userId, currentUserId, bad
     const router = useRouter();
     const [visibility, setVisibility] = useState(badgesVisibility);
 
+    // Sync visibility state with the badgesVisibility prop
     useEffect(() => {
         setVisibility(badgesVisibility);
     }, [badgesVisibility]);
 
+    // Handle visibility toggle
     const handleToggleVisibility = async (value: boolean) => {
         setVisibility(value);
         try {
@@ -39,18 +41,17 @@ export default function ProfileBadges({ badges, type, userId, currentUserId, bad
         }
     };
 
+    // Navigate to "See All" badges screen
     const handleSeeAll = (userId: number) => {
-        return router.push(`/users/${userId}/badges`);
+        router.push(`/users/${userId}/badges`);
     };
-
-    if (type === 'profile' && userId !== currentUserId && !visibility) {
-        return null;
-    }
 
     return (
         <View style={styles.container}>
             <View style={styles.sectionHeader}>
                 <Text style={styles.heading}>Badges</Text>
+
+                {/* Switch for edit mode */}
                 {type === 'edit' && (
                     <Switch
                         value={visibility}
@@ -59,14 +60,18 @@ export default function ProfileBadges({ badges, type, userId, currentUserId, bad
                         thumbColor={visibility ? '#211B17' : '#f4f3f4'}
                     />
                 )}
-                {type === 'profile' && (
+
+                {/* See all button for profile mode */}
+                {type === 'profile' && userId !== currentUserId && visibility && (
                     <TouchableOpacity onPress={() => handleSeeAll(userId)} style={styles.seeAllContainer}>
                         <Text style={styles.seeAllText}>See all</Text>
                         <Icon name="chevron-forward" size={16} color="#211B17" />
                     </TouchableOpacity>
                 )}
             </View>
-            {visibility || userId === currentUserId && (
+
+            {/* Render badges if visibility is true or user is viewing their own profile */}
+            {(visibility || userId === currentUserId) && (
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.badgeScrollView}>
                     {badges.map((badge, index) => (
                         <View
@@ -93,7 +98,7 @@ export default function ProfileBadges({ badges, type, userId, currentUserId, bad
 
 const styles = StyleSheet.create({
     container: {
-        marginVertical: 12, 
+        marginVertical: 12,
     },
     sectionHeader: {
         flexDirection: 'row',

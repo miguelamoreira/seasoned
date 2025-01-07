@@ -71,7 +71,9 @@ export default function AddFavouritesScreen() {
             {isLoading ? (
                 <ActivityIndicator size="large" color="#000" />
             ) : shouldShowEmptyState ? (
-                <EmptyState type="404" />
+                <View>
+                    <EmptyState type="404" />
+                </View>
             ) : (
                 <View style={{ paddingHorizontal: 16 }}>
                     <SeriesDisplay series={searchResults} type="add" userId={Number(userId)} />

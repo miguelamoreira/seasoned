@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Touchable } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Star from 'react-native-vector-icons/AntDesign';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { likeReview, dislikeReview } from '@/api/reviewLikesApi';
 
@@ -25,7 +26,7 @@ type Review = {
 type ReviewsProps = {
     reviews: Review[];
     type: 'own' | 'notOwn' | 'all' | 'comment' | 'notifications';
-    page?: 'series' | 'episode';
+    page?: 'series' | 'episode' | 'profile';
     seriesId?: string;
     seasonNumber?: string;
     episodeNumber?: string;
@@ -35,35 +36,58 @@ type ReviewsProps = {
 export default function ReviewsDisplay({ reviews, type, page, seriesId, seasonNumber, episodeNumber, userId }: ReviewsProps) {
     const [popularReviews, setPopularReviews] = useState(reviews);
     const router = useRouter();
+    const [loggedInId, setLoggedInId] = useState<number | null>(null);
 
-    const toggleLike = async (index: number) => {
+    useEffect(() => {
+        const fetchLoggedInId = async () => {
+            try {
+                const id = await AsyncStorage.getItem('userId');
+                setLoggedInId(id ? parseInt(id, 10) : null);
+            } catch (error) {
+                console.error('Error fetching logged-in user ID:', error);
+            }
+        };
+
+        fetchLoggedInId();
+    }, []);
+
+    const toggleLikedReviews = async (index: number) => {
+        if (loggedInId === null) {
+            console.warn('User must be logged in to like or dislike reviews.');
+            return;
+        }
+    
         const updatedReviews = [...popularReviews];
         const targetReview = updatedReviews[index];
     
+        if (page === 'profile' && loggedInId !== targetReview.user_id) {
+            console.warn('Cannot remove likes on the profile page of another user.');
+            return;
+        }
+    
         try {
-            const user_id = userId;
-
             if (targetReview.liked) {
-                await dislikeReview(user_id, targetReview.id);
+                await dislikeReview(loggedInId, targetReview.id);
                 targetReview.likes = (targetReview.likes ?? 0) - 1;
     
-                if (user_id === targetReview.user_id) {
-                    const updatedReviewsWithoutDisliked = updatedReviews.filter(review => review.id !== targetReview.id);
+                if (loggedInId === targetReview.user_id) {
+                    const updatedReviewsWithoutDisliked = updatedReviews.filter(
+                        (review) => review.id !== targetReview.id
+                    );
                     setPopularReviews(updatedReviewsWithoutDisliked);
-                    return; 
+                    return;
                 }
             } else {
-                await likeReview(user_id, targetReview.id);
+                await likeReview(loggedInId, targetReview.id);
                 targetReview.likes = (targetReview.likes ?? 0) + 1;
             }
     
             targetReview.liked = !targetReview.liked;
-    
             setPopularReviews(updatedReviews);
         } catch (error) {
             console.error('Error toggling like:', error);
         }
-    };    
+    };
 
     const goToReviewDetails = (reviewId: number) => {
         if (page === 'episode') {
@@ -152,7 +176,7 @@ export default function ReviewsDisplay({ reviews, type, page, seriesId, seasonNu
                                 <View style={[styles.statsRow, { justifyContent: 'flex-end' }]}>
                                     <View style={styles.likeContainer}>
                                         <Text style={styles.reviewStats}>{review.likes}</Text>
-                                        <TouchableOpacity onPress={() => toggleLike(index)}>
+                                        <TouchableOpacity onPress={() => toggleLikedReviews(index)}>
                                             <Icon
                                                 name={review.liked ? 'heart' : 'heart-outline'}
                                                 size={18}
@@ -193,7 +217,7 @@ export default function ReviewsDisplay({ reviews, type, page, seriesId, seasonNu
                                 <View style={[styles.statsRow, { justifyContent: 'flex-end' }]}>
                                     <View style={styles.likeContainer}>
                                         <Text style={styles.reviewStats}>{review.likes}</Text>
-                                        <TouchableOpacity onPress={() => toggleLike(index)}>
+                                        <TouchableOpacity onPress={() => toggleLikedReviews(index)}>
                                             <Icon
                                                 name={review.liked ? 'heart' : 'heart-outline'}
                                                 size={18}

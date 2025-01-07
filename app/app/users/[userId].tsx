@@ -58,86 +58,42 @@ export default function UserProfileScreen() {
     const [genres, setGenres] = useState<any[]>([]);
 
     useEffect(() => {
-        const checkLoginStatus = async () => {
+        const initialize = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
-                const id = await AsyncStorage.getItem('userId');
-                if (token && token !== '') {
-                    setIsLoggedIn(true);
-                    setLoggedInUserId(id ? parseInt(id) : null);
-                } else {
-                    setIsLoggedIn(false);
-                    setLoggedInUserId(null);
+                const loggedInId = await AsyncStorage.getItem('userId');
+                const userId = userIdParam ? parseInt(userIdParam, 10) : null;
+
+                const loggedInUserIdNum = loggedInId ? parseInt(loggedInId, 10) : null;
+                setLoggedInUserId(loggedInUserIdNum);
+                setIsLoggedIn(!!token);
+
+                if (userId) {
+                    setIsViewingOtherUser(userId !== loggedInUserIdNum);
+
+                    const [userDataResponse, badgesResponse, ratingsResponse, genresResponse] = await Promise.all([
+                        findUserById(userId),
+                        fetchBadges(userId),
+                        fetchRatingsGroupedByScore(userId),
+                        fetchComparisonGenres(userId),
+                    ]);
+
+                    setUserData(userDataResponse);
+
+                    const sortedBadges = badgesResponse.sort((a: { earned: boolean; }, b: { earned: boolean; }) => (a.earned === b.earned ? 0 : a.earned ? -1 : 1));
+                    setBadges(sortedBadges);
+
+                    setRatingsGroupedByScore(ratingsResponse);
+
+                    const sortedGenres = genresResponse.data?.sort((a: { selected: boolean; }, b: { selected: boolean; }) => (a.selected === b.selected ? 0 : a.selected ? -1 : 1)) || [];
+                    setGenres(sortedGenres);
                 }
             } catch (error) {
-                console.log("Error checking login status:", error);
-                setIsLoggedIn(false);
-                setLoggedInUserId(null);
+                console.error('Error initializing user profile:', error);
             }
         };
 
-        checkLoginStatus();
-    }, []);
-
-    useEffect(() => {
-        if (userIdParam) {
-            const userIdFromParams = parseInt(userIdParam);
-            setIsViewingOtherUser(userIdFromParams !== loggedInUserId); 
-            findUserById(userIdFromParams)
-                .then((fetchedUserData) => {
-                    setUserData(fetchedUserData);
-                })
-                .catch((error) => {
-                    console.error('Error fetching user data:', error);
-                });
-        }
-    }, [userIdParam, loggedInUserId]);
-
-    useEffect(() => {
-        if (userIdParam) {
-            fetchBadges(userIdParam) 
-                .then((fetchedBadges) => {
-                    const sortedBadges = fetchedBadges.sort((a: { earned: boolean; }, b: { earned: boolean; }) => {
-                        if (a.earned === b.earned) return 0;
-                        return a.earned ? -1 : 1;
-                    });
-                    setBadges(sortedBadges);
-                })
-                .catch((error) => {
-                    console.error('Error fetching badges:', error);
-                });
-        }
-    }, [userIdParam]);
-
-    useEffect(() => {
-        if (userIdParam) {
-            fetchRatingsGroupedByScore(userIdParam)
-                .then((ratingsData) => {
-                    setRatingsGroupedByScore(ratingsData);
-                })
-                .catch((error) => {
-                    console.error('Error fetching ratings grouped by score:', error);
-                });
-        }
-    }, [userIdParam]);
-
-    useEffect(() => {
-        if (userIdParam) {
-            fetchComparisonGenres(userIdParam)
-                .then((response) => {
-                    const fetchedGenres = response?.data;
-                    if (Array.isArray(fetchedGenres)) {
-                        const sortedGenres = fetchedGenres.sort((a: { selected: boolean; }, b: { selected: boolean; }) => {
-                            if (a.selected === b.selected) return 0;
-                            return a.selected ? -1 : 1;
-                        });
-                        setGenres(sortedGenres);
-                    } 
-                })
-                .catch((error) => {
-                    console.error('Error fetching genres:', error);
-                });
-        }
+        initialize();
     }, [userIdParam]);
 
     const handleSaveProfile = (updatedUsername: string) => {

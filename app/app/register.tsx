@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     },
     optionsContainer: {
         alignItems: 'center',
-        marginTop: 80,
+        marginTop: 20,
     },
     nextButton: {
         backgroundColor: '#D8A84E',

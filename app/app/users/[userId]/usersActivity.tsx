@@ -185,7 +185,7 @@ export default function UsersActivityScreen() {
                     />
                 );
             case 'Reviews':
-                return <ReviewsDisplay reviews={likedReviews} type="notOwn" userId={Number(userId)}/>;
+                return <ReviewsDisplay reviews={likedReviews} type="notOwn" userId={Number(userId)} page="profile"/>
             default:
                 return <EmptyState type="404" />;
         }
@@ -201,7 +201,7 @@ export default function UsersActivityScreen() {
         }
 
         if (activeTab === 'Likes') {
-            if (episodesData.length === 0 && likedSeries.length === 0 && likedReviews.length === 0) {
+            if (likedEpisodes.length === 0 && likedSeries.length === 0 && likedReviews.length === 0) {
                 return <EmptyState type="noLikes" />;
             }
             
