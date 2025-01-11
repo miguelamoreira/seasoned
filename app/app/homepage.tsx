@@ -9,10 +9,13 @@ import PopularShows from '@/components/homepage/PopularShows';
 import ContinueWatching from '@/components/homepage/ContinueWatching';
 import TabBar from '@/components/TabBar';
 
+import { fetchNewReleases } from '@/api/tvAPI';
+
 export default function HomepageScreen() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userId, setUserId] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState<string>('Home');
+    const [ newReleases, setNewReleases ] = useState<any[]>([]);
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -36,11 +39,16 @@ export default function HomepageScreen() {
         checkLoginStatus();
     }, []);
 
-    const shows = [
-        { imageUri: 'https://static.tvmaze.com/uploads/images/medium_portrait/548/1371270.jpg', title: 'YOU', subtitle: 'Season 3', date: '12th December, 2024' },
-        { imageUri: 'https://static.tvmaze.com/uploads/images/medium_portrait/501/1253519.jpg', title: 'Breaking Bad', subtitle: 'Season 4', date: '15th December, 2024' },
-        { imageUri: 'https://static.tvmaze.com/uploads/images/medium_portrait/501/1253515.jpg', title: 'Better Call Saul', subtitle: 'Season X', date: '20th December, 2024' },
-    ];
+    useEffect(() => {
+        const fetchNewShows = async () => {
+            const data = await fetchNewReleases();
+            if (!data.error) {
+                setNewReleases(data);
+            }
+        };
+
+        fetchNewShows();
+    }, []);
 
     const popularReviews = [
         {
@@ -87,7 +95,7 @@ export default function HomepageScreen() {
                 {isLoggedIn && (
                     <ContinueWatching episode={episodeData} onUnfollow={handleUnfollow} onLog={handleLog} />
                 )}
-                <ComingSoon shows={shows} />
+                <ComingSoon shows={newReleases} />
                 <PopularReviews reviews={popularReviews} />
                 <PopularShows shows={popularShows} />
             </ScrollView>

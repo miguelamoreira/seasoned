@@ -403,3 +403,55 @@ exports.createReviews = async (req, res) => {
         });
     }
 };
+
+exports.getMostPopularReviews = async (req, res) => {
+    try {
+        const reviews = await Reviews.findAll({
+            attributes: {
+                include: [
+                    [Sequelize.literal('(SELECT COUNT(*) FROM ReviewLikes WHERE ReviewLikes.review_id = Reviews.review_id)'), 'likeCount']
+                ]
+            },
+            include: [
+                {
+                    model: Series,
+                    as: 'series',
+                    attributes: ['title', 'poster_url', 'average_rating']
+                },
+                {
+                    model: Episodes,
+                    as: 'episodes',
+                    attributes: ['episode_title', 'season_id', 'episode_number', 'air_date', 'poster_url']
+                },
+                {
+                    model: ReviewComments,
+                    as: 'comments',
+                    attributes: ['comment_id', 'user_id', 'comment', 'comment_date'],
+                    include: [{
+                        model: Users,
+                        as: 'user',
+                        attributes: ['user_id', 'name', 'avatar']
+                    }]
+                }
+            ],
+            order: [[Sequelize.literal('likeCount'), 'DESC']],
+            limit: 10,
+        });
+
+        if (!reviews || reviews.length === 0) {
+            return res.status(404).json({
+                message: 'No popular reviews found.'
+            });
+        }
+
+        return res.status(200).json({
+            message: 'Most popular reviews retrieved successfully.',
+            data: reviews
+        });
+    } catch (error) {
+        console.error('Error retrieving most popular reviews:', error);
+        return res.status(500).json({
+            message: 'Something went wrong. Please try again later.'
+        });
+    }
+};

@@ -9,6 +9,9 @@ router.route("/")
     .get(reviewsController.getReviews)
     .post(reviewsController.createReviews)
 
+router.route("/popular")
+    .get(reviewsController.getMostPopularReviews)
+
 router.route("/:id")
     .get(reviewsController.getReviewById)
 

@@ -10,6 +10,7 @@ type CardProps = {
     title: string;
     subtitle?: string;
     date?: string;
+    seriesId?: number
 };
 
 type ComingContainerProps = {
