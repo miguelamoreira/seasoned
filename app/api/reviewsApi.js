@@ -72,3 +72,13 @@ export const createReviews = async (userId, reviews) => {
         throw new Error('Failed to create reviews. Please try again later.');
     }
 };
+
+export const fetchPopularReviews = async () => {
+    try {
+        const { data } = await apiClient.get('/reviews/popular');
+        return data.data;
+    } catch (error) {
+        console.error('Error fetching popular reviews: ', error);
+        throw new Error('Failed to fetch popular reviews. Please try again later.');
+    }
+};

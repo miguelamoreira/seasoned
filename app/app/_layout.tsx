@@ -37,6 +37,8 @@ export default function RootLayout() {
         <Stack.Screen name="signin"/>
         <Stack.Screen name="register"/>
         <Stack.Screen name="homepage"/>
+        <Stack.Screen name="popularShows"/>
+        <Stack.Screen name="popularReviews"/>
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

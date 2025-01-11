@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -29,8 +29,11 @@ export default function PopularReviews({ reviews, showHeading = true }: PopularR
     const [popularReviews, setPopularReviews] = useState(reviews);
     const router = useRouter();
 
+    useEffect(() => {
+        setPopularReviews(reviews);
+    }, [reviews]);
+
     const handleSeeAll = (section: string) => {
-        console.log(`Navigated to all items in ${section}`);
         router.push('/popularReviews');
     };
 

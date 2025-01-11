@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, {  useEffect ,useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 
 type PopularShow = {
+    seriesId: number;
     imageUri: string;
 };
 
@@ -16,8 +17,11 @@ export default function PopularShows({ shows }: PopularShowsProps) {
     const [popularShows, setPopularShows] = useState(shows);
     const router = useRouter();
 
+    useEffect(() => {
+        setPopularShows(shows)
+    }, [shows])
+
     const handleSeeAll = (section: string) => {
-        console.log(`Navigated to all items in ${section}`);
         router.push('/popularShows')
     };
 

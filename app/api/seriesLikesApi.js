@@ -29,3 +29,13 @@ export const dislikeSeries = async (userId, seriesId) => {
         throw new Error('Failed to like the series. Please try again later.');
     }
 }
+
+export const fetchPopularSeries = async () => {
+    try {
+        const { data } = await apiClient.get('/series/popular');
+        return data.data;
+    } catch (error) {
+        console.error('Error fetching popular series: ', error);
+        throw new Error('Failed to fetch popular series. Please try again later.');
+    }
+}

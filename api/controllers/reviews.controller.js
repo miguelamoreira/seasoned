@@ -416,7 +416,7 @@ exports.getMostPopularReviews = async (req, res) => {
                 {
                     model: Series,
                     as: 'series',
-                    attributes: ['title', 'poster_url', 'average_rating']
+                    attributes: ['title', 'poster_url', 'average_rating', 'release_date']
                 },
                 {
                     model: Episodes,
@@ -432,7 +432,18 @@ exports.getMostPopularReviews = async (req, res) => {
                         as: 'user',
                         attributes: ['user_id', 'name', 'avatar']
                     }]
-                }
+                },
+                {
+                    model: Users,
+                    as: 'user',
+                    attributes: ['user_id', 'name', 'avatar'],
+                },
+                {
+                    model: ReviewLikes,
+                    as: 'likes',
+                    attributes: ['review_id'],
+                    duplicating: false,
+                },
             ],
             order: [[Sequelize.literal('likeCount'), 'DESC']],
             limit: 10,
@@ -444,9 +455,47 @@ exports.getMostPopularReviews = async (req, res) => {
             });
         }
 
+        const formattedReviews = reviews.map(review => {
+            return {
+                reviewId: review.review_id,
+                comment: review.comment,
+                rating: review.score,
+                likeCount: review.likes.length,
+                series: review.series ? {
+                    title: review.series.title,
+                    posterUrl: review.series.poster_url,
+                    averageRating: review.series.average_rating,
+                    year: review.series.release_date,
+                } : null,
+                episode: review.episodes ? {
+                    episodeTitle: review.episodes.episode_title,
+                    seasonId: review.episodes.season_id,
+                    episodeNumber: review.episodes.episode_number,
+                    airDate: review.episodes.air_date,
+                    posterUrl: review.episodes.poster_url,
+                } : null,
+                comments: review.comments.map(comment => ({
+                    commentId: comment.comment_id,
+                    userId: comment.user_id,
+                    commentBody: comment.comment,
+                    commentDate: comment.comment_date,
+                    user: comment.user ? {
+                        userId: comment.user.user_id,
+                        name: comment.user.name,
+                        avatar: comment.user.avatar,
+                    } : null,
+                })),
+                user: review.user ? {
+                    userId: review.user.user_id,
+                    name: review.user.name,
+                    avatar: review.user.avatar,
+                } : null,
+            };
+        });
+
         return res.status(200).json({
             message: 'Most popular reviews retrieved successfully.',
-            data: reviews
+            data: formattedReviews
         });
     } catch (error) {
         console.error('Error retrieving most popular reviews:', error);
