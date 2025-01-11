@@ -71,3 +71,15 @@ export const deleteUserById = async (id) => {
         throw new Error('Failed to delete user. Please try again later.');
     }
 }
+
+export const findAllUsers = async (searchText) => {
+    try {
+        const response = await apiClient.get(`/users/`, {
+            params: { query: searchText }
+        });
+        return response.data.data;
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        throw new Error('Failed to fetch users. Please try again later.');
+    }
+};

@@ -9,14 +9,13 @@ export type User = {
     name: any;
     user_id: number;
     avatar: string;
-    username: string;
     following?: boolean;
     type: 'user';
 };
 
 type UsersProps = {
     users: User[];
-    currentUser: string;
+    currentUser: number;
     type: 'search' | 'following' | 'followers';
 };
 
@@ -103,7 +102,7 @@ export default function UsersDisplay({ users, currentUser, type }: UsersProps) {
 
     const renderUser = ({ item }: { item: User }) => {
         const isCurrentUser = Number(currentUser) === item.user_id;
-        const isLoggedUsersPage = currentUser === userId;
+        const isLoggedUsersPage = currentUser === Number(userId);
 
         return (
             <TouchableOpacity

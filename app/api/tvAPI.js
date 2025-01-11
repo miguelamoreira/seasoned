@@ -17,13 +17,13 @@ export const searchShows = async (query) => {
         const data = await response.json();
 
         if (data.length === 0) {
-            return { error: 'No shows found matching your query.' };
+            return { shows: [] };
         }
 
         return { shows: data };
     } catch (error) {
         console.error('Error fetching TV shows:', error);
-        return { error: error.message || 'An error occurred' };
+        return { shows: [], error: error.message || 'An error occurred' };
     }
 };
 

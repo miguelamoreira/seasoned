@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF4E0',
     paddingVertical: 6,
     borderRadius: 16,
-    marginTop: 16,
+    marginTop: 4,
   },
   tab: {
     flexDirection: 'row',
