@@ -12,7 +12,7 @@ export type Series = {
     image: string;
     name: string;
     year: number;
-    seasons: number;
+    seasons?: number;
     creator?: string;
     language?: string;
     rating?: number;
@@ -42,8 +42,10 @@ export default function SeriesDisplay({ series, type, userId }: SeriesProps) {
     };
 
     useEffect(() => {
-        fetchUserFavourites();
-    }, [userId]);
+        if (type === 'add') {
+            fetchUserFavourites();
+        }
+    }, [type, userId]);
 
     const isSeriesFavourite = (seriesId: number) => {
         return favouriteSeries.some(favSeries => favSeries.series_api_id === seriesId);
@@ -71,11 +73,8 @@ export default function SeriesDisplay({ series, type, userId }: SeriesProps) {
                         <Text style={styles.seriesTitle}>
                             {item.name} <Text style={styles.seriesYear}>{item.year}</Text>
                         </Text>
-                        <Text style={styles.seriesSeasons}>
-                            {item.seasons > 1 ? `${item.seasons} seasons` : `${item.seasons} season`}
-                        </Text>
-                        <View style={[styles.bottomRow, { marginTop: 56 }]}>
-                            <Text style={styles.seriesCreator}>Created by <Text style={styles.seriesCreatorHighlight}>{item.creator}</Text></Text>
+                        <View style={[styles.bottomRow, { marginTop: 80 }]}>
+                            <Text style={styles.seriesCreator}>Language: <Text style={styles.seriesCreatorHighlight}>{item.language}</Text></Text>
                             <View style={styles.ratingContainer}>
                                 {item.rating !== undefined && (
                                     <>
@@ -98,7 +97,10 @@ export default function SeriesDisplay({ series, type, userId }: SeriesProps) {
                             {item.name} <Text style={styles.seriesYear}>{item.year}</Text>
                         </Text>
                         <Text style={styles.seriesSeasons}>
-                            {item.seasons > 1 ? `${item.seasons} seasons` : `${item.seasons} season`}
+                        {item.seasons !== undefined ? 
+                            (item.seasons > 1 ? `${item.seasons} seasons` : `${item.seasons} season`) : 
+                            '0 season'
+                        }
                         </Text>
                         <View style={styles.followingRow}>
                             <Text style={styles.seriesCreator}>Created by <Text style={styles.seriesCreatorHighlight}>{item.creator}</Text></Text>
@@ -128,7 +130,10 @@ export default function SeriesDisplay({ series, type, userId }: SeriesProps) {
                             {item.name} <Text style={styles.seriesYear}>{item.year}</Text>
                         </Text>
                         <Text style={styles.seriesSeasons}>
-                            {item.seasons > 1 ? `${item.seasons} seasons` : `${item.seasons} season`}
+                        {item.seasons !== undefined ? 
+                            (item.seasons > 1 ? `${item.seasons} seasons` : `${item.seasons} season`) : 
+                            '0 season'
+                        }
                         </Text>
                         <View style={[styles.bottomRow, { marginTop: 56 }]}>
                             <Text style={styles.date}>{item.date}</Text>

@@ -72,8 +72,6 @@ export default function PopularShowsScreen() {
                     creator: show.creator,
                     rating: show.average_rating ?? 0,
                 }));
-
-                console.log('teste: ', formattedSeries);
             
                 setPopularShows(formattedSeries);
             }

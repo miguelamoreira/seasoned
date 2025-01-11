@@ -41,6 +41,7 @@ export default function RootLayout() {
           <Stack.Screen name="homepage"/>
           <Stack.Screen name="popularShows"/>
           <Stack.Screen name="popularReviews"/>
+          <Stack.Screen name="search"/>
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>
