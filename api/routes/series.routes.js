@@ -8,6 +8,9 @@ const seriesController = require("../controllers/series.controller")
 router.route("/popular")
     .get(seriesController.getMostPopularSeries)
 
+router.route("/:id")
+    .get(seriesController.findSeriesById)
+
 router.route("/:id/reviews")
     .get(reviewsController.getReviewsBySeriesId)
 

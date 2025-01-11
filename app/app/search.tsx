@@ -61,10 +61,8 @@ export default function SearchScreen() {
                 let usersData: User[] = [];
                 if (selectedFilter === 'user' || selectedFilter === null) {
                     usersData = await findAllUsers(searchText);
-                    console.log('Users Data:', usersData);
 
                     if (!Array.isArray(usersData)) {
-                        console.error('Error: usersData is not an array', usersData);
                         usersData = [];
                     }
                 }
@@ -72,15 +70,12 @@ export default function SearchScreen() {
                 let showsResponse: SearchShowsResponse = { shows: [] };
                 if (selectedFilter === 'series' || selectedFilter === null) {
                     showsResponse = await searchShows(searchText);
-                    console.log('Shows Response:', showsResponse);
 
                     if (showsResponse.error) {
-                        console.error('Error fetching shows:', showsResponse.error);
                         showsResponse.shows = [];
                     }
 
                     if (!Array.isArray(showsResponse.shows)) {
-                        console.error('Error: showsResponse.shows is not an array');
                         showsResponse.shows = [];
                     }
                 }
@@ -88,11 +83,9 @@ export default function SearchScreen() {
                 const formattedShows: Series[] = showsResponse.shows
                     .map((item: any) => {
                         if (!item.show) {
-                            console.warn('Warning: Missing show object in', item);
                             return null;
                         }
                         const show = item.show;
-                        console.log('teste: ', show);
                         
                         return {
                             series_api_id: show.id,

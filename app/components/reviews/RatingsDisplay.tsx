@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     leftStar: {
-        top: 40,
+        top: 42,
     },
     histogramContainer: {
         flexDirection: 'row',
@@ -68,11 +68,11 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
         gap: 4,
         flex: 1,
-        marginHorizontal: 8,
+        marginHorizontal: 16,
+        height: 80,
     },
     barContainer: {
         alignItems: 'center',
-        marginTop: 60,
     },
     bar: {
         width: 40,
