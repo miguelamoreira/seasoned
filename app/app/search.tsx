@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, View, TouchableOpacity, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView, StyleSheet, View, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { useUserContext } from '@/contexts/UserContext';
+import { findAllUsers } from '@/api/userApi';
+import { searchShows } from '@/api/tvAPI';
 
 import SearchBar from '@/components/search/SearchBar';
 import FilterTabs from '@/components/FilterTabs';
@@ -21,23 +23,19 @@ type Filter = {
     key: string | null;
 };
 
+type SearchShowsResponse = {
+    shows: any[];
+    error?: any;
+};
+
 export default function SearchScreen() {
     const router = useRouter();
     const { user, token } = useUserContext();
     const [isFocused, setIsFocused] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
-
-    const users: User[] = [
-        { user_id: 1, avatar: 'https://via.placeholder.com/80x80', name: 'User1', following: true, type: 'user' },
-        { user_id: 2, avatar: 'https://via.placeholder.com/80x80', name: 'User2', following: false, type: 'user' },
-        { user_id: 3, avatar: 'https://via.placeholder.com/80x80', name: 'User3', following: false, type: 'user' },
-    ];
-
-    const shows: Series[] = [
-        { series_api_id: 1, image: 'https://static.tvmaze.com/uploads/images/medium_portrait/211/528026.jpg', name: 'Mr. Robot', year: 2015, seasons: 4, creator: 'Sam Esmail', rating: 4.5, type: 'series' },
-        { series_api_id: 2, image: 'https://via.placeholder.com/80x120', name: 'Show Two', year: 2024, seasons: 2, creator: 'Creator 2', rating: 3.2, date: '2024-06-01', type: 'series' },
-    ];
+    const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const filters: Filter[] = [
         { label: 'All', key: null },
@@ -45,18 +43,89 @@ export default function SearchScreen() {
         { label: 'Users', key: 'user' },
     ];
 
-    const searchResults: SearchResult[] = [...users, ...shows];
-
     const handleSearchFocus = () => setIsFocused(true);
     const handleSearchBlur = () => setIsFocused(false);
     const handleSearchChange = (text: string) => setSearchText(text);
     const handleFilterChange = (filter: string | null) => setSelectedFilter(filter);
 
-    const filteredSearches = searchResults.filter((item) => {
-        const matchesSearchText =
-            item.name.toLowerCase().includes(searchText.toLowerCase());
-        return selectedFilter ? matchesSearchText && item.type === selectedFilter : matchesSearchText;
-    });
+    useEffect(() => {
+        const fetchData = async () => {
+            if (searchText.trim().length < 3) {
+                setSearchResults([]);
+                return;
+            }
+
+            setIsLoading(true);
+
+            try {
+                let usersData: User[] = [];
+                if (selectedFilter === 'user' || selectedFilter === null) {
+                    usersData = await findAllUsers(searchText);
+                    console.log('Users Data:', usersData);
+
+                    if (!Array.isArray(usersData)) {
+                        console.error('Error: usersData is not an array', usersData);
+                        usersData = [];
+                    }
+                }
+
+                let showsResponse: SearchShowsResponse = { shows: [] };
+                if (selectedFilter === 'series' || selectedFilter === null) {
+                    showsResponse = await searchShows(searchText);
+                    console.log('Shows Response:', showsResponse);
+
+                    if (showsResponse.error) {
+                        console.error('Error fetching shows:', showsResponse.error);
+                        showsResponse.shows = [];
+                    }
+
+                    if (!Array.isArray(showsResponse.shows)) {
+                        console.error('Error: showsResponse.shows is not an array');
+                        showsResponse.shows = [];
+                    }
+                }
+
+                const formattedShows: Series[] = showsResponse.shows
+                    .map((item: any) => {
+                        if (!item.show) {
+                            console.warn('Warning: Missing show object in', item);
+                            return null;
+                        }
+                        const show = item.show;
+                        console.log('teste: ', show);
+                        
+                        return {
+                            series_api_id: show.id,
+                            name: show.name,
+                            image: show.image?.medium ?? '',
+                            rating: show.rating?.average ?? 0,
+                            language: show.language,
+                            year: show.premiered && show.premiered.split('-')[0],
+                            seasons: show.number_of_seasons ?? 0,
+                            type: 'series',
+                        };
+                    })
+                    .filter(Boolean) as Series[];
+
+                const formattedUsers: User[] = usersData.map((user: any) => ({
+                    user_id: user.user_id,
+                    name: user.name,
+                    avatar: user.avatar,
+                    type: 'user',
+                }));
+
+                const combinedResults = [...formattedUsers, ...formattedShows];
+                setSearchResults(combinedResults);
+            } catch (err) {
+                console.error('Error fetching data:', err);
+                setSearchResults([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [searchText, selectedFilter]);
 
     const handleItemPress = (item: SearchResult) => {
         if (item.type === 'user') {
@@ -68,21 +137,28 @@ export default function SearchScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            
             <View style={styles.suggestionsContainer}>
                 <SearchBar onFocus={handleSearchFocus} onBlur={handleSearchBlur} onChange={handleSearchChange} value={searchText} />
+
                 {isFocused || searchText ? (
                     <>
                         <FilterTabs tabs={filters} onTabChange={handleFilterChange} allowNoneSelected={true} initialTab={null} />
 
-                        {filteredSearches.length === 0 ? (
+                        {isLoading ? (
+                            <ActivityIndicator size="large" color="#000" />
+                        ) : searchResults.length === 0 ? (
                             <EmptyState type="404" />
                         ) : (
                             <FlatList
-                                data={filteredSearches}
-                                keyExtractor={(item) =>
-                                    item.type === 'user' ? `user-${item.user_id}` : `series-${item.series_api_id}`
-                                }
+                                data={searchResults}
+                                keyExtractor={(item, index) => {
+                                    if (item.type === 'user') {
+                                        return item.user_id ? `user-${item.user_id}` : `user-${item.name}-${index}`;
+                                    } else if (item.type === 'series') {
+                                        return item.series_api_id ? `series-${item.series_api_id}` : `series-${item.name}-${index}`;
+                                    }
+                                    return `item-${index}`;
+                                }}
                                 keyboardShouldPersistTaps="handled"
                                 renderItem={({ item }) => (
                                     <TouchableOpacity
@@ -99,9 +175,14 @@ export default function SearchScreen() {
                 ) : (
                     <FlatList
                         data={searchResults}
-                        keyExtractor={(item) =>
-                            item.type === 'user' ? `user-${item.user_id}` : `series-${item.series_api_id}`
-                        }
+                        keyExtractor={(item, index) => {
+                            if (item.type === 'user') {
+                                return item.user_id ? `user-${item.user_id}` : `user-${item.name}-${index}`;
+                            } else if (item.type === 'series') {
+                                return item.series_api_id ? `series-${item.series_api_id}` : `series-${item.name}-${index}`;
+                            }
+                            return `item-${index}`;
+                        }}
                         keyboardShouldPersistTaps="handled"
                         renderItem={({ item }) => (
                             <TouchableOpacity

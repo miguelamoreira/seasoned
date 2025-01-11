@@ -102,7 +102,7 @@ export default function UsersDisplay({ users, currentUser, type }: UsersProps) {
 
     const renderUser = ({ item }: { item: User }) => {
         const isCurrentUser = Number(currentUser) === item.user_id;
-        const isLoggedUsersPage = currentUser === userId;
+        const isLoggedUsersPage = currentUser === Number(userId);
 
         return (
             <TouchableOpacity
