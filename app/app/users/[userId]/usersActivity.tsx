@@ -26,29 +26,6 @@ const LIKES_SUBTABS = [
     { label: 'Reviews', key: 'Reviews' },
 ];
 
-const episodesData = [
-    {
-        id: 1,
-        title: 'Episode 12',
-        season: 1,
-        episode: 12,
-        date: '29th November, 2024',
-        image: 'https://static.tvmaze.com/uploads/images/large_landscape/253/634054.jpg',
-        watched: false, 
-        year: 2024
-    },
-    {
-        id: 2,
-        title: 'Demon 79',
-        season: 6,
-        episode: 5,
-        date: '18th November, 2024',
-        image: 'https://static.tvmaze.com/uploads/images/large_landscape/465/1163020.jpg',
-        watched: true,
-        year: 2024
-    },
-];
-
 export default function UsersActivityScreen() {
     const { userId, activeTab: initialActiveTab } = useLocalSearchParams<{ userId: string; activeTab: string }>();
     const router = useRouter();

@@ -2,24 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { findUserById, updateUserData, deleteUserById } from '@/api/userApi';
+import { useUserContext } from '@/contexts/UserContext';
 
 export default function DataTab() {
     const router = useRouter();
-    const { userId: userIdParam } = useLocalSearchParams<{ userId: string }>(); 
+    const { user, clearUser, token } = useUserContext();
     const [email, setEmail] = useState("");
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const [successMessage, setSucessMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
 
     useEffect(() => {
-        if (userIdParam) {
-            const userIdFromParams = parseInt(userIdParam);
-            findUserById(userIdFromParams)
+        if (user?.user_id) {
+            const userId = user?.user_id;
+            findUserById(userId)
                 .then((fetchedUserData) => {
                     setEmail(fetchedUserData.email); 
                 })
@@ -27,18 +27,17 @@ export default function DataTab() {
                     console.error('Error fetching user data:', error);
                 });
         }
-    }, [userIdParam]);
+    }, [user]);
 
     const handleSave = async () => {
         try {
-            const userIdFromParams = parseInt(userIdParam);
-            await updateUserData(userIdFromParams, email, currentPassword, newPassword, confirmPassword);
-            
+            if (!user) throw new Error("User not found");
+            await updateUserData(user.user_id, email, currentPassword, newPassword, confirmPassword);
             setErrorMessage("");
             setCurrentPassword("");
             setNewPassword("");
             setConfirmPassword("");
-            setSucessMessage("Your data has been successfully updated!")
+            setSuccessMessage("Your data has been successfully updated!");
         } catch (error) {
             setErrorMessage("Failed to update user data. Please try again.");
         }
@@ -46,23 +45,21 @@ export default function DataTab() {
 
     const handleDeleteAccount = async () => {
         try {
-            const userIdFromParams = parseInt(userIdParam);
-            await deleteUserById(userIdFromParams);
-            await AsyncStorage.removeItem('userToken');
-            await AsyncStorage.removeItem('userId');
-            router.push('/'); 
+            if (!user) throw new Error("User not found");
+            await deleteUserById(user.user_id);
+            clearUser();
+            router.push('/');
         } catch (error) {
-            console.error('Error deleting account: ', error)
+            console.error("Error deleting account:", error);
         }
     };
 
     const handleLogout = async () => {
         try {
-            await AsyncStorage.removeItem('userToken');
-            await AsyncStorage.removeItem('userId');
+            clearUser();
             router.push('/');
         } catch (error) {
-            console.error('Error logging out: ', error)
+            console.error("Error logging out:", error);
         }
     };
 
