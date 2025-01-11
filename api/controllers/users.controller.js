@@ -1,5 +1,5 @@
 const db = require("../models/index.js");
-const { ValidationError, Sequelize, where } = require("sequelize");
+const { ValidationError, Sequelize, where, Op } = require("sequelize");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { JWTconfig } = require("../config/db.config.js");
@@ -102,9 +102,18 @@ exports.create = async (req, res) => {
 
 exports.findAll = async (req, res) => {
     try {
-        const users = await Users.findAll({
-            attributes: ['user_id', 'name', 'avatar']
-        })
+        const { query } = req.query;
+
+        const users = query
+            ? await Users.findAll({
+                where: { 
+                    name: { [Op.like]: `%${query.toLowerCase()}%` }
+                },
+                attributes: ['user_id', 'name', 'avatar'],
+            })
+            : await Users.findAll({
+                attributes: ['user_id', 'name', 'avatar'],
+            });
 
         return res.status(200).json({
             message: 'Users retrieved successfully',
@@ -113,10 +122,10 @@ exports.findAll = async (req, res) => {
     } catch (error) {
         console.error('Error fetching users: ', error);
         return res.status(500).json({
-            message: 'Something went wrong. Please try again later.'
+            message: 'Something went wrong. Please try again later.',
         });
     }
-}
+};
 
 exports.findOne = async (req, res) => {
     const userId = req.params.id;
