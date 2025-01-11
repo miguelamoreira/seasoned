@@ -20,9 +20,6 @@ const TABS: { label: string; icon: string; library: "FontAwesome" | "AntDesign" 
     { label: 'Dropped', icon: 'bookmark-o', library: 'FontAwesome' },
 ];
 
-const WATCHLIST_FILTERS = ['Released', 'Unreleased'] as const;
-type WatchlistFilterType = (typeof WATCHLIST_FILTERS)[number];
-
 export default function UsersShowsScreen() {
     const { userId, activeTab: initialActiveTab } = useLocalSearchParams<{ userId: string; activeTab: string }>();
     const router = useRouter();

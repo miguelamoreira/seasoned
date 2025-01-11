@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, SafeAreaView, ScrollView } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { useUserContext } from '@/contexts/UserContext'; // Import the UserContext
 
 import FrankieBanner from '@/components/homepage/FrankieBanner';
 import ComingSoon from '@/components/homepage/ComingSoon';
@@ -14,26 +15,10 @@ import { fetchPopularReviews } from '@/api/reviewsApi';
 import { fetchPopularSeries } from '@/api/seriesLikesApi';
 
 export default function HomepageScreen() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userId, setUserId] = useState<number | null>(null);
+    const { user, token } = useUserContext();
     const [newReleases, setNewReleases] = useState<any[]>([]);
     const [popularReviews, setPopularReviews] = useState<any[]>([]);
     const [popularShows, setPopularShows] = useState<any[]>([]);
-
-    useEffect(() => {
-        const checkLoginStatus = async () => {
-            try {
-                const token = await AsyncStorage.getItem('userToken');
-                const id = await AsyncStorage.getItem('userId');
-                setIsLoggedIn(!!token);
-                setUserId(id ? parseInt(id) : null);
-            } catch (error) {
-                console.error("Error checking login status:", error);
-            }
-        };
-
-        checkLoginStatus();
-    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -100,8 +85,8 @@ export default function HomepageScreen() {
     return (
         <SafeAreaView style={styles.mainContainer}>
             <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {!isLoggedIn && <FrankieBanner />}
-                {isLoggedIn && (
+                {!token && <FrankieBanner />}
+                {token && user && (
                     <ContinueWatching episode={episodeData} onUnfollow={handleUnfollow} onLog={handleLog} />
                 )}
                 <ComingSoon shows={newReleases} />
@@ -109,7 +94,7 @@ export default function HomepageScreen() {
                 <PopularShows shows={popularShows} />
             </ScrollView>
 
-            <TabBar isLoggedIn={isLoggedIn} currentPage="Home" userId={userId} />
+            <TabBar isLoggedIn={!!token} currentPage="Home" userId={user?.user_id || null} />
         </SafeAreaView>
     );
 }

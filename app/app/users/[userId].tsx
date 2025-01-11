@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, FlatList, View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { useUserContext } from '@/contexts/UserContext';
 
 import OptionsTab from '@/components/OptionsTab';
 import ProfileHeader from '@/components/users/ProfileHeader';
@@ -44,32 +45,25 @@ interface RatingsGroupedByScore {
 }
 
 export default function UserProfileScreen() {
-    const { userId: userIdParam } = useLocalSearchParams<{ userId: string }>(); 
+    const { user, token } = useUserContext();
+    const { userId: userIdParam } = useLocalSearchParams<{ userId: string }>();
     const router = useRouter();
 
     const [type, setType] = useState<'profile' | 'edit'>('profile');
     const [activeTab, setActiveTab] = useState<string>('header');
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [loggedInUserId, setLoggedInUserId] = useState<number | null>(null);
+    const [isViewingOtherUser, setIsViewingOtherUser] = useState(false);
     const [userData, setUserData] = useState<UserProfile | null>(null);
     const [badges, setBadges] = useState<any[]>([]);
-    const [isViewingOtherUser, setIsViewingOtherUser] = useState(false); 
     const [ratingsGroupedByScore, setRatingsGroupedByScore] = useState<RatingsGroupedByScore>({});
     const [genres, setGenres] = useState<any[]>([]);
 
     useEffect(() => {
         const initialize = async () => {
             try {
-                const token = await AsyncStorage.getItem('userToken');
-                const loggedInId = await AsyncStorage.getItem('userId');
-                const userId = userIdParam ? parseInt(userIdParam, 10) : null;
-
-                const loggedInUserIdNum = loggedInId ? parseInt(loggedInId, 10) : null;
-                setLoggedInUserId(loggedInUserIdNum);
-                setIsLoggedIn(!!token);
+                const userId = userIdParam ? parseInt(userIdParam, 10) : user?.user_id;
 
                 if (userId) {
-                    setIsViewingOtherUser(userId !== loggedInUserIdNum);
+                    setIsViewingOtherUser(userId !== user?.user_id);
 
                     const [userDataResponse, badgesResponse, ratingsResponse, genresResponse] = await Promise.all([
                         findUserById(userId),
@@ -94,7 +88,7 @@ export default function UserProfileScreen() {
         };
 
         initialize();
-    }, [userIdParam]);
+    }, [userIdParam, user]);
 
     const handleSaveProfile = (updatedUsername: string) => {
         if (userData) {
@@ -158,7 +152,7 @@ export default function UserProfileScreen() {
                             followers={userData?.followers ?? 0}
                             following={userData?.following ?? 0}
                             profileImage={userData?.avatar ?? ''}
-                            currentUser={String(loggedInUserId) ?? -1}
+                            currentUser={user?.user_id ?? -1}
                             userId={userData?.id ?? -1}
                         />
                     </>
@@ -185,11 +179,11 @@ export default function UserProfileScreen() {
             case 'stats':
                 return <ProfileStats stats={userData?.statsData ?? { episodes: 0, months: 0, weeks: 0, days: 0, thisYearEpisodes: 0 }} type={type} />;
             case 'favourites':
-                return <ProfileFavourites type={type} shows={userData?.favouriteSeries ?? []} onAddShow={handleAddShow} onRemoveShow={handleRemoveShow} userId={Number(loggedInUserId)}/>;
+                return <ProfileFavourites type={type} shows={userData?.favouriteSeries ?? []} onAddShow={handleAddShow} onRemoveShow={handleRemoveShow} userId={user?.user_id ?? -1} />;
             case 'genres':
-                return <ProfileGenres genres={genres} type={type} userId={loggedInUserId ?? -1} onGenresChange={handleGenresChange}/>;
+                return <ProfileGenres genres={genres} type={type} userId={user?.user_id ?? -1} onGenresChange={handleGenresChange} />;
             case 'badges':
-                return <ProfileBadges badges={badges} type={type} userId={Number(userIdParam) ?? -1} currentUserId={loggedInUserId ?? -1} badgesVisibility={userData?.badgesVisibility ?? true}/>;
+                return <ProfileBadges badges={badges} type={type} userId={userIdParam ? parseInt(userIdParam, 10) : -1} currentUserId={user?.user_id ?? -1} badgesVisibility={userData?.badgesVisibility ?? true} />;
             case 'ratings':
                 const ratingsArray = Object.entries(ratingsGroupedByScore);
                 const totalRatings = ratingsArray.reduce((acc, [score, count]) => {
@@ -218,7 +212,7 @@ export default function UserProfileScreen() {
                 contentContainerStyle={styles.flatListContent}
                 showsVerticalScrollIndicator={false}
             />
-            <TabBar isLoggedIn={isLoggedIn} currentPage="Profile" userId={loggedInUserId} />
+            <TabBar isLoggedIn={!!token} currentPage="Profile" userId={user?.user_id ?? -1} />
         </SafeAreaView>
     );
 }
