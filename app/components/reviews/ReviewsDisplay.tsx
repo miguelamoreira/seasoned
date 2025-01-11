@@ -39,6 +39,10 @@ export default function ReviewsDisplay({ reviews, type, page, seriesId, seasonNu
     const [loggedInId, setLoggedInId] = useState<number | null>(null);
 
     useEffect(() => {
+        setPopularReviews(reviews)
+    }, [reviews])
+
+    useEffect(() => {
         const fetchLoggedInId = async () => {
             try {
                 const id = await AsyncStorage.getItem('userId');

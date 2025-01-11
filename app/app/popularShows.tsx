@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, SafeAreaView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import OptionsTab from '@/components/OptionsTab';
-import ShowsDisplay from '@/components/series/SeriesDisplay';
+import SeriesDisplay from '@/components/series/SeriesDisplay';
+
+import { fetchPopularSeries } from '@/api/seriesLikesApi';
 
 const shows = [
     {
-        id: 1,
+        series_api_id: 1,
         image: 'https://static.tvmaze.com/uploads/images/medium_portrait/249/623354.jpg',
         title: 'Normal People',
         year: 2020,
@@ -16,7 +18,7 @@ const shows = [
         rating: 4.2,
     },
     {
-        id: 2,
+        series_api_id: 2,
         image: 'https://static.tvmaze.com/uploads/images/medium_portrait/211/528026.jpg',
         title: 'Mr. Robot',
         year: 2015,
@@ -25,7 +27,7 @@ const shows = [
         rating: 3.5,
     },
     {
-        id: 3,
+        series_api_id: 3,
         image: 'https://static.tvmaze.com/uploads/images/medium_portrait/499/1247570.jpg',
         title: 'Gossip Girl',
         year: 2007,
@@ -34,7 +36,7 @@ const shows = [
         rating: 2.5,
     },
     {
-        id: 4,
+        series_api_id: 4,
         image: 'https://static.tvmaze.com/uploads/images/medium_portrait/498/1245274.jpg',
         title: 'Game of Thrones',
         year: 2011,
@@ -43,7 +45,7 @@ const shows = [
         rating: 5.0,
     },
     {
-        id: 5,
+        series_api_id: 5,
         image: 'https://static.tvmaze.com/uploads/images/medium_portrait/501/1253515.jpg',
         title: 'Better Call Saul',
         year: 2015,
@@ -55,13 +57,37 @@ const shows = [
 
 export default function PopularShowsScreen() {
     const router = useRouter();
+    const [popularShows, setPopularShows] = useState<any[]>([])
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const data = await fetchPopularSeries();
+
+            if (data?.length > 0) {
+                const formattedSeries = data.map((show: any) => ({
+                    series_api_id: show.series_api_id,
+                    name: show.title,
+                    image: show.poster_url,
+                    seasons: show.total_seasons,
+                    creator: show.creator,
+                    rating: show.average_rating ?? 0,
+                }));
+
+                console.log('teste: ', formattedSeries);
+            
+                setPopularShows(formattedSeries);
+            }
+        }
+
+        fetchData()
+    }, [])
 
     return (
         <SafeAreaView style={styles.mainContainer}>
             <OptionsTab type="back" onBackPress={() => router.back()} />
             <View style={styles.contentContainer}>
                 <Text style={styles.heading}>Popular shows</Text>
-                <ShowsDisplay shows={shows} type='default'/>
+                <SeriesDisplay series={popularShows} type='default' userId={3}/>
             </View>
         </SafeAreaView>
     );
@@ -75,7 +101,6 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         flex: 1,
-        marginBottom: 60,
         paddingHorizontal: 16,
     },
     heading: {
