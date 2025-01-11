@@ -26,12 +26,10 @@ export default function ProfileBadges({ badges, type, userId, currentUserId, bad
     const router = useRouter();
     const [visibility, setVisibility] = useState(badgesVisibility);
 
-    // Sync visibility state with the badgesVisibility prop
     useEffect(() => {
         setVisibility(badgesVisibility);
     }, [badgesVisibility]);
 
-    // Handle visibility toggle
     const handleToggleVisibility = async (value: boolean) => {
         setVisibility(value);
         try {
@@ -41,17 +39,18 @@ export default function ProfileBadges({ badges, type, userId, currentUserId, bad
         }
     };
 
-    // Navigate to "See All" badges screen
     const handleSeeAll = (userId: number) => {
         router.push(`/users/${userId}/badges`);
     };
+
+    if (!visibility && userId !== currentUserId) {
+        return null;
+    }
 
     return (
         <View style={styles.container}>
             <View style={styles.sectionHeader}>
                 <Text style={styles.heading}>Badges</Text>
-
-                {/* Switch for edit mode */}
                 {type === 'edit' && (
                     <Switch
                         value={visibility}
@@ -60,38 +59,32 @@ export default function ProfileBadges({ badges, type, userId, currentUserId, bad
                         thumbColor={visibility ? '#211B17' : '#f4f3f4'}
                     />
                 )}
-
-                {/* See all button for profile mode */}
-                {type === 'profile' && userId !== currentUserId && visibility && (
+                {type === 'profile' &&  (
                     <TouchableOpacity onPress={() => handleSeeAll(userId)} style={styles.seeAllContainer}>
                         <Text style={styles.seeAllText}>See all</Text>
                         <Icon name="chevron-forward" size={16} color="#211B17" />
                     </TouchableOpacity>
                 )}
             </View>
-
-            {/* Render badges if visibility is true or user is viewing their own profile */}
-            {(visibility || userId === currentUserId) && (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.badgeScrollView}>
-                    {badges.map((badge, index) => (
-                        <View
-                            key={index}
-                            style={[
-                                styles.badgeContainer,
-                                { opacity: badge.earned ? 1 : 0.5 },
-                                index === 0 && { marginLeft: 16 },
-                            ]}
-                        >
-                            <Shadow distance={1} startColor={'#211B17'} offset={[1, 2]}>
-                                <Image
-                                    source={{ uri: badge.image }}
-                                    style={[styles.badge, !badge.earned && { opacity: 0.5 }]}
-                                />
-                            </Shadow>
-                        </View>
-                    ))}
-                </ScrollView>
-            )}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.badgeScrollView}>
+                {badges.map((badge, index) => (
+                    <View
+                        key={index}
+                        style={[
+                            styles.badgeContainer,
+                            { opacity: badge.earned ? 1 : 0.5 },
+                            index === 0 && { marginLeft: 16 },
+                        ]}
+                    >
+                        <Shadow distance={1} startColor={'#211B17'} offset={[1, 2]}>
+                            <Image
+                                source={{ uri: badge.image }}
+                                style={[styles.badge, !badge.earned && { opacity: 0.5 }]}
+                            />
+                        </Shadow>
+                    </View>
+                ))}
+            </ScrollView>
         </View>
     );
 }

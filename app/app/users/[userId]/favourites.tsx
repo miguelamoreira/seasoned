@@ -8,9 +8,11 @@ import SeriesDisplay, { Series } from '@/components/series/SeriesDisplay';
 import EmptyState from '@/components/EmptyState';
 
 import { searchShows } from '@/api/tvAPI';
+import { useUserContext } from '@/contexts/UserContext';
 
 export default function AddFavouritesScreen() {
-    const { userId } = useLocalSearchParams<{ userId: string }>();
+    const { user, token } = useUserContext();  
+    const userId = user?.user_id ?? null;
     const router = useRouter();
 
     const [isFocused, setIsFocused] = useState<boolean>(false);

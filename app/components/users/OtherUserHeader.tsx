@@ -11,7 +11,7 @@ type OtherUserHeaderProps = {
     followers: number;
     following: number;
     profileImage: string;
-    currentUser: string;
+    currentUser: number;
 };
 
 export default function OtherUserHeader({ userId, username, followers, following, profileImage, currentUser }: OtherUserHeaderProps) {

@@ -6,11 +6,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import OptionsTab from '@/components/OptionsTab';
 import { login } from '@/api/authApi'
+import { useUserContext } from '@/contexts/UserContext';
 
 const windowWidth = Dimensions.get('window').width;
 
 export default function SignInScreen() {
     const router = useRouter();
+    const { setUserData } = useUserContext();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
@@ -20,8 +22,13 @@ export default function SignInScreen() {
             const response = await login({ email, password });
 
             if (response?.success && response.accessToken) {
+                const userId = response.loggedUserId;
+
                 await AsyncStorage.setItem('userToken', response.accessToken);
-                await AsyncStorage.setItem('userId', response.loggedUserId.toString());
+                await AsyncStorage.setItem('userId', userId.toString());
+
+                setUserData({ user_id: userId }, response.accessToken);
+
                 router.push('/homepage');
             } 
         } catch (error) {

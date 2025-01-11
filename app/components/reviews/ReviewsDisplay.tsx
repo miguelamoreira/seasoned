@@ -4,7 +4,7 @@ import { Shadow } from 'react-native-shadow-2';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Star from 'react-native-vector-icons/AntDesign';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUserContext } from '@/contexts/UserContext'; 
 
 import { likeReview, dislikeReview } from '@/api/reviewLikesApi';
 
@@ -36,24 +36,12 @@ type ReviewsProps = {
 export default function ReviewsDisplay({ reviews, type, page, seriesId, seasonNumber, episodeNumber, userId }: ReviewsProps) {
     const [popularReviews, setPopularReviews] = useState(reviews);
     const router = useRouter();
-    const [loggedInId, setLoggedInId] = useState<number | null>(null);
+    const { user } = useUserContext();
+    const loggedInId = user?.user_id || null; 
 
     useEffect(() => {
         setPopularReviews(reviews)
     }, [reviews])
-
-    useEffect(() => {
-        const fetchLoggedInId = async () => {
-            try {
-                const id = await AsyncStorage.getItem('userId');
-                setLoggedInId(id ? parseInt(id, 10) : null);
-            } catch (error) {
-                console.error('Error fetching logged-in user ID:', error);
-            }
-        };
-
-        fetchLoggedInId();
-    }, []);
 
     const toggleLikedReviews = async (index: number) => {
         if (loggedInId === null) {
