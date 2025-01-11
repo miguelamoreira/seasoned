@@ -57,7 +57,7 @@ export default function TabBar(props: TabBarProps) {
                     router.push('/homepage'); 
                     break;
                 case 'search':
-                    console.log('/search'); 
+                    router.push('/search'); 
                     break;
                 case 'notifications':
                     console.log('/notifications'); 

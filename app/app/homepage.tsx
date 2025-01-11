@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 
-import { useUserContext } from '@/contexts/UserContext'; // Import the UserContext
+import { useUserContext } from '@/contexts/UserContext';
 
 import FrankieBanner from '@/components/homepage/FrankieBanner';
 import ComingSoon from '@/components/homepage/ComingSoon';

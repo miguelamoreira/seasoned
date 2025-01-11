@@ -9,14 +9,13 @@ export type User = {
     name: any;
     user_id: number;
     avatar: string;
-    username: string;
     following?: boolean;
     type: 'user';
 };
 
 type UsersProps = {
     users: User[];
-    currentUser: string;
+    currentUser: number;
     type: 'search' | 'following' | 'followers';
 };
 
