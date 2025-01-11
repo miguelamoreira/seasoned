@@ -183,7 +183,7 @@ export default function UserProfileScreen() {
             case 'genres':
                 return <ProfileGenres genres={genres} type={type} userId={user?.user_id ?? -1} onGenresChange={handleGenresChange} />;
             case 'badges':
-                return <ProfileBadges badges={badges} type={type} userId={user?.user_id ?? -1} currentUserId={user?.user_id ?? -1} badgesVisibility={userData?.badgesVisibility ?? true} />;
+                return <ProfileBadges badges={badges} type={type} userId={userIdParam ? parseInt(userIdParam, 10) : -1} currentUserId={user?.user_id ?? -1} badgesVisibility={userData?.badgesVisibility ?? true} />;
             case 'ratings':
                 const ratingsArray = Object.entries(ratingsGroupedByScore);
                 const totalRatings = ratingsArray.reduce((acc, [score, count]) => {
