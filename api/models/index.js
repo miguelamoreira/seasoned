@@ -154,10 +154,6 @@ db.EpisodeLikes.belongsTo(db.Episodes, { foreignKey: 'episode_api_id', as: 'epis
 db.Series.hasMany(db.Seasons, { foreignKey: 'series_api_id', as: 'seasons', onDelete: 'CASCADE' });
 db.Seasons.belongsTo(db.Series, { foreignKey: 'series_api_id', as: 'series' })
 
-// Series <-> Episodes
-db.Series.hasMany(db.Episodes, { foreignKey: 'series_api_id', as: 'episodes', onDelete: 'CASCADE' });
-db.Episodes.belongsTo(db.Series, { foreignKey: 'series_api_id', as: 'series' })
-
 // Seasons <-> Episodes
 db.Seasons.hasMany(db.Episodes, { foreignKey: 'season_id', as: 'episodes', onDelete: 'CASCADE' });
 db.Episodes.belongsTo(db.Seasons, { foreignKey: 'season_id', as: 'seasons' })
