@@ -112,6 +112,11 @@ exports.getReviewById = async (req, res) => {
                         as: 'user',
                         attributes: ['user_id', 'name', 'avatar']
                     }]
+                },
+                {
+                    model: Users,
+                    as: 'user',
+                    attributes: ['user_id', 'name', 'avatar']
                 }
             ].filter(Boolean)
         });
@@ -220,6 +225,10 @@ exports.getReviewsBySeriesId = async (req, res) => {
                         as: 'user',
                         attributes: ['user_id', 'name', 'avatar']
                     }]
+                }, {
+                    model: Users,
+                    as: 'user',
+                    attributes: ['user_id', 'name', 'avatar']
                 }
             ],
         })

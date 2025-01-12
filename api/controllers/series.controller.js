@@ -113,7 +113,7 @@ exports.findSeriesById = async (req, res) => {
             creator: creatorNames,
             cast: castDetails,
             reviews: reviews.map(review => ({
-                review_id: review.review_id,
+                id: review.review_id,
                 user_id: review.user.user_id,
                 username: review.user.name,
                 avatar: review.user.avatar,

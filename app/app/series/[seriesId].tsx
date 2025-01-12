@@ -46,7 +46,7 @@ export default function SeriesScreen() {
 
     const renderItem = ({ item }: { item: string }) => {
         if (loading) {
-            return <ActivityIndicator size="large" color="#0000ff" />;
+            return <ActivityIndicator size="large" color="#D8A84E50" />;
         }
 
         if (error) {
@@ -55,21 +55,21 @@ export default function SeriesScreen() {
 
         switch (item) {
             case 'header':
-                return <SeriesHeader image={seriesData?.poster_url} />;
+                return <SeriesHeader key="header" image={seriesData?.poster_url} />;
             case 'details':
-                return <SeriesDetails  title={seriesData?.title} year={seriesData?.year} creator={seriesData?.creator} genres={seriesData?.genre} />;
+                return <SeriesDetails key="details" title={seriesData?.title} year={seriesData?.year} creator={seriesData?.creator} genres={seriesData?.genre} />;
             case 'bio':
-                return <SeriesBio bio={seriesData?.description} />;
+                return <SeriesBio key="bio" bio={seriesData?.description} />;
             case 'alert':
-                return seriesData?.ended === null ? <SeriesAlert release={seriesData?.release_date} /> : null;
+                return seriesData?.ended === null ? <SeriesAlert key="alert" release={seriesData?.release_date} /> : null;
             case 'logButton':
-                return <LogButton onModalToggle={handleModalState} navigation={undefined} type="series" />;
+                return <LogButton key="logButton" onModalToggle={handleModalState} navigation={undefined} type="series" disabled={!token}/>;
             case 'cast':
-                return <SeriesCast cast={seriesData?.cast} />;
+                return <SeriesCast key="cast" cast={seriesData?.cast} />;
             case 'seasons':
-                return <SeriesSeasons seasons={seriesData?.total_seasons} seriesId={seriesData?.series_api_id} />;
+                return <SeriesSeasons key="seasons" seasons={seriesData?.total_seasons} seriesId={seriesData?.series_api_id} />;
             case 'reviews':
-                return <ReviewsContainer reviews={seriesData?.reviews || []} type={'series'} seriesId={seriesId} ratings={seriesData?.ratings || []}/>;
+                return <ReviewsContainer key="reviews" reviews={seriesData?.reviews || []} type={'series'} seriesId={seriesId} ratings={seriesData?.ratings || []}/>;
             default:
                 return null;
         }

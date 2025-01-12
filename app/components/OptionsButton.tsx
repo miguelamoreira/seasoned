@@ -8,15 +8,17 @@ interface OptionsButtonProps {
     option: 'addComment' | 'reviews' | 'watched' | 'watchlist' | 'dropped' | 'likes' | 'following';
     onPress: () => void; 
     navigateTo?: string; 
+    disabled?: boolean
 }
 
 const windowWidth = Dimensions.get('window').width;
 
-export default function OptionsButton({ option, onPress, navigateTo }: OptionsButtonProps) {
+export default function OptionsButton({ option, onPress, navigateTo, disabled }: OptionsButtonProps) {
     const router = useRouter();
 
     const handlePress = () => {
-        console.log('Button pressed:', option);
+        if (disabled) return;
+
         if (onPress) {
         onPress();
         }
@@ -85,7 +87,7 @@ export default function OptionsButton({ option, onPress, navigateTo }: OptionsBu
     return (
         <View>
         <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]} style={{ width: windowWidth - 32 }}>
-            <TouchableOpacity style={styles.button} activeOpacity={0.9} onPress={handlePress}>
+            <TouchableOpacity style={styles.button} activeOpacity={0.9} onPress={handlePress} disabled={disabled}>
             <View style={styles.actionText}>
                 {renderIconAndText()}
             </View>

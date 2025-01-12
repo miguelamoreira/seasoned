@@ -8,9 +8,10 @@ type LogButtonProps = {
     onModalToggle: (isOpen: boolean) => void;
     navigation: any;
     type: 'episode' | 'series';
+    disabled?: boolean
 };
 
-export default function LogButton({ onModalToggle, navigation, type }: LogButtonProps) {
+export default function LogButton({ onModalToggle, navigation, type, disabled }: LogButtonProps) {
     const [modalVisible, setModalVisible] = useState(false);
     const [rating, setRating] = useState(0);
     const [liked, setLiked] = useState(false);
@@ -119,7 +120,7 @@ export default function LogButton({ onModalToggle, navigation, type }: LogButton
         <View>
             <View style={{ marginBottom: 20, paddingHorizontal: 16 }}>
                 <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]} style={{ width: 378 }}>
-                    <TouchableOpacity style={styles.button} onPress={openModal} activeOpacity={0.9}>
+                    <TouchableOpacity style={styles.button} onPress={openModal} activeOpacity={0.9} disabled={disabled}>
                         <Text style={styles.buttonText}>Log, rate, review, and more</Text>
                         <AntDesign name="down" size={24} color="#FFF4E0"></AntDesign>
                     </TouchableOpacity>
