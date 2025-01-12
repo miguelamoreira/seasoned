@@ -19,3 +19,13 @@ export const addWatchlist = async (userId, seriesId) => {
         throw new Error('Failed to add new  series to watchlist. Please try again later.');
     }
 }
+
+export const removeWatchlist = async (userId, seriesId) => {
+    try {
+        const { data } = await apiClient.delete(`/users/${userId}/watchlist`, { seriesId });
+        return data;
+    } catch (error) {
+        console.error('Error removing series from watchlist:', error);
+        throw new Error('Failed to remove series from watchlist. Please try again later.');
+    }
+};

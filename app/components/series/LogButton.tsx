@@ -92,7 +92,7 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
                 </TouchableOpacity>
                 <TouchableOpacity onPress={toggleWatched} style={styles.optionRow}>
                     <FontAwesome
-                        name={isWatched ? 'eye' : 'eye-slash'}
+                        name={isWatched ? 'eye-slash' : 'eye'}
                         size={24}
                         color="#82AA59"
                     />

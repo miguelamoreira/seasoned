@@ -90,6 +90,7 @@ router.route("/:id/watchedSeries")
 router.route("/:id/watchlist")
     .get(watchlistController.getWatchlist)
     .post(watchlistController.addToWatchlist)
+    .delete(watchlistController.removeFromWatchlist)
 
 router.route("/:id/reviews")
     .get(reviewsController.getReviewsByUserId)
