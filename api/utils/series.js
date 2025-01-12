@@ -31,14 +31,10 @@ exports.addSeriesWithSeasonsAndEpisodes = async (seriesId) => {
                 poster_url: seriesApiData.image?.original || null,
                 creator: creatorNames,
             });
-
-            console.log('Series created: ', series);
         }
 
         const seasonsResponse = await axios.get(`https://api.tvmaze.com/shows/${seriesId}/seasons`);
         const seasonsData = seasonsResponse.data;
-
-        console.log('Seasons data: ', seasonsData);
 
         for (const season of seasonsData) {
             const existingSeason = await Seasons.findOne({
@@ -46,7 +42,6 @@ exports.addSeriesWithSeasonsAndEpisodes = async (seriesId) => {
             });
 
             if (existingSeason) {
-                console.log(`Season ${season.number} already exists.`);
                 continue;
             }
 
@@ -56,14 +51,12 @@ exports.addSeriesWithSeasonsAndEpisodes = async (seriesId) => {
                 season_number: season.number,
             });
 
-            console.log('Season created: ', seasonRecord);
-
             const episodesResponse = await axios.get(`https://api.tvmaze.com/seasons/${season.id}/episodes`);
             const episodesData = episodesResponse.data;
 
-            console.log('Episodes Data for season ', season.number, ':', episodesData);
+            const filteredEpisodesData = episodesData.filter(episode => episode.number !== null);
 
-            const episodeData = episodesData.map(episode => ({
+            const episodeData = filteredEpisodesData.map(episode => ({
                 episode_api_id: episode.id,
                 season_id: seasonRecord.season_id,
                 episode_title: episode.name,
@@ -75,7 +68,6 @@ exports.addSeriesWithSeasonsAndEpisodes = async (seriesId) => {
             }));
 
             await Episodes.bulkCreate(episodeData);
-            console.log('Episodes created for season ', season.number);
 
             const episodeIds = episodeData.map(episode => episode.episode_api_id);
             await seasonRecord.update({

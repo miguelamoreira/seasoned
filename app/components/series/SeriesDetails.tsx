@@ -12,7 +12,7 @@ export default function SeriesDetails({ title, year, creator, genres }: { title:
             <Text style={styles.creator}>Created by <Text style={{ fontWeight: '700', color: '#211B17' }}>{creator}</Text></Text>
             <View style={styles.genres}>
                 {genres.map((genre, index) => (
-                    <Shadow distance={1} startColor={'#211B17'} offset={[1, 2]}>
+                    <Shadow key={`${genre}-${index}`} distance={1} startColor={'#211B17'} offset={[1, 2]}>
                         <Text key={`${genre}-${index}`} style={styles.genreTag}>
                             {genre}
                         </Text>
