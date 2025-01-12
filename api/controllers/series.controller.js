@@ -100,6 +100,12 @@ exports.findSeriesById = async (req, res) => {
 
         const totalSeasons = seriesApiData._embedded?.seasons.length || 0;
 
+        const seasons = seriesApiData._embedded?.seasons.map(season => ({
+            id: season.id,
+            number: season.number,
+            episodeOrder: season.episodeOrder,
+        }));
+
         const seriesData = {
             series_api_id: seriesApiData.id,
             title: seriesApiData.name,
@@ -108,6 +114,7 @@ exports.findSeriesById = async (req, res) => {
             ended: seriesApiData.ended ? seriesApiData.ended.split('-')[0] : null,
             genre: seriesApiData.genres,
             total_seasons: totalSeasons,
+            seasons,
             average_rating: seriesApiData.rating?.average || null,
             poster_url: seriesApiData.image?.original || null,
             creator: creatorNames,

@@ -5,6 +5,8 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
 
+import { useUserContext } from '@/contexts/UserContext';
+
 type Episode = {
     id: number;
     image: string;
@@ -27,6 +29,7 @@ type EpisodesProps = {
 };
 
 export default function EpisodesDisplay({ episodes, type, seriesId, seasonNumber }: EpisodesProps) {
+    const { user, token } = useUserContext();
     const router = useRouter();
 
     const [watchedEpisodes, setWatchedEpisodes] = useState<number[]>(
@@ -74,13 +77,15 @@ export default function EpisodesDisplay({ episodes, type, seriesId, seasonNumber
                         </View>
                     </View>
                     <View style={styles.episodeOptions}>
-                        <TouchableOpacity onPress={() => handleEpisodeWatched(item.id)}>
-                            <AntDesign
-                                name="eye"
-                                size={32}
-                                color={watchedEpisodes.includes(item.id) ? '#82AA59' : '#82AA5950'}
-                            />
-                        </TouchableOpacity>
+                        {token && (
+                            <TouchableOpacity onPress={() => handleEpisodeWatched(item.id)}>
+                                <AntDesign
+                                    name="eye"
+                                    size={32}
+                                    color={watchedEpisodes.includes(item.id) ? '#82AA59' : '#82AA5950'}
+                                />
+                            </TouchableOpacity>
+                        )}
                         <TouchableOpacity onPress={() => handleNavigateToEpisode(item.id)}>
                             <FontAwesome name="chevron-right" size={24} color="#211B17" />
                         </TouchableOpacity>

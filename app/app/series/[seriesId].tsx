@@ -67,7 +67,7 @@ export default function SeriesScreen() {
             case 'cast':
                 return <SeriesCast key="cast" cast={seriesData?.cast} />;
             case 'seasons':
-                return <SeriesSeasons key="seasons" seasons={seriesData?.total_seasons} seriesId={seriesData?.series_api_id} />;
+                return <SeriesSeasons key="seasons" seasons={seriesData?.seasons || []} seriesId={seriesData?.series_api_id} />;
             case 'reviews':
                 return <ReviewsContainer key="reviews" reviews={seriesData?.reviews || []} type={'series'} seriesId={seriesId} ratings={seriesData?.ratings || []}/>;
             default:

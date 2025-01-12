@@ -4,7 +4,9 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { Shadow } from 'react-native-shadow-2';
 
 type Season = {
+    id: number;
     number: number;
+    episodeOrder: number;
     onPress: () => void;
 };
 
@@ -16,9 +18,14 @@ export default function SeasonDisplay({ seasons }: SeasonDisplayProps) {
     const renderSeason = ({ item }: { item: Season }) => (
         <Shadow distance={2} startColor={'#211B17'} offset={[6, 4]}>
             <TouchableOpacity style={styles.seasonButton} onPress={item.onPress} activeOpacity={0.9}>
-                <Text style={styles.seasonText} numberOfLines={1}>
-                    Season {item.number}
-                </Text>
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.seasonText} numberOfLines={1}>
+                        Season {item.number}
+                    </Text>
+                    <Text style={styles.episodeText}>
+                        {item.episodeOrder} Episodes
+                    </Text>
+                </View>
                 <Icon name="chevron-right" size={20} style={styles.icon} />
             </TouchableOpacity>
         </Shadow>
@@ -27,7 +34,7 @@ export default function SeasonDisplay({ seasons }: SeasonDisplayProps) {
     return (
         <FlatList
             data={seasons}
-            keyExtractor={(item) => `season-${item.number}`}
+            keyExtractor={(item) => `season-${item.id}`}
             renderItem={renderSeason}
             numColumns={2}
             columnWrapperStyle={styles.columnWrapper}
@@ -69,6 +76,12 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         textAlign: 'left',
         flex: 1,
+    },
+    episodeText: {
+        color: '#211B17',
+        fontSize: 12,
+        fontWeight: '500',
+        marginTop: 4,
     },
     icon: {
         position: 'absolute',
