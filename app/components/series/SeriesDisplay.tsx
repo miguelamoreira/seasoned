@@ -74,7 +74,12 @@ export default function SeriesDisplay({ series, type, userId }: SeriesProps) {
                             {item.name} <Text style={styles.seriesYear}>{item.year}</Text>
                         </Text>
                         <View style={[styles.bottomRow, { marginTop: 80 }]}>
-                            <Text style={styles.seriesCreator}>Language: <Text style={styles.seriesCreatorHighlight}>{item.language}</Text></Text>
+                            <Text style={styles.seriesCreator}>
+                                {item?.language ? 'Language: ' : 'Creator: '}
+                                <Text style={styles.seriesCreatorHighlight}>
+                                    {item?.language || item?.creator}
+                                </Text>
+                            </Text>
                             <View style={styles.ratingContainer}>
                                 {item.rating !== undefined && (
                                     <>

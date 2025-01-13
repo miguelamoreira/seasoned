@@ -44,7 +44,6 @@ export default function AddFavouritesScreen() {
                         language: show.show.language,
                     }));
                     setSearchResults(formattedShows);
-                    console.log(formattedShows);
                 } else {
                     setSearchResults([]);
                 }
