@@ -11,6 +11,9 @@ router.route("/popular")
 router.route("/:id")
     .get(seriesController.findSeriesById)
 
+router.route("/:id/seriesprogress")
+    .get(seriesController.findSeriesById)
+
 router.route("/:id/reviews")
     .get(reviewsController.getReviewsBySeriesId)
 
