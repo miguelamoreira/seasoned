@@ -20,6 +20,8 @@ const watchlistController = require("../controllers/watchlist.controller")
 const episodeLikesController = require("../controllers/episodesLikes.controller")
 const seriesLikesController = require("../controllers/seriesLikes.controller")
 const reviewLikesController = require("../controllers/reviewLike.controller")
+const seasonProgressController = require("../controllers/seasonProgress.controller")
+const seriesProgressController = require("../controllers/seriesProgress.controller")
 
 router.route("/login")
     .post(usersController.login);
@@ -43,6 +45,16 @@ router.route("/:id/username")
 router.route("/:id/earnedBadges")
     .get(badgesController.findEarnedBadges)
     .post(badgesController.addEarnedBadges)
+
+router.route("/:id/seasonProgress")
+    .get(seasonProgressController.seasonProgressGet)
+    .post(seasonProgressController.seasonProgressPost)
+    .put(seasonProgressController.seasonProgressPut)
+
+router.route("/:id/seriesProgress")
+    .get(seriesProgressController.seriesProgressGet)
+    .post(seriesProgressController.seriesProgressPost)
+    .put(seriesProgressController.seriesProgressPut)
 
 router.route("/:id/badges")
     .get(badgesController.findBadgesComparison)
@@ -109,5 +121,6 @@ router.route("/:id/likes/reviews")
     .get(reviewLikesController.getLikedReviews)
     .post(reviewLikesController.likeReviews)
     .delete(reviewLikesController.dislikeReviews)
+
     
 module.exports = router;
