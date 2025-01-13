@@ -54,9 +54,9 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
     const goToLogReview = () => {
         closeModal();
         if (type === 'series') {
-            router.push(`/series/${seriesId}/log`);
+            router.push(`/series/${seriesId}/reviews`);
         } else if (type === 'episode') {
-            router.push(`/series/${seriesId}/seasons/${seasonNumber}/${episodeNumber}/log`);
+            router.push(`/series/${seriesId}/seasons/${seasonNumber}/${episodeNumber}/reviews`);
         }
     };
 
