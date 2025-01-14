@@ -14,7 +14,7 @@ type Season = {
 type line = {
     series_id: number;
     user_id: number;
-    progress_percentage: number;
+    progress_percentage?: number | null;
 };
 export default function SeriesSeasons({ seasons, seriesId, userId }: { seasons: Season[]; seriesId: string, userId?: number | null}) {
     const router = useRouter();
@@ -38,16 +38,17 @@ export default function SeriesSeasons({ seasons, seriesId, userId }: { seasons: 
         };
         fetchSeries(userId)
     }, [])
-
-    
-    const progress = seriesProgressData.progress_percentage / 100
+    let progress = 0
+    if(seriesProgressData != null){
+    progress = seriesProgressData.progress_percentage / 100
+    }
     
     return (
         <View style={styles.seasonsContainer}>
             <Text style={styles.heading}>Seasons</Text>
             <Progress.Bar
                 progress={progress}
-                width={378}
+                width={null}
                 color="#82AA59"
                 borderColor="#352A23"
                 unfilledColor="#352A23"
