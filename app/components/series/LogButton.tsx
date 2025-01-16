@@ -10,6 +10,7 @@ import { fetchLikedSeries, likeSeries, dislikeSeries } from '@/api/seriesLikesAp
 import { fetchLikedEpisodes, likeEpisodes, dislikeEpisodes } from '@/api/episodesLikesApi';
 import { fetchFollowedSeries, addFollowedSeries, removeFollowedSeries } from '@/api/followedSeriesApi';
 import { fetchDroppedSeries, addDroppedSeries, removeDroppedSeries } from '@/api/droppedSeriesApi';
+import { createReviews, fetchReviewsByUserId } from '@/api/reviewsApi';
 
 type LogButtonProps = {
     onModalToggle: (isOpen: boolean) => void;
@@ -32,24 +33,25 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
 
     const fetchStatus = useCallback(async () => {
         if (!loggedInId) return;
-
+    
         try {
             if (type === 'series') {
-                const [likedSeries, followedSeries, droppedSeries, watchlist] = await Promise.all([
+                const [likedSeries, followedSeries, droppedSeries, watchlist, existingReviews] = await Promise.all([
                     fetchLikedSeries(loggedInId),
                     fetchFollowedSeries(loggedInId),
                     fetchDroppedSeries(loggedInId),
                     fetchWatchlist(loggedInId),
+                    fetchReviewsByUserId(loggedInId),
                 ]);
-
+    
                 const isSeriesFollowed = followedSeries.data.some(
                     (item: any) => item.series.series_api_id === parseInt(seriesId)
                 );
-                
+    
                 const isSeriesDropped = droppedSeries.data.some(
                     (item: any) => item.series.series_api_id === parseInt(seriesId)
                 );
-                
+    
                 if (isSeriesFollowed) {
                     setIsFollowed(true);
                 } else if (isSeriesDropped) {
@@ -57,26 +59,92 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
                 } else {
                     setIsFollowed(false);
                 }
-                
+    
                 setIsInWatchlist(
                     watchlist.data.some((item: any) => item.series.series_api_id === parseInt(seriesId))
                 );
+    
+                const recentReview = existingReviews
+                    .filter((review: any) =>
+                        review.user_id === loggedInId &&
+                        review.series_api_id === parseInt(seriesId) &&
+                        review.score !== 0 &&
+                        review.comment === '' &&
+                        !review.episode_api_id
+                    )
+                    .sort((a: any, b: any) => new Date(b.review_date).getTime() - new Date(a.review_date).getTime())[0];
+
+                if (recentReview) {
+                    setRating(recentReview.score);
+                } else {
+                    setRating(0);
+                }
             } else if (type === 'episode') {
-                const likedEpisodesData = await fetchLikedEpisodes(loggedInId);
-                setLiked(likedEpisodesData.some((item: any) => item.episode_api_id === parseInt(episodeId)));
+                const [likedEpisodesData, existingReviews] = await Promise.all([
+                    fetchLikedEpisodes(loggedInId),
+                    fetchReviewsByUserId(loggedInId),
+                ]);
+    
+                setLiked(
+                    likedEpisodesData.some((item: any) => item.episode_api_id === parseInt(episodeId))
+                );
+    
+                const recentEpisodeReview = existingReviews
+                .filter((review: any) =>
+                    review.user_id === loggedInId &&
+                    review.series_api_id === parseInt(seriesId) &&
+                    review.score !== 0 &&
+                    review.comment === '' &&
+                    review.episode_api_id === parseInt(episodeId) 
+                )
+                .sort((a: any, b: any) => new Date(b.review_date).getTime() - new Date(a.review_date).getTime())[0];
+                
+                if (recentEpisodeReview) {
+                    setRating(recentEpisodeReview.score);
+                } else {
+                    setRating(0);
+                }
             }
         } catch (error) {
             console.error('Error fetching status:', error);
         }
     }, [loggedInId, seriesId, episodeId, type]);
-
+    
     useEffect(() => {
         if (modalVisible) fetchStatus();
-    }, [modalVisible, fetchStatus]);  
+    }, [modalVisible, fetchStatus]);    
 
-    const handleRatingPress = (index: number) => {
-        setRating(index + 1);
-    };
+    const handleRatingPress = async (index: number) => {
+        const newRating = index + 1;
+        setRating(newRating);
+    
+        const ratingData = {
+            user_id: loggedInId,
+            reviews: [
+                {
+                    series_api_id: parseInt(seriesId),
+                    episode_api_id: type === 'episode' ? parseInt(episodeId) : undefined,
+                    score: newRating,
+                    comment: '',
+                },
+            ],
+        };
+    
+        try {
+            if (!loggedInId) return;
+    
+            if (type === 'episode') {
+                const episodeReview = ratingData.reviews[0];
+                if (episodeReview.episode_api_id) {
+                    const response = await createReviews(ratingData.user_id, [episodeReview]);
+                }
+            } else if (type === 'series') {
+                const response = await createReviews(ratingData.user_id, ratingData.reviews);
+            }
+        } catch (error) {
+            console.error('Error creating/updating review:', error);
+        }
+    };    
 
     const toggleHeart = async () => {
         try {
@@ -166,7 +234,7 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
             <>
                 <TouchableOpacity onPress={toggleWatched} style={styles.optionRow}>
                     <FontAwesome
-                        name={isWatched ? 'eye' : 'eye-slash'}
+                        name={isWatched ? 'eye-slash' : 'eye'}
                         size={24}
                         color="#82AA59"
                     />

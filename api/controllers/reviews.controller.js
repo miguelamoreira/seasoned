@@ -346,7 +346,7 @@ exports.createReviews = async (req, res) => {
             let series = await Series.findOne({ where: { series_api_id } });
 
             if (!series) {
-                await seriesUtil.addSeriesWithSeasonsAndEpisodes(seriesId);
+                await seriesUtil.addSeriesWithSeasonsAndEpisodes(series_api_id);
             }
 
             if (episode_api_id) {
