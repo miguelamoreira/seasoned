@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet, Alert } from 'react-native';
 import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -7,6 +7,7 @@ import { Shadow } from 'react-native-shadow-2';
 import { useUserContext } from '@/contexts/UserContext';
 import { fetchWatchlist, addWatchlist, removeWatchlist } from '@/api/watchlistApi';
 import { fetchLikedSeries, likeSeries, dislikeSeries } from '@/api/seriesLikesApi';
+import { fetchLikedEpisodes, likeEpisodes, dislikeEpisodes } from '@/api/episodesLikesApi';
 import { fetchFollowedSeries, addFollowedSeries, removeFollowedSeries } from '@/api/followedSeriesApi';
 import { fetchDroppedSeries, addDroppedSeries, removeDroppedSeries } from '@/api/droppedSeriesApi';
 
@@ -27,56 +28,38 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
     const [isWatched, setIsWatched] = useState(false);
     const [isInWatchlist, setIsInWatchlist] = useState(false);
     const router = useRouter();
-    const { seriesId, seasonNumber, episodeNumber } = useLocalSearchParams<{ seriesId: string; seasonNumber: string; episodeNumber: string }>();
+    const { seriesId, seasonId, episodeId } = useLocalSearchParams<{ seriesId: string; seasonId: string; episodeId: string }>();
+
+    const fetchStatus = useCallback(async () => {
+        if (!loggedInId) return;
+
+        try {
+            if (type === 'series') {
+                const [likedSeries, followedSeries, watchlist] = await Promise.all([
+                    fetchLikedSeries(loggedInId),
+                    fetchFollowedSeries(loggedInId),
+                    fetchWatchlist(loggedInId),
+                ]);
+
+                setLiked(likedSeries.some((item: any) => item.series_api_id === parseInt(seriesId)));
+                setIsFollowed(
+                    followedSeries.data.some((item: any) => item.series.series_api_id === parseInt(seriesId))
+                );
+                setIsInWatchlist(
+                    watchlist.data.some((item: any) => item.series.series_api_id === parseInt(seriesId))
+                );
+            } else if (type === 'episode') {
+                const likedEpisodesData = await fetchLikedEpisodes(loggedInId);
+                setLiked(likedEpisodesData.some((item: any) => item.episode_api_id === parseInt(episodeId)));
+            }
+        } catch (error) {
+            console.error('Error fetching status:', error);
+        }
+    }, [loggedInId, seriesId, episodeId, type]);
 
     useEffect(() => {
-        const checkFollowedStatus = async () => {
-            try {
-                if (!loggedInId) {
-                    console.log('No user logged in');
-                    return;
-                }
-
-                const likedSeries = await fetchLikedSeries(loggedInId);
-                console.log('likedSeries: ', likedSeries);
-
-                const isLikedSeries = likedSeries.some(
-                    (item: any) => item.series_api_id === parseInt(seriesId)
-                );
-                setLiked(isLikedSeries);
-
-                const followedSeries = await fetchFollowedSeries(loggedInId);
-                const droppedSeries = await fetchDroppedSeries(loggedInId);
-
-                const isSeriesFollowed = followedSeries.data.some(
-                    (item: any) => item.series.series_api_id === parseInt(seriesId)
-                );
-
-                const isSeriesDropped = droppedSeries.data.some(
-                    (item: any) => item.series.series_api_id === parseInt(seriesId)
-                );
-
-                if (isSeriesFollowed) {
-                    setIsFollowed(true);
-                } else if (isSeriesDropped) {
-                    setIsFollowed(false);
-                }
-
-                const watchlist = await fetchWatchlist(loggedInId);
-                const inWatchlist = watchlist.data.some(
-                    (item: any) => item.series.series_api_id === parseInt(seriesId)
-                );
-                setIsInWatchlist(inWatchlist);
-            } catch (error) {
-                console.error('Error fetching status:', error);
-            }
-        };
-
-        if (modalVisible) {
-            checkFollowedStatus();
-        }
-    }, [modalVisible, seriesId, loggedInId]);
-    
+        if (modalVisible) fetchStatus();
+    }, [modalVisible, fetchStatus]);  
 
     const handleRatingPress = (index: number) => {
         setRating(index + 1);
@@ -85,41 +68,38 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
     const toggleHeart = async () => {
         try {
             if (!loggedInId) {
-                console.log('User is not logged in.');
                 return;
             }
-
+    
+            const apiActions = {
+                like: type === 'series' ? likeSeries : likeEpisodes,
+                dislike: type === 'series' ? dislikeSeries : dislikeEpisodes,
+            };
+    
             if (liked) {
-                console.log('series: ', seriesId);
-                await dislikeSeries(loggedInId, seriesId);
-                console.log('Disliked series')
+                await apiActions.dislike(loggedInId, seriesId, type === 'episode' ? episodeId : undefined);
             } else {
-                await likeSeries(loggedInId, seriesId);
-                console.log('Liked series')
+                await apiActions.like(loggedInId, seriesId, type === 'episode' ? episodeId : undefined);
             }
-
-            setLiked(!liked)
+    
+            setLiked(!liked);
         } catch (error) {
-            console.error('Error toggling follow status:', error);
+            console.error('Error toggling like status:', error);
         }
-    };
+    };    
 
     const toggleFollow = async () => {
         try {
             if (!loggedInId) {
-                console.log('User is not logged in.');
                 return;
             }
 
             if (isFollowed) {
-                console.log('series: ', seriesId)
                 await removeFollowedSeries(loggedInId, seriesId);
                 await addDroppedSeries(loggedInId, seriesId);
-                console.log('Moved to dropped series');
             } else {
                 await removeDroppedSeries(loggedInId, seriesId);
                 await addFollowedSeries(loggedInId, seriesId);
-                console.log('Moved to followed series');
             }
 
             setIsFollowed(!isFollowed);
@@ -135,17 +115,13 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
     const toggleWatchlist = async () => {
         try {
             if (!loggedInId) {
-                console.log('User is not logged in.');
                 return;
             }
 
             if (isInWatchlist) {
-                console.log('Series id:', seriesId)
                 await removeWatchlist(loggedInId, seriesId);
-                console.log('Removed from Watchlist');
             } else {
                 await addWatchlist(loggedInId, seriesId);
-                console.log('Added to Watchlist');
             }
             setIsInWatchlist(!isInWatchlist);
         } catch (error) {
@@ -168,7 +144,7 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
         if (type === 'series') {
             router.push(`/series/${seriesId}/log`);
         } else if (type === 'episode') {
-            router.push(`/series/${seriesId}/seasons/${seasonNumber}/${episodeNumber}/log`);
+            router.push(`/series/${seriesId}/seasons/${seasonId}/${episodeId}/log`);
         }
     };
 

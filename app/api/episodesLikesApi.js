@@ -10,9 +10,9 @@ export const fetchLikedEpisodes = async (userId) => {
     }
 }
 
-export const likeEpisodes = async (userId, seriesId) => {
+export const likeEpisodes = async (userId, seriesId, episodeId) => {
     try {
-        const response = await apiClient.post(`/users/${userId}/likes/episodes`, { seriesId });
+        const response = await apiClient.post(`/users/${userId}/likes/episodes`, { seriesId, episodeId });
         return response.data;
     } catch (error) {
         console.error('Error liking the episodes: ', error);
@@ -20,9 +20,9 @@ export const likeEpisodes = async (userId, seriesId) => {
     }
 }
 
-export const dislikeEpisodes = async (userId, seriesId) => {
+export const dislikeEpisodes = async (userId, seriesId, episodeId) => {
     try {
-        const response = await apiClient.delete(`/users/${userId}/likes/episodes`, { seriesId });
+        const response = await apiClient.delete(`/users/${userId}/likes/episodes`, {data: { seriesId, episodeId }});
         return response.data;
     } catch (error) {
         console.error('Error liking the episodes: ', error);
