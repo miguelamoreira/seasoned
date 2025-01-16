@@ -127,8 +127,8 @@ exports.findSeriesById = async (req, res) => {
                 rating: review.score,
                 review: review.comment,
                 review_date: review.review_date,
-                likes: review.ReviewLikes ? review.ReviewLikes.length : 0,
-                comments: review.ReviewComments ? review.ReviewComments.length : 0,
+                likes: review.likes ? review.likes.length : 0,
+                comments: review.comments ? review.comments.length : 0,
             })),
             ratings,
         };

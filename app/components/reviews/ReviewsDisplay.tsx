@@ -21,6 +21,7 @@ type Review = {
     avatar?: string;
     liked?: boolean;
     rating?: number;
+    reviewId?: string;
 };
 
 type ReviewsProps = {

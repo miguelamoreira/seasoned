@@ -4,10 +4,14 @@ import { Shadow } from 'react-native-shadow-2';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Star from 'react-native-vector-icons/AntDesign';
 import { useRouter } from 'expo-router';
+import { useUserContext } from '@/contexts/UserContext'; 
+
+import { likeReview, dislikeReview } from '@/api/reviewLikesApi';
 
 const windowWidth = Dimensions.get('window').width;
 
 type Review = {
+    reviewId: string; 
     imageUri: string;
     title: string;
     year: number;
@@ -28,29 +32,54 @@ type PopularReviewsProps = {
 export default function PopularReviews({ reviews, showHeading = true }: PopularReviewsProps) {
     const [popularReviews, setPopularReviews] = useState(reviews);
     const router = useRouter();
+    const { user } = useUserContext();
+    const loggedInId = user?.user_id || null;
 
     useEffect(() => {
         setPopularReviews(reviews);
     }, [reviews]);
 
-    const handleSeeAll = (section: string) => {
+    const handleSeeAll = () => {
         router.push('/popularReviews');
     };
 
-    const toggleLike = (index: number) => {
-        const updatedReviews = [...popularReviews];
-        const targetReview = updatedReviews[index];
-        targetReview.liked = !targetReview.liked;
-        targetReview.likes += targetReview.liked ? 1 : -1;
-        setPopularReviews(updatedReviews);
-    };
+    const toggleLike = async (index: number) => {
+        if (loggedInId === null) {
+            console.warn('User must be logged in to like or dislike reviews.');
+            return;
+        }
+    
+        const targetReview = popularReviews[index];
+    
+        try {
+            console.log('Toggling like for review:', targetReview.reviewId);
+    
+            if (targetReview.liked) {
+                const response = await dislikeReview(loggedInId, targetReview.reviewId);
+                targetReview.likes -= 1;
+            } else {
+                const response = await likeReview(loggedInId, targetReview.reviewId);
+                targetReview.likes += 1;
+            }
+    
+            targetReview.liked = !targetReview.liked;
+    
+            setPopularReviews(prevReviews => 
+                prevReviews.map((review, idx) => 
+                    idx === index ? { ...review, liked: targetReview.liked, likes: targetReview.likes } : review
+                )
+            );
+        } catch (error) {
+            console.error('Error toggling like:', error);
+        }
+    };    
 
     return (
         <View style={styles.popularContainer}>
             {showHeading && (
                 <View style={styles.sectionHeader}>
                     <Text style={styles.heading}>Popular reviews</Text>
-                    <TouchableOpacity onPress={() => handleSeeAll('Popular Reviews')} style={styles.seeAllContainer}>
+                    <TouchableOpacity onPress={handleSeeAll} style={styles.seeAllContainer}>
                         <Text style={styles.seeAllText}>See all</Text>
                         <Icon name="chevron-forward" size={16} color="#211B17" />
                     </TouchableOpacity>
@@ -58,7 +87,7 @@ export default function PopularReviews({ reviews, showHeading = true }: PopularR
             )}
             {popularReviews.map((review, index) => (
                 <Shadow key={index} distance={2} startColor={'#211B17'} offset={[2, 4]} style={popularReviews.length > 1 && { marginBottom: 20 }}>
-                    <View style={[ styles.reviewCard, popularReviews.length > 1 && { marginBottom: 2 }]}>
+                    <View style={[styles.reviewCard, popularReviews.length > 1 && { marginBottom: 2 }]}>
                         <View style={styles.topRow}>
                             <View style={styles.leftSection}>
                                 <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
@@ -224,4 +253,3 @@ const styles = StyleSheet.create({
         marginLeft: 4,
     },
 });
-

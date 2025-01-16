@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 
 import { useUserContext } from '@/contexts/UserContext';
 import { findSeriesById } from '@/api/seriesApi';
+import { fetchLikedReviews } from '@/api/reviewLikesApi';
 
 import OptionsTab from '@/components/OptionsTab';
 import SeriesHeader from '@/components/series/SeriesHeader';
@@ -20,9 +21,10 @@ export default function SeriesScreen() {
     const { user, token } = useUserContext();
     const { seriesId } = useLocalSearchParams<{ seriesId: string }>();
     const router = useRouter();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [seriesData, setSeriesData] = useState<any | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [likedReviews, setLikedReviews] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -30,59 +32,90 @@ export default function SeriesScreen() {
             try {
                 const data = await findSeriesById(seriesId);
                 setSeriesData(data);
-                setLoading(false);
+
+                if (user?.user_id) {
+                    const likedData = await fetchLikedReviews(user?.user_id);
+                    setLikedReviews(likedData);
+                }
             } catch (err) {
                 setError('Failed to load series data');
-                setLoading(false);
             }
         };
 
         fetchSeries();
-    }, [seriesId]);
+    }, [seriesId, user?.user_id]);
 
     const handleModalState = (isOpen: boolean) => {
         setIsModalOpen(isOpen);
     };
 
+    if (!seriesData && !error) {
+        return (
+            <SafeAreaView style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#D8A84E50" />
+            </SafeAreaView>
+        );
+    }
+
+    if (error) {
+        return (
+            <SafeAreaView style={styles.loadingContainer}>
+                <Text>{error}</Text>
+            </SafeAreaView>
+        );
+    }
+
     const renderItem = ({ item }: { item: string }) => {
-        if (loading) {
-            return <ActivityIndicator size="large" color="#D8A84E50" />;
+        if (item === 'content') {
+            return (
+                <>
+                    <SeriesHeader image={seriesData?.poster_url} />
+                    <SeriesDetails
+                        title={seriesData?.title}
+                        year={seriesData?.year}
+                        creator={seriesData?.creator}
+                        genres={seriesData?.genre}
+                    />
+                    <SeriesBio bio={seriesData?.description} />
+                    {seriesData?.ended === null && <SeriesAlert release={seriesData?.release_date} />}
+                    <LogButton
+                        onModalToggle={handleModalState}
+                        navigation={undefined}
+                        type="series"
+                        disabled={!token}
+                    />
+                    <SeriesCast cast={seriesData?.cast} />
+                    <SeriesSeasons
+                        seasons={seriesData?.seasons || []}
+                        seriesId={seriesData?.series_api_id}
+                        userId={user?.user_id || null}
+                    />
+                    <ReviewsContainer
+                        reviews={seriesData?.reviews.map((review: any) => ({
+                            ...review,
+                            liked: likedReviews.some(
+                                (likedReview: any) => likedReview.review_id === review.id
+                            ),
+                            likes: review.likes,
+                        }))}
+                        type="series"
+                        seriesId={seriesId}
+                        ratings={seriesData?.ratings || []}
+                    />
+                </>
+            );
         }
 
-        if (error) {
-            return <Text>{error}</Text>;
-        }
-
-        switch (item) {
-            case 'header':
-                return <SeriesHeader key="header" image={seriesData?.poster_url} />;
-            case 'details':
-                return <SeriesDetails key="details" title={seriesData?.title} year={seriesData?.year} creator={seriesData?.creator} genres={seriesData?.genre} />;
-            case 'bio':
-                return <SeriesBio key="bio" bio={seriesData?.description} />;
-            case 'alert':
-                return seriesData?.ended === null ? <SeriesAlert key="alert" release={seriesData?.release_date} /> : null;
-            case 'logButton':
-                return <LogButton key="logButton" onModalToggle={handleModalState} navigation={undefined} type="series" disabled={!token}/>;
-            case 'cast':
-                return <SeriesCast key="cast" cast={seriesData?.cast} />;
-            case 'seasons':
-                return <SeriesSeasons key="seasons" seasons={seriesData?.seasons || []} seriesId={seriesData?.series_api_id} userId={user?.user_id || null} />;
-            case 'reviews':
-                return <ReviewsContainer key="reviews" reviews={seriesData?.reviews || []} type={'series'} seriesId={seriesId} ratings={seriesData?.ratings || []}/>;
-            default:
-                
-                return null;
-        }
+        return null;
     };
 
     return (
         <SafeAreaView style={styles.mainContainer}>
             <OptionsTab type="back" onBackPress={() => router.back()} />
             <FlatList
-                data={['header', 'details', 'bio', 'alert', 'logButton', 'cast', 'seasons', 'reviews']}
+                data={['content']}
                 renderItem={renderItem}
-                keyExtractor={(item) => item}
+                keyExtractor={() => 'content'}
                 contentContainerStyle={styles.flatListContent}
                 showsVerticalScrollIndicator={false}
             />
@@ -97,7 +130,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF4E0',
         paddingTop: 42,
     },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#FFF4E0',
+    },
     flatListContent: {
-        paddingBottom: 40, 
+        paddingBottom: 60,
     },
 });

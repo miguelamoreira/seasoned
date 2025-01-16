@@ -30,10 +30,13 @@ export default function SeriesSeasons({ seasons, seriesId, userId }: { seasons: 
 
     useEffect(()=>{
         const fetchSeries = async (userId?: number | null) => {
-            try {
-                const data = await getSeriesProgress(userId);
-                setseriesProgressData(data.find((line: line)=> line.series_id == parseInt(seriesId)))
-            } catch (err) {
+            if (userId) {
+                try {
+                    const data = await getSeriesProgress(userId);
+                    setseriesProgressData(data.find((line: line)=> line.series_id == parseInt(seriesId)))
+                } catch (err) {
+                    console.error("Error fetching series progress: ", err)
+                }
             }
         };
         fetchSeries(userId)

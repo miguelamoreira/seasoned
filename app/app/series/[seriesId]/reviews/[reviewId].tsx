@@ -4,48 +4,54 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useUserContext } from '@/contexts/UserContext';
 
-import ReviewsDisplay from '@/components/reviews/ReviewsDisplay'; 
+import ReviewsDisplay from '@/components/reviews/ReviewsDisplay';
 import OptionsTab from '@/components/OptionsTab';
 import OptionsButton from '@/components/OptionsButton';
 import LikedBy from '@/components/reviews/LikedBy';
 
 import { fetchReviewById } from '@/api/reviewsApi';
+import { fetchLikedReviews } from '@/api/reviewLikesApi';
 
 export default function SeriesReviewScreen() {
   const { user, token } = useUserContext();
   const router = useRouter();
   const { seriesId, reviewId } = useLocalSearchParams<{ seriesId: string, reviewId: string }>();
-  const [review, setReview] = useState<any[]>([])
+  const [review, setReview] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchReviewById(reviewId);
 
       if (data) {
+        const likedUsers = data?.likes?.map((like: any) => ({
+          name: like?.user?.name,
+          avatar: like?.user?.avatar, 
+          userId: like?.user?.user_id,
+        })) || [];
+
+        const isLiked = likedUsers.some((like: { userId: number | undefined; }) => like.userId === user?.user_id);
+
         const formattedReview = {
           id: data?.review_id,
           rating: data?.score,
           review: data?.comment,
-          likes: data?.likes?.length || 0,
-          likedUsers: data?.likes?.map((like: any) => ({
-            name: like?.user?.name,
-            avatar: like?.user?.avatar, 
-          })) || [], 
+          likes: data?.likes?.length,
+          likedUsers: likedUsers,
           comments: data?.comments?.length || 0,
           allComments: data?.comments || [],
           username: data?.user?.name,
           avatar: data?.user?.avatar,
-          liked: false,
-        }
+          liked: isLiked,
+        };
 
-        setReview([formattedReview])
+        setReview([formattedReview]);
       } else {
-        setReview([])
+        setReview([]);
       }
     };
 
     fetchData();
-  }, [])
+  }, [reviewId, user?.user_id]);
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -55,7 +61,7 @@ export default function SeriesReviewScreen() {
         <>
             <Text style={styles.heading}>Review</Text>
           
-            <View style={{ paddingHorizontal: 16, }}>
+            <View style={{ paddingHorizontal: 16 }}>
               <ReviewsDisplay reviews={review} type="all" seriesId={seriesId} />
 
               <LikedBy likedUsers={review[0]?.likedUsers || []} />
@@ -77,9 +83,9 @@ export default function SeriesReviewScreen() {
                   year: 2024,
                   title: '',
                 })) || []}
-              type="comment"
-              seriesId={seriesId}
-            />
+                type="comment"
+                seriesId={seriesId}
+              />
             </View>
         </>
       )}

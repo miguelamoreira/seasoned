@@ -4,6 +4,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Shadow } from 'react-native-shadow-2';
 import * as Progress from 'react-native-progress';
+import { useRouter } from 'expo-router';
 
 import { addFavouriteSeries, fetchFavouriteSeries, deleteFavouriteSeries } from '@/api/favouriteSeriesApi';
 
@@ -31,6 +32,7 @@ type SeriesProps = {
 
 export default function SeriesDisplay({ series, type, userId }: SeriesProps) {
     const [favouriteSeries, setFavouriteSeries] = useState<Series[]>([]);
+    const router = useRouter();
 
     const fetchUserFavourites = async () => {
         try {
@@ -65,7 +67,7 @@ export default function SeriesDisplay({ series, type, userId }: SeriesProps) {
     const renderShow = ({ item }: { item: Series }) => (
         <>
             {type === 'default' && (
-                <View style={styles.seriesContainer}>
+                <TouchableOpacity style={styles.seriesContainer} onPress={() => router.push(`/series/${item.series_api_id}`)}>
                     <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
                         <Image source={{ uri: item.image }} style={styles.seriesImage} />
                     </Shadow>
@@ -90,10 +92,10 @@ export default function SeriesDisplay({ series, type, userId }: SeriesProps) {
                             </View>
                         </View>
                     </View>
-                </View>
+                </TouchableOpacity>
             )}
             {type === 'progress' && (
-                <View style={styles.seriesContainer}> 
+                <TouchableOpacity style={styles.seriesContainer} onPress={() => router.push(`/series/${item.series_api_id}`)}> 
                     <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
                         <Image source={{ uri: item.image }} style={styles.seriesImage} />
                     </Shadow>
@@ -123,10 +125,10 @@ export default function SeriesDisplay({ series, type, userId }: SeriesProps) {
                             )}
                         </View>
                     </View>
-                </View>
+                </TouchableOpacity>
             )}
             {type === 'unreleased' && (
-                <View style={styles.seriesContainer}> 
+                <TouchableOpacity style={styles.seriesContainer} onPress={() => router.push(`/series/${item.series_api_id}`)}> 
                     <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
                         <Image source={{ uri: item.image }} style={styles.seriesImage} />
                     </Shadow>
@@ -147,7 +149,7 @@ export default function SeriesDisplay({ series, type, userId }: SeriesProps) {
                             </View>
                         </View>
                     </View>
-                </View>
+                </TouchableOpacity>
             )}
             {type === 'add' && !isSeriesFavourite(item.series_api_id) && (
                 <View style={styles.seriesContainer}>
