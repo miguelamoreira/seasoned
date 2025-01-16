@@ -22,7 +22,7 @@ export const likeSeries = async (userId, seriesId) => {
 
 export const dislikeSeries = async (userId, seriesId) => {
     try {
-        const response = await apiClient.delete(`/users/${userId}/likes/series`, { seriesId });
+        const response = await apiClient.delete(`/users/${userId}/likes/series`, {data: { seriesId }});
         return response.data;
     } catch (error) {
         console.error('Error liking the series: ', error);

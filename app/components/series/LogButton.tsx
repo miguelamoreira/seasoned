@@ -6,6 +6,7 @@ import { Shadow } from 'react-native-shadow-2';
 
 import { useUserContext } from '@/contexts/UserContext';
 import { fetchWatchlist, addWatchlist, removeWatchlist } from '@/api/watchlistApi';
+import { fetchLikedSeries, likeSeries, dislikeSeries } from '@/api/seriesLikesApi';
 import { fetchFollowedSeries, addFollowedSeries, removeFollowedSeries } from '@/api/followedSeriesApi';
 import { fetchDroppedSeries, addDroppedSeries, removeDroppedSeries } from '@/api/droppedSeriesApi';
 
@@ -36,6 +37,14 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
                     return;
                 }
 
+                const likedSeries = await fetchLikedSeries(loggedInId);
+                console.log('likedSeries: ', likedSeries);
+
+                const isLikedSeries = likedSeries.some(
+                    (item: any) => item.series_api_id === parseInt(seriesId)
+                );
+                setLiked(isLikedSeries);
+
                 const followedSeries = await fetchFollowedSeries(loggedInId);
                 const droppedSeries = await fetchDroppedSeries(loggedInId);
 
@@ -59,7 +68,7 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
                 );
                 setIsInWatchlist(inWatchlist);
             } catch (error) {
-                console.error('Error fetching follow status:', error);
+                console.error('Error fetching status:', error);
             }
         };
 
@@ -73,8 +82,26 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
         setRating(index + 1);
     };
 
-    const toggleHeart = () => {
-        setLiked(!liked);
+    const toggleHeart = async () => {
+        try {
+            if (!loggedInId) {
+                console.log('User is not logged in.');
+                return;
+            }
+
+            if (liked) {
+                console.log('series: ', seriesId);
+                await dislikeSeries(loggedInId, seriesId);
+                console.log('Disliked series')
+            } else {
+                await likeSeries(loggedInId, seriesId);
+                console.log('Liked series')
+            }
+
+            setLiked(!liked)
+        } catch (error) {
+            console.error('Error toggling follow status:', error);
+        }
     };
 
     const toggleFollow = async () => {
