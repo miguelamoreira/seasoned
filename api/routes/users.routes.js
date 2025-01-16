@@ -90,10 +90,12 @@ router.route("/:id/ratings")
 router.route("/:id/followedSeries")
     .get(followedSeriesController.getFollowedSeries)
     .post(followedSeriesController.addFollowedSeries)
+    .delete(followedSeriesController.removeFollowedSeries)
 
 router.route("/:id/droppedSeries")
     .get(droppedSeriesController.getDroppedSeries)
     .post(droppedSeriesController.addDroppedSeries)
+    .delete(droppedSeriesController.removeDroppedSeries)
 
 router.route("/:id/watchedSeries")
     .get(watchedSeriesController.getWatchedSeries)

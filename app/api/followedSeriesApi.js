@@ -19,3 +19,13 @@ export const addFollowedSeries = async (userId, seriesId) => {
         throw new Error('Failed to add new followed series. Please try again later.');
     }
 }
+
+export const removeFollowedSeries = async (userId, seriesId) => {
+    try {
+        const { data } = await apiClient.delete(`/users/${userId}/followedSeries`, {data: { seriesId }});
+        return data;
+    } catch (error) {
+        console.error('Error remove followed series:', error);
+        throw new Error('Failed to remove followed series. Please try again later.');
+    }
+}

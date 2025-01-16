@@ -96,3 +96,44 @@ exports.addFollowedSeries = async (req, res) => {
         });
     }
 };
+
+exports.removeFollowedSeries = async (req, res) => {
+    const userId = req.params.id;
+    const { seriesId } = req.body;
+
+    if (!seriesId) {
+        return res.status(400).json({
+            message: 'Series ID is required.',
+        });
+    }
+
+    try {
+        const user = await Users.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: 'User not found',
+            });
+        }
+
+        const followedSeries = await FollowedSeries.findOne({
+            where: { user_id: userId, series_api_id: seriesId },
+        });
+
+        if (!followedSeries) {
+            return res.status(404).json({
+                message: 'Series not found in followed list',
+            });
+        }
+
+        await followedSeries.destroy();
+
+        return res.status(200).json({
+            message: 'Series removed from followed list successfully',
+        });
+    } catch (error) {
+        console.error('Error removing followed series: ', error);
+        return res.status(500).json({
+            message: 'Something went wrong. Please try again later.',
+        });
+    }
+};

@@ -96,3 +96,44 @@ exports.addDroppedSeries = async (req, res) => {
         });
     }
 };
+
+exports.removeDroppedSeries = async (req, res) => {
+    const userId = req.params.id;
+    const { seriesId } = req.body;
+
+    if (!seriesId) {
+        return res.status(400).json({
+            message: 'Series ID is required.',
+        });
+    }
+
+    try {
+        const user = await Users.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: 'User not found',
+            });
+        }
+
+        const droppedSeries = await DroppedSeries.findOne({
+            where: { user_id: userId, series_api_id: seriesId },
+        });
+
+        if (!droppedSeries) {
+            return res.status(404).json({
+                message: 'Series not found in dropped list',
+            });
+        }
+
+        await droppedSeries.destroy();
+
+        return res.status(200).json({
+            message: 'Series removed from dropped list successfully',
+        });
+    } catch (error) {
+        console.error('Error removing dropped series: ', error);
+        return res.status(500).json({
+            message: 'Something went wrong. Please try again later.',
+        });
+    }
+};

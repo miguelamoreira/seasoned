@@ -22,7 +22,7 @@ export const addWatchlist = async (userId, seriesId) => {
 
 export const removeWatchlist = async (userId, seriesId) => {
     try {
-        const { data } = await apiClient.delete(`/users/${userId}/watchlist`, { seriesId });
+        const { data } = await apiClient.delete(`/users/${userId}/watchlist`,{data: { seriesId }});
         return data;
     } catch (error) {
         console.error('Error removing series from watchlist:', error);

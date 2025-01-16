@@ -19,3 +19,13 @@ export const addDroppedSeries = async (userId, seriesId) => {
         throw new Error('Failed to add new dropped series. Please try again later.');
     }
 }
+
+export const removeDroppedSeries = async (userId, seriesId) => {
+    try {
+        const { data } = await apiClient.delete(`/users/${userId}/droppedSeries`, {data: { seriesId }});
+        return data;
+    } catch (error) {
+        console.error('Error removing dropped series:', error);
+        throw new Error('Failed to remove dropped series. Please try again later.');
+    }
+}

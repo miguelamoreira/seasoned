@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet, Alert } from 'react-native';
 import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
+
+import { useUserContext } from '@/contexts/UserContext';
+import { fetchWatchlist, addWatchlist, removeWatchlist } from '@/api/watchlistApi';
+import { fetchFollowedSeries, addFollowedSeries, removeFollowedSeries } from '@/api/followedSeriesApi';
+import { fetchDroppedSeries, addDroppedSeries, removeDroppedSeries } from '@/api/droppedSeriesApi';
 
 type LogButtonProps = {
     onModalToggle: (isOpen: boolean) => void;
@@ -12,6 +17,8 @@ type LogButtonProps = {
 };
 
 export default function LogButton({ onModalToggle, navigation, type, disabled }: LogButtonProps) {
+    const { user, token } = useUserContext();
+    const loggedInId = user?.user_id || null; 
     const [modalVisible, setModalVisible] = useState(false);
     const [rating, setRating] = useState(0);
     const [liked, setLiked] = useState(false);
@@ -21,6 +28,47 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
     const router = useRouter();
     const { seriesId, seasonNumber, episodeNumber } = useLocalSearchParams<{ seriesId: string; seasonNumber: string; episodeNumber: string }>();
 
+    useEffect(() => {
+        const checkFollowedStatus = async () => {
+            try {
+                if (!loggedInId) {
+                    console.log('No user logged in');
+                    return;
+                }
+
+                const followedSeries = await fetchFollowedSeries(loggedInId);
+                const droppedSeries = await fetchDroppedSeries(loggedInId);
+
+                const isSeriesFollowed = followedSeries.data.some(
+                    (item: any) => item.series.series_api_id === parseInt(seriesId)
+                );
+
+                const isSeriesDropped = droppedSeries.data.some(
+                    (item: any) => item.series.series_api_id === parseInt(seriesId)
+                );
+
+                if (isSeriesFollowed) {
+                    setIsFollowed(true);
+                } else if (isSeriesDropped) {
+                    setIsFollowed(false);
+                }
+
+                const watchlist = await fetchWatchlist(loggedInId);
+                const inWatchlist = watchlist.data.some(
+                    (item: any) => item.series.series_api_id === parseInt(seriesId)
+                );
+                setIsInWatchlist(inWatchlist);
+            } catch (error) {
+                console.error('Error fetching follow status:', error);
+            }
+        };
+
+        if (modalVisible) {
+            checkFollowedStatus();
+        }
+    }, [modalVisible, seriesId, loggedInId]);
+    
+
     const handleRatingPress = (index: number) => {
         setRating(index + 1);
     };
@@ -29,16 +77,53 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
         setLiked(!liked);
     };
 
-    const toggleFollow = () => {
-        setIsFollowed(!isFollowed);
+    const toggleFollow = async () => {
+        try {
+            if (!loggedInId) {
+                console.log('User is not logged in.');
+                return;
+            }
+
+            if (isFollowed) {
+                console.log('series: ', seriesId)
+                await removeFollowedSeries(loggedInId, seriesId);
+                await addDroppedSeries(loggedInId, seriesId);
+                console.log('Moved to dropped series');
+            } else {
+                await removeDroppedSeries(loggedInId, seriesId);
+                await addFollowedSeries(loggedInId, seriesId);
+                console.log('Moved to followed series');
+            }
+
+            setIsFollowed(!isFollowed);
+        } catch (error) {
+            console.error('Error toggling follow status:', error);
+        }
     };
 
     const toggleWatched = () => {
         setIsWatched(!isWatched);
     };
 
-    const toggleWatchlist = () => {
-        setIsInWatchlist(!isInWatchlist);
+    const toggleWatchlist = async () => {
+        try {
+            if (!loggedInId) {
+                console.log('User is not logged in.');
+                return;
+            }
+
+            if (isInWatchlist) {
+                console.log('Series id:', seriesId)
+                await removeWatchlist(loggedInId, seriesId);
+                console.log('Removed from Watchlist');
+            } else {
+                await addWatchlist(loggedInId, seriesId);
+                console.log('Added to Watchlist');
+            }
+            setIsInWatchlist(!isInWatchlist);
+        } catch (error) {
+            console.error('Error updating watchlist:', error);
+        }
     };
 
     const openModal = () => {
