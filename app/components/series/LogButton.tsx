@@ -35,16 +35,29 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
 
         try {
             if (type === 'series') {
-                const [likedSeries, followedSeries, watchlist] = await Promise.all([
+                const [likedSeries, followedSeries, droppedSeries, watchlist] = await Promise.all([
                     fetchLikedSeries(loggedInId),
                     fetchFollowedSeries(loggedInId),
+                    fetchDroppedSeries(loggedInId),
                     fetchWatchlist(loggedInId),
                 ]);
 
-                setLiked(likedSeries.some((item: any) => item.series_api_id === parseInt(seriesId)));
-                setIsFollowed(
-                    followedSeries.data.some((item: any) => item.series.series_api_id === parseInt(seriesId))
+                const isSeriesFollowed = followedSeries.data.some(
+                    (item: any) => item.series.series_api_id === parseInt(seriesId)
                 );
+                
+                const isSeriesDropped = droppedSeries.data.some(
+                    (item: any) => item.series.series_api_id === parseInt(seriesId)
+                );
+                
+                if (isSeriesFollowed) {
+                    setIsFollowed(true);
+                } else if (isSeriesDropped) {
+                    setIsFollowed(false);
+                } else {
+                    setIsFollowed(false);
+                }
+                
                 setIsInWatchlist(
                     watchlist.data.some((item: any) => item.series.series_api_id === parseInt(seriesId))
                 );
