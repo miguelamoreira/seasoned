@@ -434,7 +434,7 @@ exports.viewingHistoryGet = async (req, res) => {
     },
   });
 
-  if (ViewingHistoryUser) return res.json(ViewingHistoryUser);
+  if (ViewingHistoryUser) return res.json({data: ViewingHistoryUser});
 
   return res.status(500).json({
     error: "Server Error, pls check the connection",

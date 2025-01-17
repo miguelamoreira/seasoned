@@ -15,7 +15,7 @@ export const getSeriesProgress = async (id) => {
 
 export const getSeasonProgress = async (id) => {
     try {
-        const { data } = await apiClient.get(`/users/${id}/seriesProgress`);
+        const { data } = await apiClient.get(`/users/${id}/seasonProgress`);
         
         return data;
     } catch (error) {

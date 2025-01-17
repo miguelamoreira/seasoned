@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -17,6 +17,7 @@ type Episode = {
     rating?: number;
     date?: string;
     watched?: boolean;
+    runtime: number;
 };
 
 type EpisodeType = 'default' | 'series';
@@ -37,15 +38,20 @@ export default function EpisodesDisplay({ episodes, type, seriesId, seasonNumber
     );
 
     const handleEpisodeWatched = (episodeId: number) => {
+        console.log(watchedEpisodes);
+        if(watchedEpisodes.includes(episodeId) ){
+            
+        }
         setWatchedEpisodes((prev) =>
             prev.includes(episodeId) ? prev.filter((id) => id !== episodeId) : [...prev, episodeId]
         );
     };
 
+
     const handleNavigateToEpisode = (episodeId: number) => {
         router.push(`/series/${seriesId}/seasons/${seasonNumber}/${episodeId}`);
     };
-
+    
     const renderShow = ({ item }: { item: Episode }) => (
         <View style={styles.episodeContainer}>
             <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>

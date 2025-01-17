@@ -12,9 +12,8 @@ exports.seriesProgressGet = async (req, res) => {
 
   if (SeriesProgressUsers.length != 0) return res.json(SeriesProgressUsers);
 
-  return res.status(400).json({
-    error: "There are no progress in the series",
-  });
+  return res.status(200).json(
+    []);
 };
 
 exports.seriesProgressPost = async (req, res) => {

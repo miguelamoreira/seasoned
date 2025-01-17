@@ -12,9 +12,8 @@ exports.seasonProgressGet = async (req, res) => {
 
   if (SeasonProgressUsers.length != 0) return res.json(SeasonProgressUsers);
 
-  return res.status(400).json({
-    error: "There are no earned badges",
-  });
+  return res.status(200).json(
+    []);
 };
 
 exports.seasonProgressPost = async (req, res) => {
