@@ -12,6 +12,7 @@ const FollowingUsers = db.FollowingUsers;
 const ViewingHistory = db.ViewingHistory;
 const FavouriteSeries = db.FavouriteSeries;
 const Series = db.Series;
+const NotificationsConfig = db.NotificationsConfig;
 
 const cloudinary = require('../config/cloudinary.config.js');
 
@@ -87,6 +88,10 @@ exports.create = async (req, res) => {
             }));
             await PreferredGenres.bulkCreate(genresData);
         }
+
+        let newUserConfig = await NotificationsConfig.create({
+            user_id: userNew.user_id
+        })
 
         return res.status(201).json({
             message: 'User created successfully',
