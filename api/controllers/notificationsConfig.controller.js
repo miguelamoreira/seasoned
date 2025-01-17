@@ -45,34 +45,34 @@ exports.updateNotificationsConfigurations = async (req, res) => {
         const user = await Users.findByPk(userId);
         if (!user) {
             return res.status(404).json({
-                message: 'User not found'
-            })
+                message: 'User not found',
+            });
         }
 
-        const config = await NotificationsConfig.findByPk(userId);
+        const config = await NotificationsConfig.findOne({ where: { user_id: userId } });
         if (!config) {
             return res.status(404).json({
-                message: 'Configurations not found'
-            })
+                message: 'Notification configurations not found',
+            });
         }
 
-        config.earnedBadges = earnedBadges;
-        config.newFollowers = newFollowers;
-        config.newComments = newComments;
-        config.newLikes = newLikes;
-        config.upcomingEpisodes = upcomingEpisodes;
-        config.seasonEpisodes = seasonEpisodes;
-
-        config.save();
+        const updatedConfig = await config.update({
+            earnedBadges,
+            newFollowers,
+            newComments,
+            newLikes,
+            upcomingEpisodes,
+            seasonEpisodes,
+        });
 
         return res.status(200).json({
             message: 'Configurations updated successfully',
-            data: config,
-        })
+            data: updatedConfig,
+        });
     } catch (error) {
         console.error('Error updating notifications configurations:', error);
         return res.status(500).json({
             message: 'Something went wrong. Please try again later.',
         });
     }
-}
+};

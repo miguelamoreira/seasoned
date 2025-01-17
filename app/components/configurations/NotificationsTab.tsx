@@ -1,30 +1,77 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Switch } from 'react-native';
+import { useUserContext } from '@/contexts/UserContext';
+import { fetchNotificationsConfigurations, updateNotificationsConfigurations } from '@/api/notificationsApi';
 
 export default function NotificationsTab() {
+    const { user, token } = useUserContext();
     const [settings, setSettings] = useState({
-        badgesEarned: false,
+        earnedBadges: false,
         newFollowers: true,
         newComments: false,
-        newLikesOnReviews: false,
+        newLikes: false,
         upcomingEpisodes: true,
-        seasonPremieres: true,
+        seasonEpisodes: true,
     });
 
-    const toggleSwitch = (key: keyof typeof settings) => {
-        setSettings({ ...settings, [key]: !settings[key] });
+    useEffect(() => {
+        const getSettings = async () => {
+            try {
+                if (user?.user_id) {
+                    const fetchedSettings = await fetchNotificationsConfigurations(user.user_id);
+                    console.log('fetchedSettings: ', fetchedSettings.data);
+                    setSettings({
+                        earnedBadges: fetchedSettings.data.earnedBadges,
+                        newFollowers: fetchedSettings.data.newFollowers,
+                        newComments: fetchedSettings.data.newComments,
+                        newLikes: fetchedSettings.data.newLikes,
+                        upcomingEpisodes: fetchedSettings.data.upcomingEpisodes,
+                        seasonEpisodes: fetchedSettings.data.seasonEpisodes,
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to fetch notification settings:', error);
+            }
+        };
+
+        getSettings();
+    }, [user]);
+
+    const toggleSwitch = async (key: keyof typeof settings) => {
+        if (!settings.hasOwnProperty(key)) {
+            console.error(`Invalid setting key: ${key}`);
+            return;
+        }
+
+        const newSettings = { ...settings, [key]: !settings[key] };
+
+        setSettings(newSettings);
+
+        try {
+            if (user?.user_id) {
+                await updateNotificationsConfigurations(user.user_id, { [key]: newSettings[key] });
+                console.log(`${key} updated successfully to ${newSettings[key]}`);
+            }
+        } catch (error) {
+            console.error(`Failed to update ${key}:`, error);
+
+            setSettings((prevSettings) => ({
+                ...prevSettings,
+                [key]: prevSettings[key],
+            }));
+        }
     };
 
     return (
         <View>
-            <Text style={styles.heading}>Push notifications</Text>
+            <Text style={styles.heading}>Push Notifications</Text>
 
             <Text style={styles.subheading}>Activity</Text>
             {[
-                { label: 'Badges earned', key: 'badgesEarned' },
+                { label: 'Badges earned', key: 'earnedBadges' },
                 { label: 'New followers', key: 'newFollowers' },
                 { label: 'New comments', key: 'newComments' },
-                { label: 'New likes on your reviews', key: 'newLikesOnReviews' },
+                { label: 'New likes on your reviews', key: 'newLikes' },
             ].map(({ label, key }) => (
                 <View style={styles.switchContainer} key={key}>
                     <Text style={styles.label}>{label}</Text>
@@ -37,10 +84,10 @@ export default function NotificationsTab() {
                 </View>
             ))}
 
-            <Text style={styles.subheading}>New releases</Text>
+            <Text style={styles.subheading}>New Releases</Text>
             {[
                 { label: 'Upcoming episodes', key: 'upcomingEpisodes' },
-                { label: 'Season Premieres', key: 'seasonPremieres' },
+                { label: 'Season Premieres', key: 'seasonEpisodes' },
             ].map(({ label, key }) => (
                 <View style={styles.switchContainer} key={key}>
                     <Text style={styles.label}>{label}</Text>
@@ -64,7 +111,7 @@ const styles = StyleSheet.create({
     },
     subheading: {
         fontSize: 16,
-        fontWeight: 700,
+        fontWeight: '700',
         fontFamily: 'Arimo',
         marginTop: 16,
         marginBottom: 8,
