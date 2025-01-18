@@ -39,6 +39,7 @@ router
   .delete(usersController.deleteAvatar);
 
 router.route("/:id/username").patch(usersController.updateUsername);
+router.route("/:id/time").patch(usersController.updateTimeSpent);
 
 router
   .route("/:id/earnedBadges")
@@ -49,13 +50,11 @@ router
   .route("/:id/seasonProgress")
   .get(seasonProgressController.seasonProgressGet)
   .post(seasonProgressController.seasonProgressPost)
-  .put(seasonProgressController.seasonProgressPut);
 
 router
   .route("/:id/seriesProgress")
   .get(seriesProgressController.seriesProgressGet)
   .post(seriesProgressController.seriesProgressPost)
-  .put(seriesProgressController.seriesProgressPut);
 
 router
   .route("/:id/badges")
@@ -136,6 +135,7 @@ router
 router
   .route("/:id/viewingHistory")
   .get(usersController.viewingHistoryGet)
-  .post(usersController.viewingHistoryPost);
+  .post(usersController.viewingHistoryPost)
+  .delete(usersController.viewingHistoryDelete)
 
 module.exports = router;

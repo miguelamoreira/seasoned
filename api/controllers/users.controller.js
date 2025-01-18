@@ -237,6 +237,7 @@ exports.findOne = async (req, res) => {
         ).length,
       },
       badgesVisibility: user.badges_visibility,
+      time_watched: user.total_time_spent
     };
 
     return res.status(200).json({
@@ -427,6 +428,39 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
+
+exports.updateTimeSpent = async (req, res) => {
+  const userId = req.params.id;
+  const { total_time_spent } = req.body;
+
+  try {
+    if (!total_time_spent) {
+      return;
+    }
+
+    let user = await Users.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    user.total_time_spent = total_time_spent;
+    user.save();
+
+    return res.status(200).json({
+      message: "total_time_spent updated sucessfully",
+      data: user,
+    });
+  } catch (error) {
+    console.error("Error updating total_time_spent:", error);
+    return res.status(500).json({
+      message: "Something went wrong. Please try again later",
+    });
+  }
+};
+
+
 exports.viewingHistoryGet = async (req, res) => {
   let ViewingHistoryUser = await ViewingHistory.findAll({
     where: {
@@ -446,8 +480,7 @@ exports.viewingHistoryPost = async (req, res) => {
     where: {
       user_id: req.params.id,
       series_api_id: req.body.series_api_id,
-      episode_api_id: req.body.episode_api_id,
-      episode_progress: 100,
+      episode_api_id: req.body.episode_api_id
     },
   });
   if (ViewingHistoryUser)
@@ -478,9 +511,38 @@ exports.viewingHistoryPost = async (req, res) => {
       user_id: req.params.id,
       series_api_id: req.body.series_api_id,
       episode_api_id: req.body.episode_api_id,
+      season_api_id: req.body.season_api_id,
       episode_progress: req.body.episode_progress,
       time_watched: req.body.time_watched,
     });
+
+
     return res.status(201).json("History added successfuly");
+  }
+};
+
+
+exports.viewingHistoryDelete = async (req, res) => {
+  const historyId = req.params.id;
+
+  try {
+    const user = await ViewingHistory.findByPk(historyId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "ViewingHistory not found",
+      });
+    }
+
+    await ViewingHistory.destroy({ where: { history_id: historyId } });
+
+    return res.status(200).json({
+      message: "ViewingHistory deleted successfully",
+    });
+  } catch (error) {
+    console.error("error: ", error);
+    return res.status(500).json({
+      message: "Something went wrong. Please try again later",
+    });
   }
 };

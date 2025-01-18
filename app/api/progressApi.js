@@ -23,3 +23,26 @@ export const getSeasonProgress = async (id) => {
         throw new Error('Failed to fetch user. Please try again later.');
     }
 }
+
+
+export const postSeasonProgress = async (id, body)=>{
+    
+    try {
+        const { data } = await apiClient.post(`/users/${id}/seasonProgress`,   body );
+        return data;
+    } catch (error) {
+        console.error('Error adding seasonProgress:', error);
+        throw new Error('Failed to add new seasonProgress. Please try again later.');
+    }
+}
+
+export const postSeriesProgress = async (id, body)=>{
+    
+    try {
+        const { data } = await apiClient.post(`/users/${id}/seriesProgress`,   body );
+        return data;
+    } catch (error) {
+        console.error('Error adding seriesProgress:', error);
+        throw new Error('Failed to add new seriesProgress. Please try again later.');
+    }
+}
