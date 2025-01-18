@@ -12,9 +12,8 @@ exports.seriesProgressGet = async (req, res) => {
 
   if (SeriesProgressUsers.length != 0) return res.json(SeriesProgressUsers);
 
-  return res.status(400).json({
-    error: "There are no progress in the series",
-  });
+  return res.status(200).json(
+    []);
 };
 
 exports.seriesProgressPost = async (req, res) => {
@@ -25,11 +24,23 @@ exports.seriesProgressPost = async (req, res) => {
     },
   });
 
-  if (SeriesProgressUser)
-    return res.status(403).json({
-      success: false,
-      msg: "Series progress already exists",
-    });
+  if (SeriesProgressUser){
+    try {
+      let update = await SeriesProgress.update(req.body, {
+        where: {
+          user_id: req.params.id,
+          series_id: req.body.series_id,
+        },
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: "Error Updating series",
+      });
+    }
+  
+    return res.status(201).json("Series Progress updated succesully");
+  }
+    
 
   let New = await SeriesProgress.create({
     user_id: req.params.id,
@@ -40,19 +51,4 @@ exports.seriesProgressPost = async (req, res) => {
   return res.status(201).json("Series Progress created successfully");
 };
 
-exports.seriesProgressPut = async (req, res) => {
-  try {
-    let update = await SeriesProgress.update(req.body, {
-      where: {
-        user_id: req.params.id,
-        series_id: req.body.series_id,
-      },
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: "Series not started yet. Use Post instead",
-    });
-  }
 
-  return res.status(201).json("Series Progress updated succesully");
-};

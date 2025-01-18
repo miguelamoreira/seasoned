@@ -13,6 +13,9 @@ module.exports = (sequelize, DataTypes) => {
         episode_api_id: {
             type: DataTypes.INTEGER,
         },
+        season_api_id: {
+            type: DataTypes.INTEGER,
+        },
         watch_date: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW
