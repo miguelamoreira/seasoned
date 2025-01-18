@@ -12,9 +12,8 @@ exports.seasonProgressGet = async (req, res) => {
 
   if (SeasonProgressUsers.length != 0) return res.json(SeasonProgressUsers);
 
-  return res.status(400).json({
-    error: "There are no earned badges",
-  });
+  return res.status(200).json(
+    []);
 };
 
 exports.seasonProgressPost = async (req, res) => {
@@ -25,11 +24,23 @@ exports.seasonProgressPost = async (req, res) => {
     },
   });
 
-  if (SeasonProgressUser)
-    return res.status(403).json({
-      success: false,
-      msg: "Season progress already exists",
-    });
+  if (SeasonProgressUser){
+    try {
+      let update = await SeasonProgress.update(req.body, {
+        where: {
+          user_id: req.params.id,
+          season_id: req.body.season_id,
+        },
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: "Error updating season",
+      });
+    }
+  
+    return res.status(201).json("Season Progress updated succesully");
+  }
+    
 
   let New = await SeasonProgress.create({
     user_id: req.params.id,
@@ -40,19 +51,3 @@ exports.seasonProgressPost = async (req, res) => {
   return res.status(201).json("Season Progress created successfully");
 };
 
-exports.seasonProgressPut = async (req, res) => {
-  try {
-    let update = await SeasonProgress.update(req.body, {
-      where: {
-        user_id: req.params.id,
-        season_id: req.body.season_id,
-      },
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: "Season not started yet. Use Post instead",
-    });
-  }
-
-  return res.status(201).json("Season Progress updated succesully");
-};

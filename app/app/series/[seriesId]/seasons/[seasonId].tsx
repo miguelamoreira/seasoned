@@ -13,6 +13,7 @@ import { getSeasonProgress } from "@/api/progressApi";
 import OptionsTab from "@/components/OptionsTab";
 import EpisodesDisplay from "@/components/episodes/EpisodesDisplay";
 import { useUserContext } from "@/contexts/UserContext";
+import { getViewingHistory } from "@/api/episodesApi";
 const calculateProgress = (
   data: any[],
   conditionFn: (episode: any) => boolean
@@ -22,9 +23,18 @@ const calculateProgress = (
 };
 
 type line = {
-  series_id: number;
+  season_id: number;
   user_id: number;
   progress_percentage?: number | null;
+};
+type EpisodesRAW = {
+  episode_api_id: number;
+  episode_progress: number | null;
+  history_id: number;
+  series_api_id: number;
+  time_watched: number;
+  user_id: number;
+  watch_date: string;
 };
 
 export default function SeasonScreen() {
@@ -43,6 +53,23 @@ export default function SeasonScreen() {
   const [seasonProgressData, setseasonProgressData] = useState<any | null>(
     null
   );
+  const [watchedEpisodesRaw, setWatchedEpisodesRaw] = useState<
+    [EpisodesRAW] | []
+  >([]);
+  useEffect(() => {
+    const fetchViewingHistory = async (userId?: number | null) => {
+      if (userId) {
+        try {
+          let dataRaw = await getViewingHistory(userId);
+          setWatchedEpisodesRaw(dataRaw);
+        } catch (err) {
+          console.error("Error fetching series progress: ", err);
+        }
+      }
+    };
+    fetchViewingHistory(user?.user_id);
+  }, [user?.user_id, seasonId]);
+  
   useEffect(() => {
     const fetchEpisodes = async () => {
       try {
@@ -50,7 +77,6 @@ export default function SeasonScreen() {
           `https://api.tvmaze.com/seasons/${seasonId}/episodes`
         );
         const data = await response.json();
-
         setEpisodes(
           data.map((episode: any) => ({
             id: episode.id,
@@ -62,13 +88,15 @@ export default function SeasonScreen() {
             season: episode.season,
             episode: episode.number,
             rating: episode.rating.average || null,
-            watched: false,
+            watched: watchedEpisodesRaw.some(
+              (line: EpisodesRAW) => line.episode_api_id === episode.id
+            ),
             date: episode.airdate,
+            runtime: episode.runtime,
           }))
         );
-
         const seasonDetailsResponse = await fetch(
-          `https://api.tvmaze.com/seasons/${seasonId}`
+         `https://api.tvmaze.com/seasons/${seasonId}`
         );
         const seasonDetailsData = await seasonDetailsResponse.json();
         setSeasonNumber(seasonDetailsData.number);
@@ -78,34 +106,29 @@ export default function SeasonScreen() {
         );
         const showData = await showResponse.json();
         setSeriesName(showData.name);
-        let progress = 0
         const fetchSeries = async (userId?: number | null) => {
-          try {
             const data = await getSeasonProgress(userId);
-            setseasonProgressData(
-              data.find((line: line) => line.series_id == parseInt(seriesId))
-            );
+            const filter = data.find((line: line) => line.season_id === parseInt(seasonId))
+
+            if (filter != null) { 
+             setSeasonProgress(filter.progress_percentage / 100);
+            };
             
-            if(seasonProgressData != null){
-                progress = seasonProgressData.progress_percentage / 100
-                }
-          } catch (err) {}
-        };
-        fetchSeries(user?.user_id);
-        /* const progress = calculateProgress(
-          data,
-          (episode) => episode.rating.average !== null
-        ); */
-        setSeasonProgress(progress);
+        }
+        fetchSeries(user?.user_id)
+        
       } catch (error) {
         console.error("Error fetching episodes:", error);
       } finally {
         setIsLoading(false);
       }
     };
-
-    fetchEpisodes();
-  }, [seasonId]);
+    if (watchedEpisodesRaw.length > 0) {
+      fetchEpisodes();
+    }
+  }, [watchedEpisodesRaw, seasonId]);
+  
+  
 
   return (
     <SafeAreaView style={styles.container}>
