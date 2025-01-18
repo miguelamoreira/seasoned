@@ -78,19 +78,16 @@ export default function EpisodesDisplay({
 
   const getUserTimewatched = async () => {
     try {
-        const data = await findUserById(user?.user_id);
-        
-        if (data?.time_watched != undefined) {
-            console.log(data.time_watched);
-            return data.time_watched
-          
-          
-        } else {
-          console.error("time_watched is not defined in the response data.");
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+      const data = await findUserById(user?.user_id);
+
+      if (data?.time_watched != undefined) {
+        return data.time_watched;
+      } else {
+        console.error("time_watched is not defined in the response data.");
       }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
   };
 
   const updateProgress = async () => {
@@ -103,7 +100,6 @@ export default function EpisodesDisplay({
     const seriesDataHistory = viewingHistory.filter(
       (item: any) => item.series_api_id === parseInt(seriesId)
     );
-    console.log(seriesDataHistory);
 
     const progressSeries = Math.round(
       (seriesDataHistory.length * 100) / totalEpisodeOrder
@@ -113,15 +109,12 @@ export default function EpisodesDisplay({
       (season: any) => season.season_api_id === parseInt(seasonNumber)
     );
 
-
     const progressSeason = Math.round(
       (seasonData.length * 100) /
         seriesData.seasons.find(
           (season: any) => season.id === parseInt(seasonNumber)
         ).episodeOrder
     );
-    console.log(progressSeries);
-    console.log(progressSeason);
     let seasonProgressBody: seasonProgressBody = {
       season_id: parseInt(seasonNumber),
       progress_percentage: progressSeason,
@@ -145,12 +138,11 @@ export default function EpisodesDisplay({
         (item: any) => item.episode_api_id === parseInt(episode?.id)
       );
       await deleteViewingHistory(seriesDataHistory.history_id);
-      const time_watched = await getUserTimewatched()
+      const time_watched = await getUserTimewatched();
 
       let currentTimeWatched =
         parseInt(time_watched) - parseInt(episode?.runtime);
-        
-    console.log(currentTimeWatched);
+
       await updateUser(currentTimeWatched);
 
       await updateProgress();
@@ -162,16 +154,12 @@ export default function EpisodesDisplay({
         season_api_id: parseInt(seasonNumber),
       };
 
-      await postViewingHistory(user?.user_id, apibody); 
+      await postViewingHistory(user?.user_id, apibody);
 
-      const time_watched = await getUserTimewatched()
-      console.log(time_watched);
-      
+      const time_watched = await getUserTimewatched();
 
       let currentTimeWatched =
         parseInt(time_watched) + parseInt(episode?.runtime);
-    console.log(currentTimeWatched);
-    
 
       await updateUser(currentTimeWatched);
       await updateProgress();
