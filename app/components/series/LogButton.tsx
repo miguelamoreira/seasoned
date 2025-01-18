@@ -1,8 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, Dimensions } from 'react-native';
 import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 import { useUserContext } from '@/contexts/UserContext';
 import { fetchWatchlist, addWatchlist, removeWatchlist } from '@/api/watchlistApi';
@@ -288,7 +291,7 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
     return (
         <View>
             <View style={{ marginBottom: 20, paddingHorizontal: 16 }}>
-                <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]} style={{ width: 378 }}>
+                <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]} style={{ width: windowWidth - 32 }}>
                     <TouchableOpacity style={styles.button} onPress={openModal} activeOpacity={0.9} disabled={disabled}>
                         <Text style={styles.buttonText}>Log, rate, review, and more</Text>
                         <AntDesign name="down" size={24} color="#FFF4E0"></AntDesign>
@@ -350,7 +353,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 2,
         borderColor: '#211B17',
-        width: 378,
+        width: windowWidth - 32,
     },
     buttonText: {
         color: '#F5E0CE',

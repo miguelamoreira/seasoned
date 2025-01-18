@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Touchable } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Star from 'react-native-vector-icons/AntDesign';
 import { useRouter } from 'expo-router';
 import { useUserContext } from '@/contexts/UserContext'; 
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 import { likeReview, dislikeReview } from '@/api/reviewLikesApi';
 
@@ -305,7 +308,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingHorizontal: 12,
         paddingVertical: 16,
-        width: 374,
+        width: windowWidth - 36,
     },
     topRow: {
         flexDirection: 'row',

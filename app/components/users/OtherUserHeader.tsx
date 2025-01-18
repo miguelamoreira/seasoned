@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { useRouter } from 'expo-router';
+import { useUserContext } from '@/contexts/UserContext';
 
 import { addFollowing, removeRelationship, checkIfFollowing } from '@/api/relationshipsApi';
 
@@ -15,6 +16,7 @@ type OtherUserHeaderProps = {
 };
 
 export default function OtherUserHeader({ userId, username, followers, following, profileImage, currentUser }: OtherUserHeaderProps) {
+    const { user, token } = useUserContext();
     const [isFollowing, setIsFollowing] = useState(false);
     const [followersCount, setFollowersCount] = useState(followers);
 
@@ -27,8 +29,10 @@ export default function OtherUserHeader({ userId, username, followers, following
     useEffect(() => {
         const fetchFollowStatus = async () => {
             try {
-                const result = await checkIfFollowing(Number(currentUser), userId);
-                setIsFollowing(result);
+                if (user && token) {
+                    const result = await checkIfFollowing(Number(currentUser), userId);
+                    setIsFollowing(result);
+                }
             } catch (error) {
                 console.error('Error checking follow status:', error);
             }
@@ -83,17 +87,19 @@ export default function OtherUserHeader({ userId, username, followers, following
                 <Text style={styles.followsInfo} onPress={() => handleFollowingPress(userId)}>{following} Following</Text>
             </View>
 
-            <Shadow distance={1} startColor={'#211B17'} offset={[1, 2]}>
-                {isFollowing ? (
-                    <TouchableOpacity style={styles.followButton} onPress={handleUnfollow}>
-                        <Text style={styles.followButtonText}>Unfollow</Text>
-                    </TouchableOpacity>
-                ) : (
-                    <TouchableOpacity style={styles.followButton} onPress={handleFollow}>
-                        <Text style={styles.followButtonText}>Follow</Text>
-                    </TouchableOpacity>
-                )}
-            </Shadow>
+            {user && token && (
+                <Shadow distance={1} startColor={'#211B17'} offset={[1, 2]}>
+                    {isFollowing ? (
+                        <TouchableOpacity style={styles.followButton} onPress={handleUnfollow}>
+                            <Text style={styles.followButtonText}>Unfollow</Text>
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity style={styles.followButton} onPress={handleFollow}>
+                            <Text style={styles.followButtonText}>Follow</Text>
+                        </TouchableOpacity>
+                    )}
+                </Shadow>
+            )}
         </View>
     );
 }

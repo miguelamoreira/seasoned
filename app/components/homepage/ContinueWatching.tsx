@@ -1,7 +1,10 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Animated, PanResponder, Image } from "react-native";
+import { StyleSheet, Text, View, Animated, PanResponder, Image, Dimensions } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { Shadow } from 'react-native-shadow-2';
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 type EpisodeDetails = {
   title: string;
@@ -101,7 +104,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 4,
     flexDirection: "row",
-    width: "100%",
+    width: windowWidth - 36,
     height: 124,
     justifyContent: "space-between",
     alignItems: "center",
@@ -137,7 +140,7 @@ const styles = StyleSheet.create({
     borderColor: "#181412",
     height: 120,
     padding: 8, 
-    width: 378,
+    width: windowWidth - 36,
   },
   episodeImage: {
     width: 140,

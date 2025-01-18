@@ -7,54 +7,6 @@ import SeriesDisplay from '@/components/series/SeriesDisplay';
 
 import { fetchPopularSeries } from '@/api/seriesLikesApi';
 
-const shows = [
-    {
-        series_api_id: 1,
-        image: 'https://static.tvmaze.com/uploads/images/medium_portrait/249/623354.jpg',
-        title: 'Normal People',
-        year: 2020,
-        seasons: 1,
-        creator: 'Lenny Abrahamson',
-        rating: 4.2,
-    },
-    {
-        series_api_id: 2,
-        image: 'https://static.tvmaze.com/uploads/images/medium_portrait/211/528026.jpg',
-        title: 'Mr. Robot',
-        year: 2015,
-        seasons: 4,
-        creator: 'Sam Esmail',
-        rating: 3.5,
-    },
-    {
-        series_api_id: 3,
-        image: 'https://static.tvmaze.com/uploads/images/medium_portrait/499/1247570.jpg',
-        title: 'Gossip Girl',
-        year: 2007,
-        seasons: 6,
-        creator: 'Amy Sherman-Palladino',
-        rating: 2.5,
-    },
-    {
-        series_api_id: 4,
-        image: 'https://static.tvmaze.com/uploads/images/medium_portrait/498/1245274.jpg',
-        title: 'Game of Thrones',
-        year: 2011,
-        seasons: 8,
-        creator: 'David Benioff and D.B. Weiss',
-        rating: 5.0,
-    },
-    {
-        series_api_id: 5,
-        image: 'https://static.tvmaze.com/uploads/images/medium_portrait/501/1253515.jpg',
-        title: 'Better Call Saul',
-        year: 2015,
-        seasons: 6,
-        creator: 'Vince Gilligan and Peter Gould',
-        rating: 4.5,
-    },
-];
-
 export default function PopularShowsScreen() {
     const router = useRouter();
     const [popularShows, setPopularShows] = useState<any[]>([])

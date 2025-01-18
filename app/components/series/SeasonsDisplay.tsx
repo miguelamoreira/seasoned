@@ -1,7 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Shadow } from 'react-native-shadow-2';
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 type Season = {
     id: number;
@@ -65,7 +68,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         height: 92,
         justifyContent: 'center',
-        width: 180,
+        width: windowWidth / 2 - 28,
         flexDirection: 'row',
         gap: 12,
         position: 'relative',

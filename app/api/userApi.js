@@ -83,3 +83,16 @@ export const findAllUsers = async (searchText) => {
         throw new Error('Failed to fetch users. Please try again later.');
     }
 };
+
+
+export const updateUserTimeWatched = async (id, total_time_spent) => {
+    try {
+        const { data } = await apiClient.patch(`/users/${id}/time`, {
+            total_time_spent
+        });
+        return data;
+    } catch (error) {
+        console.error('Error updating user data:', error);
+        throw new Error('Failed to update user data. Please try again later.');
+    }
+};

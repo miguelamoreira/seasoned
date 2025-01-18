@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Dimensions } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 import { findUserById, updateUserData, deleteUserById } from '@/api/userApi';
 import { useUserContext } from '@/contexts/UserContext';
@@ -152,7 +155,7 @@ const styles = StyleSheet.create({
         marginVertical: 16,
     },
     inputGroup: {
-        width: '100%',
+        width: windowWidth - 36,
         marginBottom: 16,
     },
     label: {
@@ -161,7 +164,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Arimo',
     },
     input: {
-        width: 378,
+        width: windowWidth - 36,
         height: 48,
         paddingHorizontal: 12,
         backgroundColor: '#403127',
@@ -194,12 +197,12 @@ const styles = StyleSheet.create({
     },
     deleteAccountButton: {
         backgroundColor: '#EE6363',
-        width: 180,
+        width: windowWidth / 2 - 24,
         height: 48,
     },
     saveButton: {
         backgroundColor: '#D8A84E',
-        width: 180,
+        width: windowWidth / 2 - 24,
         height: 48,
     },
     logoutButton: {
@@ -207,7 +210,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: '#211B17',
         borderRadius: 8,
-        width: 90,
+        width: windowHeight / 6,
     },
     errorText: {
         color: '#EE6363', 
