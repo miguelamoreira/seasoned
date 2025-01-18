@@ -104,41 +104,7 @@ exports.create = async (req, res) => {
         return res.status(500).json({
             message: 'Something went wrong. Please try again later.'
         })
-    }
-
-    const existingUser = await Users.findOne({ where: { email } });
-
-    if (existingUser) {
-      return res.status(409).json({
-        message: "User already registered!",
-      });
-    }
-
-    let userNew = await Users.create({
-      name: req.body.name,
-      email: req.body.email,
-      password: bcrypt.hashSync(req.body.password, 10),
-      registration_date: Date.now(),
-    });
-
-    if (preferredGenres && preferredGenres.length > 0) {
-      const genresData = preferredGenres.map((genreId) => ({
-        user_id: userNew.user_id,
-        genre_id: genreId,
-      }));
-      await PreferredGenres.bulkCreate(genresData);
-    }
-
-    return res.status(201).json({
-      message: "User created successfully",
-      user: userNew,
-    });
-  } catch (error) {
-    console.error("Error during user creation:", error);
-    return res.status(500).json({
-      message: "Something went wrong. Please try again later.",
-    });
-  }
+    }  
 };
 
 exports.findAll = async (req, res) => {
