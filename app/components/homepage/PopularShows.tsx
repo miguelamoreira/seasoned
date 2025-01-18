@@ -1,8 +1,11 @@
 import React, {  useEffect ,useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 type PopularShow = {
     seriesId: number;
@@ -90,7 +93,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     popularShowWrapper: {
-        marginRight: -44,
+        marginRight: -46,
         alignItems: 'center',
         height: 186,
     },

@@ -1,8 +1,11 @@
 import React from 'react';
-import { Image, StyleSheet, SafeAreaView, View, Text, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -71,7 +74,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -64,
     width: '100%',
-    height: 400, 
+    height: windowHeight / 2.2, 
     resizeMode: 'contain',
   },
   titleContainer: {
@@ -116,7 +119,7 @@ const styles = StyleSheet.create({
   },
   skipContainer: {
     alignItems: 'center',
-    top: 440,
+    top: windowHeight / 2.3,
   },
   skipButton: {
     backgroundColor: '#D8A84E',

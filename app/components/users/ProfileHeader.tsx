@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput, Dimensions } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import Icon from 'react-native-vector-icons/AntDesign';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 import ProfileModal from './ProfileModal';
 import { updateUsername, updateUserAvatar, deleteUserAvatar } from '@/api/userApi';
@@ -269,7 +272,7 @@ const styles = StyleSheet.create({
       marginBottom: 16,
     },
     input: {
-      width: 200,
+      width: windowWidth / 2 - 20,
       height: 48,
       paddingHorizontal: 12,
       backgroundColor: '#403127',

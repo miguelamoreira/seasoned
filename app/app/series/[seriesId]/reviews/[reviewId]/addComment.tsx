@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, View, TextInput } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, TextInput, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 import OptionsTab from '@/components/OptionsTab';
 import { useUserContext } from '@/contexts/UserContext';
@@ -81,7 +84,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   input: {
-    width: 378,
+    width: windowWidth - 36,
     height: 112,
     paddingHorizontal: 12,
     backgroundColor: '#403127',

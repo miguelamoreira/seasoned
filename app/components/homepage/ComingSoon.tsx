@@ -4,6 +4,7 @@ import Swiper from 'react-native-swiper';
 import { Shadow } from 'react-native-shadow-2';
 
 const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 type CardProps = {
     imageUri: string;
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderRadius: 8,
         padding: 16,
-        width: 368,
+        width: windowWidth - 40,
     },
     cardImage: {
         width: 90,
