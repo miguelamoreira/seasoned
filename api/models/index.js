@@ -51,6 +51,8 @@ db.SeriesLikes = require("./SeriesLikes.model.js")(sequelize, DataTypes);
 db.EpisodeLikes = require("./EpisodeLikes.model.js")(sequelize, DataTypes);
 db.SeasonProgress = require("./SeasonProgress.model.js")(sequelize, DataTypes);
 db.SeriesProgress = require("./SeriesProgress.model.js")(sequelize, DataTypes);
+db.Notifications = require("./Notifications.model.js")(sequelize, DataTypes);
+db.NotificationsConfig = require("./NotificationsConfig.model.js")(sequelize, DataTypes)
 
 // Users < EarnedBadges > Badges
 db.Users.hasMany(db.EarnedBadges, { foreignKey: 'user_id', as: 'earnedBadges' });

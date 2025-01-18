@@ -21,5 +21,6 @@ app.use("/badges", require("./routes/badges.routes.js"));
 app.use("/reviews", require("./routes/reviews.routes.js"))
 app.use("/series", require("./routes/series.routes.js"))
 app.use("/episodes", require("./routes/episodes.routes.js"))
+app.use("/notifications", require("./routes/notifications.routes.js"))
 
 app.listen(port, () => console.log(`App listening at http://${host}:${port}/`));
