@@ -14,6 +14,7 @@ import { fetchLikedEpisodes, likeEpisodes, dislikeEpisodes } from '@/api/episode
 import { fetchFollowedSeries, addFollowedSeries, removeFollowedSeries } from '@/api/followedSeriesApi';
 import { fetchDroppedSeries, addDroppedSeries, removeDroppedSeries } from '@/api/droppedSeriesApi';
 import { createReviews, fetchReviewsByUserId } from '@/api/reviewsApi';
+import { fetchBadgeById, addEarnedBadge } from '@/api/badgesApi';
 
 type LogButtonProps = {
     onModalToggle: (isOpen: boolean) => void;
@@ -147,6 +148,13 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
                 }
             } else if (type === 'series') {
                 const response = await createReviews(ratingData.user_id, ratingData.reviews);
+
+                const seriesReviews = await fetchReviewsByUserId(loggedInId)
+                const totalSeriesReviewsWithFiveStars = seriesReviews.filter((rev: { episode_api_id: number; score: number; }) => !rev.episode_api_id && rev.score === 5).length;
+                validateBadgeCriteria(totalSeriesReviewsWithFiveStars, 10, 9)
+
+                const totalSeriesReviewsWithComments = seriesReviews.filter((rev: { episode_api_id: number; comment: string; }) => !rev.episode_api_id && rev.comment).length;
+                validateBadgeCriteria(totalSeriesReviewsWithComments, 10, 1)
             }
         } catch (error) {
             console.error('Error creating/updating review:', error);
@@ -168,6 +176,11 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
                 await apiActions.dislike(loggedInId, seriesId, type === 'episode' ? episodeId : undefined);
             } else {
                 await apiActions.like(loggedInId, seriesId, type === 'episode' ? episodeId : undefined);
+
+                if (type === 'series') {
+                    const likedSeriesCount = (await fetchLikedSeries(loggedInId)).length;
+                    validateBadgeCriteria(likedSeriesCount, 10, 3)
+                }
             }
     
             setLiked(!liked);
@@ -185,9 +198,13 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
             if (isFollowed) {
                 await removeFollowedSeries(loggedInId, seriesId);
                 await addDroppedSeries(loggedInId, seriesId);
+                const droppedSeriesCount = (await fetchDroppedSeries(loggedInId)).length;
+                validateBadgeCriteria(droppedSeriesCount, 10, 11)
             } else {
                 await removeDroppedSeries(loggedInId, seriesId);
                 await addFollowedSeries(loggedInId, seriesId);
+                const followedSeriesCount = (await fetchFollowedSeries(loggedInId)).length;
+                validateBadgeCriteria(followedSeriesCount, 5, 13)
             }
 
             setIsFollowed(!isFollowed);
@@ -210,12 +227,28 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
                 await removeWatchlist(loggedInId, seriesId);
             } else {
                 await addWatchlist(loggedInId, seriesId);
+                const watchlistCount = (await fetchWatchlist(loggedInId)).length;
+                validateBadgeCriteria(watchlistCount, 10, 14)
             }
             setIsInWatchlist(!isInWatchlist);
         } catch (error) {
             console.error('Error updating watchlist:', error);
         }
     };
+
+    const validateBadgeCriteria = async (dataCount: number, num: number, badgeId: number) => {
+        try {
+            const badge = await fetchBadgeById(loggedInId, badgeId);
+            if (!badge.earned) {
+                if (dataCount >= num) {
+                    addEarnedBadge(loggedInId, badgeId) 
+                }
+            }
+        } catch (error) {
+            console.error('Error validating badge criteria:', error);
+        }
+        
+    }
 
     const openModal = () => {
         setModalVisible(true);

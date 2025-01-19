@@ -5,8 +5,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useUserContext } from '@/contexts/UserContext';
 import { findEpisodeBySeriesId } from '@/api/episodesApi';
 import { likeEpisodes, dislikeEpisodes } from '@/api/episodesLikesApi';
-import { likeSeries, dislikeSeries } from '@/api/seriesLikesApi';
+import { likeSeries, dislikeSeries, fetchLikedSeries } from '@/api/seriesLikesApi';
 import { createReviews } from '@/api/reviewsApi';
+import { fetchBadgeById, addEarnedBadge } from '@/api/badgesApi';
 
 import OptionsTab from '@/components/OptionsTab';
 import Tabs from '@/components/logReviews/Tabs';
@@ -80,6 +81,16 @@ export default function SeriesLogScreen() {
                 await dislikeSeries(user?.user_id, seriesId);
             } else {
                 await likeSeries(user?.user_id, seriesId);
+
+                const likedSeries = await fetchLikedSeries(user?.user_id);
+                const totalLikedSeries = likedSeries.length;
+                
+                if (totalLikedSeries >= 10) {
+                    const badge = await fetchBadgeById(user?.user_id, 3);
+                    if (!badge.earned) {
+                        addEarnedBadge(user?.user_id, 3) 
+                    }
+                }                
             }
         }
     

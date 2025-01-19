@@ -4,7 +4,8 @@ import { Shadow } from 'react-native-shadow-2';
 import { useRouter } from 'expo-router';
 import { useUserContext } from '@/contexts/UserContext';
 
-import { addFollowing, removeRelationship, checkIfFollowing } from '@/api/relationshipsApi';
+import { addFollowing, removeRelationship, checkIfFollowing, getFollowers, getFollowingUsers } from '@/api/relationshipsApi';
+import { addEarnedBadge, fetchBadgeById } from '@/api/badgesApi';
 
 type OtherUserHeaderProps = {
     userId: number;
@@ -46,6 +47,33 @@ export default function OtherUserHeader({ userId, username, followers, following
             await addFollowing(Number(currentUser), userId);
             setIsFollowing(true);
             setFollowersCount(prevCount => prevCount + 1);
+
+            if (await checkIfFollowing(userId, Number(currentUser))) {
+            
+                const currentUserBadge = await fetchBadgeById(Number(currentUser))
+                if (!currentUserBadge.earned) {
+                    const userFollowing = await getFollowingUsers(Number(currentUser));
+                    const userFollowers = await getFollowers(Number(currentUser));
+                    
+                    const commonUsers = [...userFollowing].filter(user => userFollowers.has(user))
+    
+                    if (commonUsers.length >= 5) {
+                        addEarnedBadge(Number(currentUser), 16)
+                    }
+                }
+                
+                const userBadge = await fetchBadgeById(userId)
+                if (!userBadge.earned) {
+                    const userFollowing = await getFollowingUsers(userId);
+                    const userFollowers = await getFollowers(userId);
+                    
+                    const commonUsers = [...userFollowing].filter(user => userFollowers.has(user))
+    
+                    if (commonUsers.length >= 5) {
+                        addEarnedBadge(userId, 16)
+                    }
+                }
+            }            
         } catch (error) {
             console.error('Error following:', error);
         }
