@@ -163,17 +163,6 @@ exports.findOne = async (req, res) => {
           },
         },
         {
-          model: ViewingHistory,
-          as: "viewingHistory",
-          attributes: [
-            "series_api_id",
-            "episode_api_id",
-            "watch_date",
-            "time_watched",
-            "episode_progress",
-          ],
-        },
-        {
           model: PreferredGenres,
           as: "preferredGenres",
           include: {
@@ -200,9 +189,8 @@ exports.findOne = async (req, res) => {
       });
     }
 
-    const viewingHistory = Array.isArray(user.viewingHistory)
-      ? user.viewingHistory
-      : [];
+    const viewingHistory = await ViewingHistory.findAll({ where: { user_id: user.user_id } })
+    const viewingHistoryArray = Array.isArray(viewingHistory) ? viewingHistory : [];
 
     const formattedPreferredGenres = user.preferredGenres.map(
       (preferredGenre) => ({
@@ -233,15 +221,14 @@ exports.findOne = async (req, res) => {
       favouriteSeries: formattedFavouriteSeries,
       preferredGenres: formattedPreferredGenres,
       statsData: {
-        episodes: viewingHistory.length,
-        months: Math.floor(user.total_time_spent / 30),
-        weeks: Math.floor(user.total_time_spent / 7),
+        episodes: viewingHistoryArray.length,
+        months: Math.floor(user.total_time_spent / 730),
+        weeks: Math.floor(user.total_time_spent / 168),
         days: Math.floor(user.total_time_spent / 24),
-        thisYearEpisodes: viewingHistory.filter(
+        thisYearEpisodes: viewingHistoryArray.filter(
           (history) =>
-            new Date(history.watch_date).getFullYear() ===
-            new Date().getFullYear()
-        ).length,
+            new Date(history.watch_date).getFullYear() === new Date().getFullYear()
+          ).length,
       },
       badgesVisibility: user.badges_visibility,
       time_watched: user.total_time_spent
