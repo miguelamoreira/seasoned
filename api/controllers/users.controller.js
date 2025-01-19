@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { JWTconfig } = require("../config/db.config.js");
 require("dotenv").config();
+const axios = require('axios');
 
 const Users = db.Users;
 const Genres = db.Genres;
@@ -13,6 +14,7 @@ const ViewingHistory = db.ViewingHistory;
 const FavouriteSeries = db.FavouriteSeries;
 const Series = db.Series;
 const NotificationsConfig = db.NotificationsConfig;
+const FollowedSeries = db.FollowedSeries;
 
 const cloudinary = require("../config/cloudinary.config.js");
 
@@ -548,6 +550,98 @@ exports.viewingHistoryDelete = async (req, res) => {
     console.error("error: ", error);
     return res.status(500).json({
       message: "Something went wrong. Please try again later",
+    });
+  }
+};
+
+exports.getContinueWatching = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const lastWatched = await ViewingHistory.findOne({
+      where: { user_id: userId },
+      order: [['watch_date', 'DESC']],
+      attributes: ['series_api_id', 'episode_api_id', 'season_api_id'],
+    });
+
+    if (!lastWatched) {
+      return res.status(200).json({
+        message: "No viewing history found for this user.",
+        data: {},
+      });
+    }
+
+    const { series_api_id, episode_api_id } = lastWatched;
+
+    const series = await Series.findOne({
+      where: { series_api_id },
+      attributes: ['title'],
+    });
+
+    if (!series) {
+      return res.status(200).json({
+        message: "Series information not found.",
+        data: {},
+      });
+    }
+
+    const isFollowed = await FollowedSeries.findOne({
+      where: {
+        user_id: userId,
+        series_api_id,
+      },
+    });
+
+    const response = await axios.get(`https://api.tvmaze.com/shows/${series_api_id}/episodes`);
+    const episodes = response.data;
+
+    if (!Array.isArray(episodes) || episodes.length === 0) {
+      return res.status(200).json({
+        message: "No episodes found for this series.",
+        data: {},
+      });
+    }
+
+    episodes.sort((a, b) => {
+      if (a.season !== b.season) return a.season - b.season;
+      return a.number - b.number;
+    });
+
+    const currentEpisodeIndex = episodes.findIndex((ep) => ep.id === episode_api_id);
+    const nextEpisode = currentEpisodeIndex >= 0 ? episodes[currentEpisodeIndex + 1] : null;
+
+    if (!nextEpisode) {
+      return res.status(200).json({
+        message: "No next episode found.",
+        data: {},
+      });
+    }
+
+    return res.status(200).json({
+      message: "Continue watching data retrieved successfully.",
+      data: {
+        last_watched: {
+          episode_id: episode_api_id,
+          series_id: series_api_id,
+          season_id: lastWatched.season_api_id,
+          series_title: series.title,
+        },
+        next_episode: {
+          episode_id: nextEpisode.id,
+          title: nextEpisode.name,
+          season: nextEpisode.season,
+          number: nextEpisode.number,
+          airdate: nextEpisode.airdate,
+          runtime: nextEpisode.runtime,
+          image: nextEpisode.image?.medium || null,
+        },
+        is_followed: !!isFollowed,
+      },
+    });
+  } catch (error) {
+    console.error("Error: ", error);
+    return res.status(500).json({
+      message: "Something went wrong. Please try again later."
     });
   }
 };

@@ -96,3 +96,13 @@ export const updateUserTimeWatched = async (id, total_time_spent) => {
         throw new Error('Failed to update user data. Please try again later.');
     }
 };
+
+export const fetchContinueWatching = async (id) => {
+    try {
+        const { data } = await apiClient.get(`/users/${id}/continueWatching`);
+        return data.data;
+    } catch (error) {
+        console.error('Error fetching continue watching:', error);
+        throw new Error('Failed to fetch continue watching. Please try again later.');
+    }
+}
