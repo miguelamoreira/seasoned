@@ -1,56 +1,79 @@
-import React from 'react';
-import { Image, StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { Image, StyleSheet, SafeAreaView, View, Text, TouchableOpacity } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+import PageOne from '@/components/onboarding/PageOne';
+import PageTwo from '@/components/onboarding/PageTwo';
+import PageThree from '@/components/onboarding/PageThree';
+import PageFour from '@/components/onboarding/PageFour';
 
 export default function HomeScreen() {
+  const [currentPage, setCurrentPage] = useState(1);
   const router = useRouter();
 
-  const clearAsyncStorage = async () => {
-    try {
-      await AsyncStorage.clear();
-      console.log('AsyncStorage cleared!');
-    } catch (error) {
-      console.error('Error clearing AsyncStorage:', error);
+  const handleNext = () => {
+    if (currentPage < 4) {
+      setCurrentPage(currentPage + 1);
     }
   };
 
+  const handleBack = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const pageColors = [ '#82AA59', '#D8A84E', '#EE6363', '#82AA59']
+
   return (
     <SafeAreaView style={styles.mainContainer}>
-
-      <Image source={require('../assets/images/rainbow_1.png')} style={styles.rainbowTop}/>
-      <Image source={require('../assets/images/rainbow_2.png')} style={styles.rainbowBottom}/>
-
-      <View style={styles.titleContainer}>
-        <Image source={require('../assets/images/frankie_1.png')} />
-        <Text style={styles.appTitle}>Seasoned</Text>
+      <View style={styles.contentContainer}>
+        {currentPage === 1 && <PageOne />}
+        {currentPage === 2 && <PageTwo />}
+        {currentPage === 3 && <PageThree />}
+        {currentPage === 4 && <PageFour />}
       </View>
 
-      <View style={styles.optionsContainer}>
-        <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-          <TouchableOpacity style={styles.signinButton} activeOpacity={0.9} onPress={() => router.push('/signin')}>
-            <Text style={styles.buttonText}>Sign in</Text>
-          </TouchableOpacity>
-        </Shadow>
-        <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-          <TouchableOpacity style={styles.signupButton} activeOpacity={0.9} onPress={() => router.push('/register')}>
-            <Text style={styles.buttonText}>Sign up</Text>
-          </TouchableOpacity>
-        </Shadow>
-      </View>
+      <View style={styles.navigation}>
+        {currentPage > 1 ? (
+          <Shadow distance={1} startColor="#211B17" offset={[1, 2]}>
+            <TouchableOpacity style={styles.arrowButton} onPress={handleBack}>
+              <Ionicons name="arrow-back" size={24} color="#211B17" />
+            </TouchableOpacity>
+          </Shadow>
+        ) : (
+          <Shadow distance={1} startColor="#211B17" offset={[1, 2]}>
+            <TouchableOpacity
+              style={styles.skipButton}
+              onPress={() => router.push('/main')}
+            >
+              <Text style={styles.buttonText}>Skip</Text>
+            </TouchableOpacity>
+          </Shadow>
+        )}
 
-      <View style={styles.skipContainer}>
-        <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-          <TouchableOpacity style={styles.skipButton} activeOpacity={0.9} onPress={() => {clearAsyncStorage(); router.push('/homepage')}}>
-            <Text style={styles.buttonText}>Skip</Text>
-          </TouchableOpacity>
-        </Shadow>
-      </View>
+        <View style={styles.dots}>
+          {[1, 2, 3, 4].map((page) => (
+            <View key={page} style={[ styles.dot, { backgroundColor: currentPage === page ? pageColors[page - 1] : '#352A23'}]}/>
+          ))}
+        </View>
 
+        {currentPage < 4 ? (
+          <Shadow distance={1} startColor="#211B17" offset={[1, 2]}>
+            <TouchableOpacity style={styles.arrowButton} onPress={handleNext}>
+              <Ionicons name="arrow-forward" size={24} color="#211B17" />
+            </TouchableOpacity>
+          </Shadow>
+        ) : (
+          <Shadow distance={1} startColor="#211B17" offset={[2, 4]}>
+            <TouchableOpacity style={styles.arrowButton} onPress={() => router.push('/main')}>
+              <Ionicons name="arrow-forward" size={24} color="#211B17" />
+            </TouchableOpacity>
+          </Shadow>
+        )}
+      </View>
     </SafeAreaView>
   );
 }
@@ -58,77 +81,57 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: '#FFF4E0',
+    backgroundColor: '#F5E0CE',
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  navigation: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
     paddingHorizontal: 16,
-    color: '#211B17'
-  },
-  rainbowTop: {
-    position: 'absolute',
-    top: -40,
-    left: 104,
-    width: '100%',
-    height: 400, 
-    resizeMode: 'contain',
-  },
-  rainbowBottom: {
-    position: 'absolute',
-    bottom: -64,
-    width: '100%',
-    height: windowHeight / 2.2, 
-    resizeMode: 'contain',
-  },
-  titleContainer: {
-    alignItems: 'center',
-    top: 120,
-  },
-  appTitle: {
-    fontSize: 48,
-    fontFamily: 'Caprasimo',
-    textAlign: 'center',
-  },
-  optionsContainer: {
-    alignItems: 'center',
-    top: 188,
-    gap: 24,
-  },
-  signinButton: {
-    backgroundColor: '#D8A84E',
-    width: 220,
-    paddingVertical: 6,
-    borderRadius: 8,
-    borderColor: '#211B17',
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  signupButton: {
-    backgroundColor: '#ebce97',
-    width: 220,
-    paddingVertical: 6,
-    borderRadius: 8,
-    borderColor: '#211B17',
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    fontFamily: 'Arimo',
-    fontSize: 20,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  skipContainer: {
-    alignItems: 'center',
-    top: windowHeight / 2.3,
+    paddingBottom: 24,
   },
   skipButton: {
     backgroundColor: '#D8A84E',
     width: 80,
-    paddingVertical: 6,
+    paddingVertical: 4,
     borderRadius: 8,
     borderColor: '#211B17',
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: -40,
+  },
+  arrowButton: {
+    backgroundColor: '#D8A84E',
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#211B17',
+  },
+  buttonText: {
+    fontFamily: 'Arimo',
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+    color: '#211B17',
+  },
+  dots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 8,
+    marginHorizontal: 4,
   },
 });
