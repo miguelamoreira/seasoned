@@ -60,7 +60,7 @@ export default function DataTab() {
     const handleLogout = async () => {
         try {
             clearUser();
-            router.push('/');
+            router.push('/main');
         } catch (error) {
             console.error("Error logging out:", error);
         }

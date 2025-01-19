@@ -8,6 +8,7 @@ const Episodes = db.Episodes;
 const Reviews = db.Reviews;
 const ReviewComments = db.ReviewComments;
 const ReviewLikes = db.ReviewLikes;
+const Notifications = db.Notifications;
 
 exports.getLikedReviews = async (req, res) => {
     const userId = req.params.id;
@@ -97,6 +98,14 @@ exports.likeReviews = async (req, res) => {
         }
 
         await ReviewLikes.create({ user_id: userId, review_id: reviewId, like_date: new Date()})
+
+        const user1 = await Users.findByPk(userId)
+        const newNotification = await Notifications.create({
+            user_id: review.user_id,
+            notificationType: 'activity',
+            variant: 'newLikes',
+            message: `${user1.name} liked your review`
+        })
 
         return res.status(201).json({
             message: 'Review liked successfully.',

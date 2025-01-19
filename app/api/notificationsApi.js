@@ -19,3 +19,13 @@ export const updateNotificationsConfigurations = async (id, settings) => {
         throw new Error('Failed to update notifications configurations.');
     }
 };
+
+export const fetchNotifications = async (id) => {
+    try {
+        const { data } = await apiClient.get(`/users/${id}/notifications`);
+        return data;
+    } catch (error) {
+        console.error('Error when fetching notifications: ', error);
+        throw new Error('Failed to fetch notifications.')
+    }
+}

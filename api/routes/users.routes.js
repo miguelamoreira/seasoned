@@ -22,6 +22,7 @@ const seriesLikesController = require("../controllers/seriesLikes.controller");
 const reviewLikesController = require("../controllers/reviewLike.controller");
 const seasonProgressController = require("../controllers/seasonProgress.controller");
 const seriesProgressController = require("../controllers/seriesProgress.controller");
+const notificationsController = require("../controllers/notifications.controller")
 
 router.route("/login").post(usersController.login);
 
@@ -141,5 +142,9 @@ router
 router
   .route("/:id/continueWatching")
   .get(usersController.getContinueWatching)
+
+router
+  .route("/:id/notifications")
+  .get(notificationsController.getNotificationsByUserId)
 
 module.exports = router;

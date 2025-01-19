@@ -45,10 +45,8 @@ export default function TabBar(props: TabBarProps) {
     const handleNavigate = (page: string, userId?: number | null) => {
         if (page === 'Profile') {
             if (isLoggedIn) {
-                console.log(`Navigate to Profile with userId: ${userId}`);
                 router.push(`/users/${userId}`);
             } else {
-                console.log('Redirecting to Login page');
                 router.push('/main'); 
             }
         } else {
@@ -60,7 +58,7 @@ export default function TabBar(props: TabBarProps) {
                     router.push('/search'); 
                     break;
                 case 'notifications':
-                    console.log('/notifications'); 
+                    router.push('/notifications'); 
                     break;
                 default:
                     console.log(`Page not recognized: ${page}`);

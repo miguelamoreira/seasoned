@@ -3,6 +3,7 @@ const { ValidationError, Sequelize, where } = require("sequelize");
 
 const Users = db.Users;
 const FollowingUsers = db.FollowingUsers;
+const Notifications = db.Notifications;
 
 exports.getFollowingUsers = async (req, res) => {
     const userId = req.params.id;
@@ -51,6 +52,14 @@ exports.addFollowing = async (req, res) => {
         }
 
         const newFollowing = await FollowingUsers.create({ user1_id, user2_id })
+        const user1 = await Users.findByPk(user1_id);
+
+        const newNotification = await Notifications.create({
+            user_id: user2_id,
+            notificationType: 'activity',
+            variant: 'newFollowers',
+            message: `${user1.name} followed you`
+        })
 
         return res.status(200).json({
             message: 'Following added successfully',

@@ -10,8 +10,6 @@ export default function NotificationsTab() {
         newFollowers: true,
         newComments: false,
         newLikes: false,
-        upcomingEpisodes: true,
-        seasonEpisodes: true,
     });
 
     useEffect(() => {
@@ -25,8 +23,6 @@ export default function NotificationsTab() {
                         newFollowers: fetchedSettings.data.newFollowers,
                         newComments: fetchedSettings.data.newComments,
                         newLikes: fetchedSettings.data.newLikes,
-                        upcomingEpisodes: fetchedSettings.data.upcomingEpisodes,
-                        seasonEpisodes: fetchedSettings.data.seasonEpisodes,
                     });
                 }
             } catch (error) {
@@ -72,22 +68,6 @@ export default function NotificationsTab() {
                 { label: 'New followers', key: 'newFollowers' },
                 { label: 'New comments', key: 'newComments' },
                 { label: 'New likes on your reviews', key: 'newLikes' },
-            ].map(({ label, key }) => (
-                <View style={styles.switchContainer} key={key}>
-                    <Text style={styles.label}>{label}</Text>
-                    <Switch
-                        value={settings[key as keyof typeof settings]}
-                        onValueChange={() => toggleSwitch(key as keyof typeof settings)}
-                        thumbColor={settings[key as keyof typeof settings] ? '#82AA59' : '#F5E0CE'}
-                        trackColor={{ false: '#403127', true: '#403127' }}
-                    />
-                </View>
-            ))}
-
-            <Text style={styles.subheading}>New Releases</Text>
-            {[
-                { label: 'Upcoming episodes', key: 'upcomingEpisodes' },
-                { label: 'Season Premieres', key: 'seasonEpisodes' },
             ].map(({ label, key }) => (
                 <View style={styles.switchContainer} key={key}>
                     <Text style={styles.label}>{label}</Text>

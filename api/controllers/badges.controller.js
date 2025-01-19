@@ -4,6 +4,7 @@ const { ValidationError, Sequelize, where } = require("sequelize");
 const Badges = db.Badges;
 const Users = db.Users;
 const EarnedBadges = db.EarnedBadges;
+const Notifications = db.Notifications;
 
 exports.findAllBadges = async (req, res) => {
     try {
@@ -170,6 +171,15 @@ exports.addEarnedBadges = async (req, res) => {
             badge_id: badgeId,
             earned_date: new Date(),
         });
+
+
+        const Badge = await Badges.findByPk(badgeId);
+        const newNotification = await Notifications.create({
+            user_id: userId,
+            notificationType: 'activity',
+            variant: 'earnedBadges',
+            message: `You earned a new badge: ${Badge.name}`
+        })
 
         return res.status(201).json({
             message: 'Badge added successfully',

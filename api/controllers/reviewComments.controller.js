@@ -4,6 +4,7 @@ const { ValidationError, Sequelize, where } = require("sequelize");
 const Users = db.Users;
 const Reviews = db.Reviews;
 const ReviewComments = db.ReviewComments;
+const Notifications = db.Notifications;
 
 exports.getCommentsByReviewId = async (req, res) => {
     const reviewId = req.params.id;
@@ -71,6 +72,14 @@ exports.addCommentToReview = async (req, res) => {
             comment,
             comment_date: new Date(),
         });
+
+        const user1 = await Users.findByPk(userId)
+        const newNotification = await Notifications.create({
+            user_id: review.user_id,
+            notificationType: 'activity',
+            variant: 'newComments',
+            message: `${user1.name} added a comment to your review`
+        })
         
         return res.status(201).json({
             message: 'Comment added successfully.',
