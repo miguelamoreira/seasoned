@@ -49,7 +49,7 @@ export default function TabBar(props: TabBarProps) {
                 router.push(`/users/${userId}`);
             } else {
                 console.log('Redirecting to Login page');
-                router.push('/'); 
+                router.push('/main'); 
             }
         } else {
             switch (page.toLowerCase()) {
