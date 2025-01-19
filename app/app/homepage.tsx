@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
 
 import { useUserContext } from '@/contexts/UserContext';
 
@@ -14,13 +15,18 @@ import { fetchNewReleases } from '@/api/tvAPI';
 import { fetchPopularReviews } from '@/api/reviewsApi';
 import { fetchPopularSeries } from '@/api/seriesLikesApi';
 import { fetchLikedReviews } from '@/api/reviewLikesApi';
+import { fetchContinueWatching } from '@/api/userApi';
+import { removeFollowedSeries } from "@/api/followedSeriesApi";
+import { addDroppedSeries } from "@/api/droppedSeriesApi";
 
 export default function HomepageScreen() {
     const { user, token } = useUserContext();
+    const router = useRouter();
     const [newReleases, setNewReleases] = useState<any[]>([]);
     const [popularReviews, setPopularReviews] = useState<any[]>([]);
     const [popularShows, setPopularShows] = useState<any[]>([]);
     const [likedReviews, setLikedReviews] = useState<any[]>([]);
+    const [episodeData, setEpisodeData] = useState<any>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -81,6 +87,46 @@ export default function HomepageScreen() {
                 } else {
                     setPopularShows([]);
                 }
+
+                if (user?.user_id) {
+                    try {
+                        const continueWatchingData = await fetchContinueWatching(user?.user_id);
+                        if (continueWatchingData?.next_episode) {
+                            const nextEpisode = continueWatchingData.next_episode;
+                
+                            const {
+                                title = "Unknown Title",
+                                season = "N/A",
+                                number = "N/A",
+                                runtime = 0,
+                                image = null,
+                                episode_id,
+                            } = nextEpisode;
+                
+                            const {
+                                series_title = "Unknown Series",
+                                series_id,
+                                season_id,
+                            } = continueWatchingData?.last_watched || {};
+                
+                            setEpisodeData({
+                                title,
+                                seasonEpisode: `S-${season} E-${number}`,
+                                duration: `${runtime || "?"} min`,
+                                seriesTitle: series_title,
+                                imageUri: image || "default_image_placeholder.png",
+                                seriesId: series_id,
+                                seasonId: season_id,
+                                episodeId: episode_id,
+                            });
+                        } else {
+                            setEpisodeData(null);
+                        }
+                    } catch (error) {
+                        console.error("Error fetching continue watching data:", error);
+                        setEpisodeData(null);
+                    }
+                }                
             } catch (error) {
                 console.error('Error fetching data: ', error);
                 setPopularShows([]);
@@ -92,28 +138,26 @@ export default function HomepageScreen() {
         fetchData();
     }, [user?.user_id]);
 
-    const episodeData = {
-        title: "Una tradición familiar",
-        seasonEpisode: "S-5 E-10",
-        duration: "76 min",
-        seriesTitle: "La Casa de Papel",
-        imageUri: "https://static.tvmaze.com/uploads/images/large_landscape/380/950352.jpg",
-    };
-
-    const handleUnfollow = () => {
-        console.log("Unfollow button clicked");
+    const handleUnfollow = async () => {
+       if (episodeData) {
+            await removeFollowedSeries(user?.user_id, episodeData.seriesId);
+            await addDroppedSeries(user?.user_id, episodeData.seriesId);
+            setEpisodeData(null);
+       }
     };
 
     const handleLog = () => {
-        console.log("Log button clicked");
+        if (episodeData) {
+            router.push(`/series/${episodeData.seriesId}/seasons/${episodeData.seasonId}/${String(episodeData.episodeId)}/log`);
+        }
     };
 
     return (
         <SafeAreaView style={styles.mainContainer}>
             <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {!token && <FrankieBanner />}
-                {token && user && (
-                    <ContinueWatching episode={episodeData} onUnfollow={handleUnfollow} onLog={handleLog} />
+                {token && user && episodeData && episodeData !== null && (
+                    <ContinueWatching episode={episodeData} onUnfollow={handleUnfollow} handleLog={handleLog} />
                 )}
                 <ComingSoon shows={newReleases} />
                 <PopularReviews reviews={popularReviews} />

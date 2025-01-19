@@ -138,4 +138,8 @@ router
   .post(usersController.viewingHistoryPost)
   .delete(usersController.viewingHistoryDelete)
 
+router
+  .route("/:id/continueWatching")
+  .get(usersController.getContinueWatching)
+
 module.exports = router;

@@ -12,15 +12,18 @@ type EpisodeDetails = {
   duration: string;
   seriesTitle: string;
   imageUri: string;
+  seriesId: number;
+  seasonId: number;
+  episodeId: number; 
 };
 
 type ContinueWatchingProps = {
   episode: EpisodeDetails;
   onUnfollow: () => void;
-  onLog: () => void;
+  handleLog: () => void;
 };
 
-export default function ContinueWatching({ episode, onUnfollow, onLog }: ContinueWatchingProps) {
+export default function ContinueWatching({ episode, onUnfollow, handleLog }: ContinueWatchingProps) {
   const [translateX] = useState(new Animated.Value(0));
 
   const panResponder = PanResponder.create({
@@ -28,9 +31,9 @@ export default function ContinueWatching({ episode, onUnfollow, onLog }: Continu
     onPanResponderMove: (_, gestureState) => { translateX.setValue(gestureState.dx); },
     onPanResponderRelease: (_, gestureState) => {
       if (gestureState.dx > 80) {
-        Animated.spring(translateX, { toValue: 108, useNativeDriver: true }).start(() => { onLog(); resetPosition(); });
+        Animated.spring(translateX, { toValue: 108, useNativeDriver: true }).start(() => { onUnfollow(); resetPosition(); });
       } else if (gestureState.dx < -80) {
-        Animated.spring(translateX, { toValue: -108, useNativeDriver: true }).start(() => { onUnfollow(); resetPosition(); });
+        Animated.spring(translateX, { toValue: -108, useNativeDriver: true }).start(() => { handleLog(); resetPosition(); });
       } else {
         resetPosition();
       }
