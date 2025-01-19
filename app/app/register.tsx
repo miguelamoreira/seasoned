@@ -44,7 +44,7 @@ export default function RegisterScreen() {
 
     const handleBackButton = () => {
         if (currentStep === 1) {
-            router.push('/');
+            router.push('/main');
         } else {
             setCurrentStep(1);
         }
