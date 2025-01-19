@@ -55,12 +55,13 @@ exports.findEpisodeById = async (req, res) => {
             id: episodeData.id,
             title: episodeData.name,
             description: episodeData.summary ? episodeData.summary.replace(/<\/?[^>]+(>|$)/g, "") : null,
+            series: episodeData._links.show.name,
             season: episodeData.season,
             episode: episodeData.number,
             airdate: episodeData.airdate,
             image: episodeData.image?.medium || null,
             rating: episodeData.rating?.average || null,
-            url: episodeData.url,  // URL to the episode page on TVMaze
+            url: episodeData.url,
             reviews: reviews.map(review => ({
                 id: review.review_id,
                 user_id: review.user.user_id,
@@ -82,6 +83,59 @@ exports.findEpisodeById = async (req, res) => {
 
     } catch (error) {
         console.error('Error fetching episode details:', error);
+        return res.status(500).json({
+            message: 'Something went wrong. Please try again later.',
+        });
+    }
+};
+
+exports.findEpisodesBySeries = async (req, res) => {
+    const seriesId = req.params.id;
+
+    try {
+        const seriesApiResponse = await axios.get(`https://api.tvmaze.com/shows/${seriesId}?embed=seasons`);
+        const seriesApiData = seriesApiResponse.data;
+
+        const totalSeasons = seriesApiData._embedded?.seasons.length || 0;
+
+        const seasonsWithEpisodes = await Promise.all(
+            seriesApiData._embedded?.seasons.map(async (season) => {
+                const episodesResponse = await axios.get(`https://api.tvmaze.com/seasons/${season.id}/episodes`);
+                const episodesData = episodesResponse.data;
+
+                const episodes = episodesData.map((episode) => ({
+                    id: episode.id,
+                    number: episode.number,
+                    season: episode.season,
+                }));
+
+                return {
+                    id: season.id,
+                    number: season.number,
+                    episodeOrder: season.episodeOrder,
+                    episodes,
+                };
+            })
+        );
+
+        const seriesData = {
+            series_api_id: seriesApiData.id,
+            title: seriesApiData.name,
+            year: seriesApiData.premiered.split('-')[0],
+            ended: seriesApiData.ended ? seriesApiData.ended.split('-')[0] : null,
+            genre: seriesApiData.genres,
+            total_seasons: totalSeasons,
+            seasons: seasonsWithEpisodes,
+            average_rating: seriesApiData.rating?.average || null,
+            poster_url: seriesApiData.image?.original || null,
+        };
+
+        return res.status(200).json({
+            message: 'Series and episodes retrieved successfully',
+            data: seriesData,
+        });
+    } catch (error) {
+        console.error('Error fetching series and episodes details:', error);
         return res.status(500).json({
             message: 'Something went wrong. Please try again later.',
         });

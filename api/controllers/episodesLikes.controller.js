@@ -27,21 +27,7 @@ exports.getLikedEpisodes = async (req, res) => {
                 {
                     model: Episodes,
                     as: 'episodes',
-                    attributes: ['episode_api_id', 'episode_title', 'season_id', 'episode_number', 'air_date', 'poster_url'],
-                    include: [
-                        {
-                            model: Seasons,
-                            as: 'seasons',
-                            attributes: ['season_id', 'season_number'],
-                            include: [
-                                {
-                                    model: Series,
-                                    as: 'series',
-                                    attributes: ['series_api_id', 'title', 'description', 'poster_url', 'average_rating', 'creator', 'release_date'],
-                                },
-                            ],
-                        },
-                    ],
+                    attributes: ['episode_api_id', 'episode_title', 'season_id', 'episode_number', 'air_date', 'poster_url']
                 },
             ],
         });
