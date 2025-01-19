@@ -39,3 +39,13 @@ export const deleteViewingHistory = async (id) => {
         throw new Error('Failed delete Viewing History. Please try again later.');
     }
 }
+
+export const findEpisodeBySeriesId = async (id) => {
+    try {
+        const { data } = await apiClient.get(`/series/${id}/episodes`);
+        return data.data;
+    } catch (error) {
+        console.error('Error fetching episodes:', error);
+        throw new Error('Failed to fetch episodes. Please try again later.');
+    }
+}

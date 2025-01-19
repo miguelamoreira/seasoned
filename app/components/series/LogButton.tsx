@@ -46,6 +46,10 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
                     fetchWatchlist(loggedInId),
                     fetchReviewsByUserId(loggedInId),
                 ]);
+
+                setLiked(
+                    likedSeries.some((item: any) => item.series_api_id === parseInt(seriesId))
+                );
     
                 const isSeriesFollowed = followedSeries.data.some(
                     (item: any) => item.series.series_api_id === parseInt(seriesId)
@@ -86,7 +90,7 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
                 const [likedEpisodesData, existingReviews] = await Promise.all([
                     fetchLikedEpisodes(loggedInId),
                     fetchReviewsByUserId(loggedInId),
-                ]);
+                ]);           
     
                 setLiked(
                     likedEpisodesData.some((item: any) => item.episode_api_id === parseInt(episodeId))
