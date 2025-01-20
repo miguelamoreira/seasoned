@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, StyleSheet } from 'react-native';
+import { SafeAreaView, View, StyleSheet, FlatList } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 import SeriesDisplay, { Series } from '@/components/series/SeriesDisplay';
@@ -133,9 +133,12 @@ export default function UsersShowsScreen() {
             <OptionsTab type="back" onBackPress={() => router.back()} />
             <Menu tabs={TABS} activeTab={activeTab} onTabPress={handleTabPress} />
 
-            <View style={styles.seriesContainer}>
-                {renderShows()}
-            </View>
+            <FlatList
+                data={[1]}
+                renderItem={() => renderShows()}
+                keyExtractor={(item, index) => index.toString()}
+                contentContainerStyle={styles.seriesContainer}
+            />
         </SafeAreaView>
     );
 }
@@ -145,7 +148,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFF4E0',
         paddingTop: 42,
-        paddingBottom: 60,
     },
     seriesContainer: {
         marginTop: 16,

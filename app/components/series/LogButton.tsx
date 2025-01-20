@@ -15,6 +15,7 @@ import { fetchFollowedSeries, addFollowedSeries, removeFollowedSeries } from '@/
 import { fetchDroppedSeries, addDroppedSeries, removeDroppedSeries } from '@/api/droppedSeriesApi';
 import { createReviews, fetchReviewsByUserId } from '@/api/reviewsApi';
 import { fetchBadgeById, addEarnedBadge } from '@/api/badgesApi';
+import { fetchWatchedSeries, addWatchedSeries, removeWatchedSeries } from '@/api/watchedSeriesApi';
 
 type LogButtonProps = {
     onModalToggle: (isOpen: boolean) => void;
@@ -30,6 +31,7 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
     const [rating, setRating] = useState(0);
     const [liked, setLiked] = useState(false);
     const [isFollowed, setIsFollowed] = useState(false);
+    const [isDropped, setIsDropped] = useState(false);
     const [isWatched, setIsWatched] = useState(false);
     const [isInWatchlist, setIsInWatchlist] = useState(false);
     const router = useRouter();
@@ -40,12 +42,13 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
     
         try {
             if (type === 'series') {
-                const [likedSeries, followedSeries, droppedSeries, watchlist, existingReviews] = await Promise.all([
+                const [likedSeries, followedSeries, droppedSeries, watchlist, existingReviews, watched] = await Promise.all([
                     fetchLikedSeries(loggedInId),
                     fetchFollowedSeries(loggedInId),
                     fetchDroppedSeries(loggedInId),
                     fetchWatchlist(loggedInId),
                     fetchReviewsByUserId(loggedInId),
+                    fetchWatchedSeries(loggedInId)
                 ]);
 
                 setLiked(
@@ -62,14 +65,21 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
     
                 if (isSeriesFollowed) {
                     setIsFollowed(true);
+                    setIsDropped(false);
                 } else if (isSeriesDropped) {
                     setIsFollowed(false);
+                    setIsDropped(true);
                 } else {
                     setIsFollowed(false);
+                    setIsDropped(false);
                 }
     
                 setIsInWatchlist(
                     watchlist.data.some((item: any) => item.series.series_api_id === parseInt(seriesId))
+                );
+
+                setIsWatched(
+                    watched.data.some((item: any) => item.series.series_api_id === parseInt(seriesId))
                 );
     
                 const recentReview = existingReviews
@@ -200,11 +210,13 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
                 await addDroppedSeries(loggedInId, seriesId);
                 const droppedSeriesCount = (await fetchDroppedSeries(loggedInId)).length;
                 validateBadgeCriteria(droppedSeriesCount, 10, 11)
-            } else {
+            } else if (isDropped) {
                 await removeDroppedSeries(loggedInId, seriesId);
                 await addFollowedSeries(loggedInId, seriesId);
                 const followedSeriesCount = (await fetchFollowedSeries(loggedInId)).length;
                 validateBadgeCriteria(followedSeriesCount, 5, 13)
+            } else {
+                await addFollowedSeries(loggedInId, seriesId);
             }
 
             setIsFollowed(!isFollowed);
@@ -213,8 +225,30 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
         }
     };
 
-    const toggleWatched = () => {
-        setIsWatched(!isWatched);
+    const toggleWatched = async () => {
+        try {
+            if (!loggedInId) {
+                return;
+            }
+
+            if (isWatched) {
+                await removeWatchedSeries(loggedInId, seriesId);
+            } else {
+                await addWatchedSeries(loggedInId, seriesId);
+
+                const response = await fetch(`https://api.tvmaze.com/shows/${seriesId}/episodes`);
+                const seriesData = await response.json();
+                console.log('series: ', response);
+                
+                const episodes = seriesData.length > 0 ? seriesData : [];
+                console.log('Total episodes:', episodes.length);
+                
+                validateBadgeCriteria(episodes.length, 100, 10)
+            }
+            setIsWatched(!isWatched);
+        } catch (error) {
+            console.error('Error updating watched state:', error);
+        }
     };
 
     const toggleWatchlist = async () => {

@@ -19,3 +19,13 @@ export const addWatchedSeries = async (userId, seriesId) => {
         throw new Error('Failed to add new watched series. Please try again later.');
     }
 }
+
+export const removeWatchedSeries = async (userId, seriesId) => {
+    try {
+        const { data } = await apiClient.delete(`/users/${userId}/watchedSeries`,{data: { seriesId }});
+        return data;
+    } catch (error) {
+        console.error('Error removing series from watched series:', error);
+        throw new Error('Failed to remove series from watched series. Please try again later.');
+    }
+};
