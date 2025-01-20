@@ -87,8 +87,6 @@ export const findAllUsers = async (searchText) => {
 
 export const updateUserTimeWatched = async (id, total_time_spent) => {
     try {
-        console.log("API: " + total_time_spent);
-        
         const { data } = await apiClient.patch(`/users/${id}/time`, {
             total_time_spent
         });

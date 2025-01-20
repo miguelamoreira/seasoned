@@ -20,6 +20,7 @@ import {
   deleteViewingHistory,
 } from "@/api/episodesApi";
 import { postSeriesProgress, postSeasonProgress } from "@/api/progressApi";
+import { useIsFocused } from "@react-navigation/native";
 
 type Episode = {
   id: number;
@@ -66,12 +67,29 @@ export default function EpisodesDisplay({
   seriesId,
   seasonNumber,
 }: EpisodesProps) {
+
+  const isFocused = useIsFocused();
   const { user, token } = useUserContext();
   const router = useRouter();
   const [watchedEpisodes, setWatchedEpisodes] = useState<number[]>(
     episodes.filter((episode) => episode.watched).map((episode) => episode.id)
   );
 
+  useEffect(()=>{
+    const updateEpisodes= async ()=>{
+      
+      const viewingHistory = await getViewingHistory(user?.user_id)
+      const watchedEpisodesArray:number[] = []
+      viewingHistory.forEach((item:any) => {
+        watchedEpisodes.some(episode => episode === item.episode_api_id)
+          ? watchedEpisodesArray.push(item.episode_api_id)
+          : null;
+      });
+      setWatchedEpisodes(watchedEpisodes.filter(item => watchedEpisodesArray.includes(item)))
+      
+    }
+    updateEpisodes()
+  },[isFocused])
   const updateUser = async (time_watched: number) => {
     const result = await updateUserTimeWatched(user?.user_id, time_watched);
   };

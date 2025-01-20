@@ -111,7 +111,7 @@ export default function LogButton({
 
   const fetchStatus = useCallback(async () => {
     if (!loggedInId) return;
-    console.log(type);
+
 
     try {
       if (type === "series") {
@@ -357,7 +357,7 @@ export default function LogButton({
 
   const updateUser = async (time_watched: number) => {
     const result = await updateUserTimeWatched(user?.user_id, time_watched);
-    console.log(result);
+
     
   };
 
