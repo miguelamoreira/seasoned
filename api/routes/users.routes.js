@@ -105,7 +105,8 @@ router
 router
   .route("/:id/watchedSeries")
   .get(watchedSeriesController.getWatchedSeries)
-  .post(watchedSeriesController.addWatchedSeries);
+  .post(watchedSeriesController.addWatchedSeries)
+  .delete(watchedSeriesController.removeFromWatchedSeries)
 
 router
   .route("/:id/watchlist")

@@ -96,3 +96,37 @@ exports.addWatchedSeries = async (req, res) => {
         });
     }
 };
+
+exports.removeFromWatchedSeries = async (req, res) => {
+    const userId = req.params.id;
+    const { seriesId } = req.body;
+
+    if (!seriesId) {
+        return res.status(400).json({
+            message: 'Series ID is required.',
+        });
+    }
+
+    try {
+        const existingWatchedEntry = await WatchedSeries.findOne({
+            where: { user_id: userId, series_api_id: seriesId },
+        });
+
+        if (!existingWatchedEntry) {
+            return res.status(404).json({
+                message: 'This series is not in the user’s watchlist.',
+            });
+        }
+
+        await existingWatchedEntry.destroy();
+
+        return res.status(200).json({
+            message: 'Series removed from watched series successfully.',
+        });
+    } catch (error) {
+        console.error('Error removing from watched series:', error);
+        return res.status(500).json({
+            message: 'Something went wrong. Please try again later.',
+        });
+    }
+};
