@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, StyleSheet } from 'react-native';
+import { SafeAreaView, View, StyleSheet, FlatList } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 import OptionsTab from '@/components/OptionsTab';
@@ -69,7 +69,6 @@ export default function UsersActivityScreen() {
             const fetchLikedEpisodesData = async () => {
                 try {
                     const liked = await fetchLikedEpisodes(userId);
-                    console.log('liked: ', liked);
                     
                     const formattedLikedEpisodes = liked.map((episode: any) => ({
                         id: episode.episode_api_id,
@@ -197,7 +196,12 @@ export default function UsersActivityScreen() {
         <SafeAreaView style={styles.container}>
             <OptionsTab type="back" onBackPress={() => router.back()} />
             <Menu tabs={TABS} activeTab={activeTab} onTabPress={handleTabPress} />
-            <View style={styles.contentContainer}>{renderContent()}</View>
+            <FlatList
+                data={[1]}
+                renderItem={() => renderContent()}
+                keyExtractor={(item, index) => index.toString()}
+                contentContainerStyle={styles.contentContainer}
+            />
         </SafeAreaView>
     );
 }
@@ -207,7 +211,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFF4E0',
         paddingTop: 42,
-        paddingBottom: 60,
     },
     contentContainer: {
         paddingHorizontal: 16,
