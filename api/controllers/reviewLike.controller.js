@@ -104,7 +104,8 @@ exports.likeReviews = async (req, res) => {
             user_id: review.user_id,
             notificationType: 'activity',
             variant: 'newLikes',
-            message: `${user1.name} liked your review`
+            message: `${user1.name} liked your review`,
+            review_id: review.review_id
         })
 
         return res.status(201).json({

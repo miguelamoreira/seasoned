@@ -15,11 +15,23 @@ module.exports = (sequelize, DataTypes) => {
         },
         message: {
             type: DataTypes.TEXT,
-        }
+        },
+        date: {
+            type: DataTypes.DATE,
+            defaultValue: DataTypes.NOW,
+        },
+        review_id: {
+            type: DataTypes.INTEGER,
+            defaultValue: null,
+        },
+        comment_id: {
+            type: DataTypes.INTEGER,
+            defaultValue: null,
+        },
     }, {
         timestamps: false,
         freezeTableName: true,
-    })
+    });
 
     return Notifications;
 }

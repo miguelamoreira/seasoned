@@ -4,13 +4,13 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 import ReviewsDisplay from './reviews/ReviewsDisplay';
 
 type NotificationCardProps = {
-  type: 'activity';
+  type: string;
   variant: 'newComments' | 'earnedBadges' | 'newFollowers' | 'newLikes';
   data: {
     user?: string;
     avatar?: string;
-    reviews?: any[];
-    comments?: any[];
+    review?: any[] | any;
+    comment?: any[] | any;
     message?: string;
   };
   read: boolean;
@@ -34,7 +34,7 @@ export default function NotificationCard({ type, variant, data, read }: Notifica
               <Text>{data.message}</Text>
             </Text>
           </View>
-          <ReviewsDisplay type="notifications" reviews={data.reviews || []} />
+          <ReviewsDisplay type="notifications" reviews={[data.review]} />
         </View>
       );
     } else if (variant === 'newFollowers') {
@@ -63,7 +63,7 @@ export default function NotificationCard({ type, variant, data, read }: Notifica
               <Text>{data.message}</Text>
             </Text>
           </View>
-          <ReviewsDisplay type="comment" reviews={data.comments || []} />
+          <ReviewsDisplay type="notifications" reviews={[data.comment]} />
         </View>
       );
     } else if (variant === 'earnedBadges') {

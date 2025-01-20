@@ -98,7 +98,7 @@ export default function ReviewsDisplay({ reviews, type, page, seriesId, seasonNu
             { type === 'own' && (
                 popularReviews.map((review, index) => (
                     <Shadow key={index} distance={2} startColor={'#211B17'} offset={[2, 4]} style={popularReviews.length > 1 && { marginBottom: 20 }}>
-                        <View style={[ styles.reviewCard, popularReviews.length > 1 && { marginBottom: 2 }]}>
+                        <TouchableOpacity style={[ styles.reviewCard, popularReviews.length > 1 && { marginBottom: 2 }]} activeOpacity={0.9} onPress={() => goToReviewDetails(review.id)}>
                             <View style={styles.topRow}>
                                 <View style={styles.leftSection}>
                                     <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
@@ -137,14 +137,14 @@ export default function ReviewsDisplay({ reviews, type, page, seriesId, seasonNu
                                     </View>
                                 </View>
                             </View>
-                        </View>
+                        </TouchableOpacity>
                     </Shadow>
                 ))
             )}
             { type === 'notOwn' && (
                 popularReviews.map((review, index) => (
                     <Shadow key={index} distance={2} startColor={'#211B17'} offset={[2, 4]} style={popularReviews.length > 1 && { marginBottom: 20 }}>
-                        <View style={[ styles.reviewCard, popularReviews.length > 1 && { marginBottom: 2 }]}>
+                        <TouchableOpacity style={[ styles.reviewCard, popularReviews.length > 1 && { marginBottom: 2 }]} activeOpacity={0.9} onPress={() => goToReviewDetails(review.id)}>
                             <View style={styles.topRow}>
                                 <View style={styles.leftSection}>
                                     <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
@@ -187,7 +187,7 @@ export default function ReviewsDisplay({ reviews, type, page, seriesId, seasonNu
                                     </View>
                                 </View>
                             </View>
-                        </View>
+                        </TouchableOpacity>
                     </Shadow>
                 ))
             )}
@@ -251,30 +251,23 @@ export default function ReviewsDisplay({ reviews, type, page, seriesId, seasonNu
                     </Shadow>
                 ))
             )}
-            { type === 'notifications' && (
-                popularReviews.map((review, index) => (
+            {type === 'notifications' && reviews.length > 0 && (
+                reviews.map((review, index) => (
                     <Shadow key={index} distance={2} startColor={'#211B17'} offset={[2, 4]} style={popularReviews.length > 1 && { marginBottom: 20 }}>
-                        <View style={[ styles.reviewCard, popularReviews.length > 1 && { marginBottom: 2 }]}>
+                        <TouchableOpacity style={[styles.reviewCard]} activeOpacity={0.9} onPress={() => goToReviewDetails(review.id)}>
                             <View style={styles.topRow}>
-                                <View style={styles.leftSection}>
-                                    <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
-                                        <Image source={{ uri: review.image }} style={styles.reviewImage}/>
-                                    </Shadow>
-                                </View>
-                                <View style={styles.rightSection}>
-                                    <View style={styles.reviewSeries}>
-                                        <Text style={styles.reviewSeriesTitle}>{review.title}</Text>
-                                        <Text style={styles.reviewSeriesYear}>{review.year}</Text>
-                                    </View>
-                                    <View style={styles.stars}>
-                                        {Array.from({ length: 5 }, (_, idx) => (
-                                            <Star key={idx} name={idx < (review.rating || 0) ? 'star' : 'staro'} size={18} color="#D8A84E" />
-                                        ))}
-                                    </View>
+                                <View style={{ paddingHorizontal: 8 }}>
+                                    {review.rating && (
+                                        <View style={styles.stars}>
+                                            {Array.from({ length: 5 }, (_, idx) => (
+                                                <Star key={idx} name={idx < (review.rating ?? 0) ? 'star' : 'staro'} size={18} color="#D8A84E" />
+                                            ))}
+                                        </View>
+                                    )}
                                     <Text style={styles.reviewText}>{review.review}</Text>
                                 </View>
                             </View>
-                        </View>
+                        </TouchableOpacity>
                     </Shadow>
                 ))
             )}

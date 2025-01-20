@@ -78,7 +78,8 @@ exports.addCommentToReview = async (req, res) => {
             user_id: review.user_id,
             notificationType: 'activity',
             variant: 'newComments',
-            message: `${user1.name} added a comment to your review`
+            message: `${user1.name} added a comment to your review`,
+            comment_id: newComment.comment_id
         })
         
         return res.status(201).json({
