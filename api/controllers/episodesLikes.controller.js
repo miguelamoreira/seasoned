@@ -32,7 +32,36 @@ exports.getLikedEpisodes = async (req, res) => {
             ],
         });
 
-        const episodesData = likedEpisodes.map((like) => like.episodes);
+        const episodePromises = likedEpisodes.map(async (like) => {
+            const episodeId = like.episodes.episode_api_id;
+            try {
+                const response = await axios.get(`https://api.tvmaze.com/episodes/${episodeId}`);
+                const episodeData = response.data;
+
+                return {
+                    episode_api_id: episodeData.id,
+                    title: episodeData.name,
+                    season: episodeData.season,
+                    episode_number: episodeData.number,
+                    air_date: episodeData.airdate,
+                    average_rating: episodeData.rating.average,
+                    image: episodeData.image.original,
+                };
+            } catch (error) {
+                console.error('Error fetching data from TVMaze: ', error);
+                return {
+                    episode_api_id: like.episodes.episode_api_id,
+                    title: like.episodes.episode_title,
+                    season: like.episodes.season_id,
+                    episode_number: like.episodes.episode_number,
+                    air_date: like.episodes.air_date,
+                    image: like.episodes.poster_url,
+                    average_rating: null,
+                };
+            }
+        });
+
+        const episodesData = await Promise.all(episodePromises);
 
         return res.status(200).json({
             message: 'Liked episodes fetched successfully.',

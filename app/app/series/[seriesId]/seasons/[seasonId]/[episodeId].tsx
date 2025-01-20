@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, ActivityIndicator } from 'react-native';
+import { SafeAreaView, StyleSheet, FlatList, Text, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import OptionsTab from '@/components/OptionsTab';
@@ -7,21 +7,20 @@ import EpisodesHeader from '@/components/episodes/EpisodesHeader';
 import EpisodesDetails from '@/components/episodes/EpisodesDetails';
 import LogButton from '@/components/series/LogButton';
 import ReviewsContainer from '@/components/series/ReviewsContainer';
-import { FlatList } from 'react-native';
-
-import { findEpisodeById } from '@/api/episodesApi'
+import { findEpisodeById } from '@/api/episodesApi';
 
 export default function EpisodeScreen() {
     const { seriesId, seasonId, episodeId } = useLocalSearchParams<{ seriesId: string; seasonId: string; episodeId: string }>();
     const router = useRouter();
-    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const [episodeData, setEpisodeData] = useState<any | null>(null);
+    const [seriesName, setSeriesName] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [seriesName, setSeriesName] = useState('');
 
     useEffect(() => {
         const fetchEpisode = async () => {
+            setLoading(true);
             try {
                 const data = await findEpisodeById(episodeId);
                 setEpisodeData(data);
@@ -40,10 +39,6 @@ export default function EpisodeScreen() {
         fetchEpisode();
     }, [episodeId, seriesId]);
 
-    const handleModalState = (isOpen: boolean) => {
-        setIsModalOpen(isOpen);
-    };
-
     const renderItem = ({ item }: { item: string }) => {
         if (loading) {
             return <ActivityIndicator size="large" color="#D8A84E50" />;
@@ -53,19 +48,16 @@ export default function EpisodeScreen() {
             return <Text>{error}</Text>;
         }
 
-        switch (item) {
-            case 'optionsTab':
-                return <OptionsTab type="back" onBackPress={() => router.back()} />;
-            case 'heading':
-                return <Text style={styles.heading}>Episode {episodeData?.episode} ({seriesName})</Text>;
-            case 'header':
-                return <EpisodesHeader image={episodeData?.image} />;
-            case 'details':
-                return <EpisodesDetails title={episodeData?.title} date={episodeData?.airdate} bio={episodeData?.description} />;
-            case 'logButton':
-                return <LogButton onModalToggle={handleModalState} navigation={undefined} type="episode" />;
-            case 'reviews':
-                return (
+        if (item === 'content') {
+            return (
+                <>
+                    <OptionsTab type="back" onBackPress={() => router.back()} />
+                    <Text style={styles.heading}>
+                        Episode {episodeData?.episode} ({seriesName})
+                    </Text>
+                    <EpisodesHeader image={episodeData?.image} />
+                    <EpisodesDetails title={episodeData?.title} date={episodeData?.airdate} bio={episodeData?.description} />
+                    <LogButton onModalToggle={() => {}} navigation={undefined} type="episode" />
                     <ReviewsContainer
                         reviews={episodeData?.reviews || []}
                         type="episode"
@@ -74,18 +66,19 @@ export default function EpisodeScreen() {
                         episodeNumber={episodeId}
                         ratings={episodeData?.ratings || []}
                     />
-                );
-            default:
-                return null;
+                </>
+            );
         }
+
+        return null;
     };
 
     return (
         <SafeAreaView style={styles.mainContainer}>
             <FlatList
-                data={['optionsTab', 'heading', 'header', 'details', 'logButton', 'reviews']}
+                data={['content']}
                 renderItem={renderItem}
-                keyExtractor={(item) => item}
+                keyExtractor={() => 'content'}
                 contentContainerStyle={styles.flatListContent}
                 showsVerticalScrollIndicator={false}
             />

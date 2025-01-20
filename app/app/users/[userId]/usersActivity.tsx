@@ -69,19 +69,21 @@ export default function UsersActivityScreen() {
             const fetchLikedEpisodesData = async () => {
                 try {
                     const liked = await fetchLikedEpisodes(userId);
+                    console.log('liked: ', liked);
+                    
                     const formattedLikedEpisodes = liked.map((episode: any) => ({
-                        id: episode.seasons.series.series_api_id,
-                        title: episode.seasons.series.title,
-                        year: episode.seasons.series.release_date.split('-')[0],
+                        id: episode.episode_api_id,
+                        title: episode.title,
+                        year: episode.air_date.split('-')[0],
                         date: episode.air_date.split('T')[0],
-                        season: episode.seasons.season_number,
+                        season: episode.season,
                         episode: episode.episode_number,
-                        rating: episode.seasons.series.average_rating,
-                        image: episode.poster_url,
+                        rating: episode.rating_average,
+                        image: episode.image,
                     }));
                     setLikedEpisodes(formattedLikedEpisodes);
                 } catch (error) {
-                    console.error('Error fetching liked series:', error);
+                    console.error('Error fetching liked episodes:', error);
                 }
             };
             fetchLikedEpisodesData();
@@ -156,9 +158,8 @@ export default function UsersActivityScreen() {
             case 'Series':
                 return (
                     <CoverDisplay
-                        covers={likedSeries.map((series) => ({ image: series.poster_url, title: series.title }))}
+                        covers={likedSeries.map((series) => ({series_api_id: series.series_api_id, image: series.poster_url, title: series.title }))}
                         type="default"
-                        onCoverPress={(cover) => console.log('Cover pressed:', cover)}
                     />
                 );
             case 'Reviews':

@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Image, StyleSheet, FlatList, TouchableOpacity, Dimensions, View } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import { useRouter } from 'expo-router';
 
 type Cover = {
+    series_api_id: number;
     image: string;
     liked?: boolean;
     rating?: number; 
@@ -11,7 +13,6 @@ type Cover = {
 
 type CoverDisplayProps = {
     covers: Cover[];
-    onCoverPress?: (cover: Cover) => void;
     type?: 'default' | 'liked' | 'rating';
 };
 
@@ -19,8 +20,9 @@ const SCREEN_WIDTH = Dimensions.get('window').width - 32;
 const COVER_SIZE = SCREEN_WIDTH / 4.5;
 const COVER_MARGIN = (SCREEN_WIDTH - COVER_SIZE * 4) / 4.5;
 
-export default function CoverDisplay({ covers, onCoverPress, type = 'default' }: CoverDisplayProps) {
+export default function CoverDisplay({ covers, type = 'default' }: CoverDisplayProps) {
     const [coverData, setCoverData] = useState(covers);
+    const router = useRouter();
 
     const toggleLike = (index: number) => {
         const updatedCovers = [...coverData];
@@ -45,7 +47,7 @@ export default function CoverDisplay({ covers, onCoverPress, type = 'default' }:
     };
 
     const renderCover = ({ item, index }: { item: Cover; index: number }) => (
-        <TouchableOpacity onPress={() => onCoverPress?.(item)} style={[styles.coverContainer, type === 'liked' ? styles.likedCover : null]}>
+        <TouchableOpacity onPress={() => router.push(`/series/${item.series_api_id}`)} style={[styles.coverContainer, type === 'liked' ? styles.likedCover : null]}>
             <Shadow distance={2} startColor={'#211B17'} offset={[2, 4]}>
                 <Image source={{ uri: item.image }} style={styles.coverImage} />
             </Shadow>

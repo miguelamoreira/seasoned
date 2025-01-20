@@ -93,6 +93,7 @@ export default function UsersShowsScreen() {
             }
     
             const covers = watchlistSeries.map((show) => ({
+                series_api_id: show.series_api_id,
                 image: show.image,
                 liked: false,
             }));
@@ -105,6 +106,7 @@ export default function UsersShowsScreen() {
             }
     
             const covers = watchedSeries.map((show) => ({
+                series_api_id: show.series_api_id,
                 image: show.image,
                 rating: show.rating,
             }));
