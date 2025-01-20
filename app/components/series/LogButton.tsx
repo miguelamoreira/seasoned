@@ -188,7 +188,8 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
                 await apiActions.like(loggedInId, seriesId, type === 'episode' ? episodeId : undefined);
 
                 if (type === 'series') {
-                    const likedSeriesCount = (await fetchLikedSeries(loggedInId)).length;
+                    const likedSeries = await fetchLikedSeries(loggedInId);
+                    const likedSeriesCount = likedSeries.data.length;
                     validateBadgeCriteria(likedSeriesCount, 10, 3)
                 }
             }
@@ -208,12 +209,15 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
             if (isFollowed) {
                 await removeFollowedSeries(loggedInId, seriesId);
                 await addDroppedSeries(loggedInId, seriesId);
-                const droppedSeriesCount = (await fetchDroppedSeries(loggedInId)).length;
+                const droppedSeries = (await fetchDroppedSeries(loggedInId));
+                const droppedSeriesCount = droppedSeries.data.length;
                 validateBadgeCriteria(droppedSeriesCount, 10, 11)
             } else if (isDropped) {
                 await removeDroppedSeries(loggedInId, seriesId);
                 await addFollowedSeries(loggedInId, seriesId);
-                const followedSeriesCount = (await fetchFollowedSeries(loggedInId)).length;
+                const followedSeries = await fetchFollowedSeries(loggedInId);
+                const followedSeriesCount = followedSeries.data.length;
+                
                 validateBadgeCriteria(followedSeriesCount, 5, 13)
             } else {
                 await addFollowedSeries(loggedInId, seriesId);
@@ -238,10 +242,7 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
 
                 const response = await fetch(`https://api.tvmaze.com/shows/${seriesId}/episodes`);
                 const seriesData = await response.json();
-                console.log('series: ', response);
-                
                 const episodes = seriesData.length > 0 ? seriesData : [];
-                console.log('Total episodes:', episodes.length);
                 
                 validateBadgeCriteria(episodes.length, 100, 10)
             }
@@ -261,7 +262,8 @@ export default function LogButton({ onModalToggle, navigation, type, disabled }:
                 await removeWatchlist(loggedInId, seriesId);
             } else {
                 await addWatchlist(loggedInId, seriesId);
-                const watchlistCount = (await fetchWatchlist(loggedInId)).length;
+                const watchlist = await fetchWatchlist(loggedInId);
+                const watchlistCount = watchlist.data.length;
                 validateBadgeCriteria(watchlistCount, 10, 14)
             }
             setIsInWatchlist(!isInWatchlist);
