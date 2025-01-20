@@ -17,7 +17,8 @@ exports.findEpisodeById = async (req, res) => {
     try {
         const episodeResponse = await axios.get(`https://api.tvmaze.com/episodes/${episodeId}`);
         const episodeData = episodeResponse.data;
-
+        console.log(episodeData);
+        
         let reviews = [];
         let ratings = [0, 0, 0, 0, 0]; 
 
@@ -74,6 +75,7 @@ exports.findEpisodeById = async (req, res) => {
                 comments: review.ReviewComments ? review.ReviewComments.length : 0,
             })),
             ratings,
+            runtime: episodeData.runtime
         };
 
         return res.status(200).json({
