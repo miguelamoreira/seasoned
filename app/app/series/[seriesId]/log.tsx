@@ -6,7 +6,7 @@ import { useUserContext } from '@/contexts/UserContext';
 import { findEpisodeBySeriesId } from '@/api/episodesApi';
 import { likeEpisodes, dislikeEpisodes } from '@/api/episodesLikesApi';
 import { likeSeries, dislikeSeries, fetchLikedSeries } from '@/api/seriesLikesApi';
-import { createReviews } from '@/api/reviewsApi';
+import { createReviews, fetchReviewsByUserId } from '@/api/reviewsApi';
 import { fetchBadgeById, addEarnedBadge } from '@/api/badgesApi';
 
 import OptionsTab from '@/components/OptionsTab';
@@ -99,14 +99,14 @@ export default function SeriesLogScreen() {
 
     const handleSaveReviews = async () => {
         const reviews = [];
-
+        
         if (data['series']) {
             reviews.push({
                 series_api_id: seriesId,
-                score: data['series'].rating,
-                comment: data['series'].review,
+                score: data['series'].rating || null,
+                comment: data['series'].review || null,
             });
-        }
+        } 
 
         Object.keys(selectedEpisodes).forEach((key) => {
             if (selectedEpisodes[key]) {
@@ -143,9 +143,24 @@ export default function SeriesLogScreen() {
         }));
     };
 
+    const validateBadgeCriteria = async (dataCount: number, num: number, badgeId: number) => {
+        try {
+          const badge = await fetchBadgeById(user?.user_id, badgeId);
+          if (!badge.earned) {
+            if (dataCount >= num) {
+              addEarnedBadge(user?.user_id, badgeId);
+            }
+          }
+        } catch (error) {
+          console.error("Error validating badge criteria:", error);
+        }
+    };
+
     return (
         <SafeAreaView style={styles.mainContainer}>
-            <OptionsTab type="cross-check" onCrossPress={() => router.back()} onCheckPress={handleSaveReviews} />
+            { Object.keys(data).length !== 0 ? (
+                <OptionsTab type="cross-check" onCrossPress={() => router.back()} onCheckPress={handleSaveReviews} />
+            ) : <OptionsTab type="back" onCrossPress={() => router.back()}/> }
 
             <Text style={styles.heading}>Log / Review</Text>
 

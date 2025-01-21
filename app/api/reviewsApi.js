@@ -62,13 +62,15 @@ export const fetchReviewsByEpisodeId = async (episodeId) => {
 
 export const createReviews = async (userId, reviews) => {
     try {
+        console.log('dados: ', reviews);
+        
         const { data } = await apiClient.post('/reviews', {
             user_id: userId,
             reviews: reviews
         });
         return data.data;
     } catch (error) {
-        console.error('Error creating reviews: ', error);
+        console.error('Error creating reviews: ', error.message);
         throw new Error('Failed to create reviews. Please try again later.');
     }
 };
