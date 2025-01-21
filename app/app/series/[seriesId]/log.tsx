@@ -8,6 +8,7 @@ import { likeEpisodes, dislikeEpisodes } from '@/api/episodesLikesApi';
 import { likeSeries, dislikeSeries, fetchLikedSeries } from '@/api/seriesLikesApi';
 import { createReviews, fetchReviewsByUserId } from '@/api/reviewsApi';
 import { fetchBadgeById, addEarnedBadge } from '@/api/badgesApi';
+import { fetchRatingsGroupedByScore } from '@/api/reviewsApi';
 
 import OptionsTab from '@/components/OptionsTab';
 import Tabs from '@/components/logReviews/Tabs';
@@ -128,6 +129,14 @@ export default function SeriesLogScreen() {
 
         try {
             await createReviews(user?.user_id, reviews);
+
+            const logs = await fetchReviewsByUserId(user?.user_id);
+            const logsCount = logs.length
+            validateBadgeCriteria(logsCount, 10, 17);
+
+            const ratings = await fetchRatingsGroupedByScore(user?.user_id);
+            const highRatingsCount = (ratings['4'] || 0) + (ratings['5'] || 0);
+            validateBadgeCriteria(highRatingsCount, 5, 15)
             router.push(`/series/${seriesId}`)
         } catch (error) {
             console.error('Error creating reviews:', error);

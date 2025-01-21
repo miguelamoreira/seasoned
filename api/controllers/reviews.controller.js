@@ -37,6 +37,10 @@ exports.getRatingsGroupedByScore = async (req, res) => {
 exports.getReviews = async (req, res) => {
     try {
         const reviews = await Reviews.findAll({
+            where: {
+                comment: { [Sequelize.Op.ne]: '' },
+                score: { [Sequelize.Op.ne]: '' },
+            },
             include: [
                 {
                     model: Series,
@@ -69,14 +73,15 @@ exports.getReviews = async (req, res) => {
         return res.status(200).json({
             message: 'Reviews retrieved successfully',
             data: reviews,
-        })
+        });
     } catch (error) {
         console.error('Error getting reviews: ', error);
         return res.status(500).json({
             message: 'Something went wrong. Please try again later.',
         });
     }
-}
+};
+
 
 exports.getReviewById = async (req, res) => {
     const reviewId = req.params.id;
@@ -154,7 +159,11 @@ exports.getReviewsByUserId = async (req, res) => {
         }
 
         const reviews = await Reviews.findAll({
-            where: { user_id: userId },
+            where: { 
+                user_id: userId,
+                comment: { [Sequelize.Op.ne]: '' },
+                score: { [Sequelize.Op.ne]: '' },
+            },
             include: [
                 {
                     model: Series,
@@ -182,7 +191,7 @@ exports.getReviewsByUserId = async (req, res) => {
                     }]
                 }
             ],
-        })
+        });
 
         return res.status(200).json({
             message: 'Reviews fetched successfully.',
@@ -194,14 +203,18 @@ exports.getReviewsByUserId = async (req, res) => {
             message: 'Something went wrong. Please try again later.',
         });
     }
-}
+};
 
 exports.getReviewsBySeriesId = async (req, res) => {
     const seriesId = req.params.id;
 
     try {
         const reviews = await Reviews.findAll({
-            where: { series_api_id: seriesId },
+            where: { 
+                series_api_id: seriesId,
+                comment: { [Sequelize.Op.ne]: '' },
+                score: { [Sequelize.Op.ne]: '' },
+            },
             include: [
                 {
                     model: Series,
@@ -227,18 +240,19 @@ exports.getReviewsBySeriesId = async (req, res) => {
                         as: 'user',
                         attributes: ['user_id', 'name', 'avatar']
                     }]
-                }, {
+                },
+                {
                     model: Users,
                     as: 'user',
                     attributes: ['user_id', 'name', 'avatar']
                 }
             ],
-        })
+        });
 
         if (reviews.length === 0) {
             return res.status(404).json({
                 message: 'No reviews found for this series.',
-            })
+            });
         }
 
         return res.status(200).json({
@@ -251,13 +265,18 @@ exports.getReviewsBySeriesId = async (req, res) => {
             message: 'Something went wrong. Please try again later.',
         });
     }
-}
+};
 
 exports.getReviewsByEpisodeId = async (req, res) => {
     const episodeId = req.params.id;
 
     try {
-        const reviews = await Reviews.findAll({ where: { episode_api_id: episodeId },
+        const reviews = await Reviews.findAll({
+            where: { 
+                episode_api_id: episodeId,
+                comment: { [Sequelize.Op.ne]: '' },
+                score: { [Sequelize.Op.ne]: '' },
+            },
             include: [
                 {
                     model: Series,
@@ -290,12 +309,12 @@ exports.getReviewsByEpisodeId = async (req, res) => {
                     }]
                 }
             ],
-        })
+        });
 
         if (reviews.length === 0) {
             return res.status(404).json({
                 message: 'No reviews found for this episode.',
-            })
+            });
         }
 
         return res.status(200).json({
@@ -308,7 +327,7 @@ exports.getReviewsByEpisodeId = async (req, res) => {
             message: 'Something went wrong. Please try again later.',
         });
     }
-}
+};
  
 exports.createReviews = async (req, res) => {
     const { user_id, reviews } = req.body;
@@ -331,13 +350,13 @@ exports.createReviews = async (req, res) => {
         for (let review of reviews) {
             const { series_api_id, episode_api_id, score, comment } = review;
 
-            if (!series_api_id || !score) {
+            if (!series_api_id) {
                 return res.status(400).json({ 
-                    message: 'Series API ID and Score are required for each review.' 
+                    message: 'Series API ID is required for each review.' 
                 });
             }
 
-            if (score < 1 || score > 5) {
+            if (score && (score < 1 || score > 5)) {
                 return res.status(400).json({ 
                     message: 'Score must be between 1 and 5.' 
                 });
@@ -366,6 +385,14 @@ exports.createReviews = async (req, res) => {
                         poster_url: episodeData.image?.original || null,
                     });
                 }
+            }
+
+            if (score === undefined) {
+                score = null;
+            } 
+
+            if (comment === undefined) {
+                comment = null;
             }
 
             const reviewData = {
@@ -436,6 +463,10 @@ exports.getMostPopularReviews = async (req, res) => {
                     duplicating: false,
                 },
             ],
+            where: {
+                comment: { [Sequelize.Op.ne]: '' },
+                score: { [Sequelize.Op.ne]: '' },
+            },
             order: [[Sequelize.literal('likeCount'), 'DESC']],
             limit: 10,
         });

@@ -19,11 +19,11 @@ module.exports = (sequelize, DataTypes) => {
         },
         score: {
             type: DataTypes.INTEGER,
-            allowNull: false,
-            validate: { min: 1, max: 5 },
+            allowNull: true,
         },
         comment: {
             type: DataTypes.TEXT,
+            allowNull: true,
         },
         review_date: {
             type: DataTypes.DATE,

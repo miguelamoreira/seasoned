@@ -428,8 +428,24 @@ export default function LogButton({
           );
           const seriesData = await response.json();
           const episodes = seriesData.length > 0 ? seriesData : [];
-
           validateBadgeCriteria(episodes.length, 100, 10);
+          
+          const watchedSeries = await fetchWatchedSeries(loggedInId);
+
+          if (watchedSeries.data) {
+            const uniqueGenres = new Set();
+        
+            watchedSeries.data.forEach((item: { series: { genre: string } }) => {
+                if (item.series && item.series.genre) {
+                    const genres = item.series.genre.split(',').map((genre: string) => genre.trim());
+                    genres.forEach((genre: string) => uniqueGenres.add(genre));
+                }
+            });
+        
+            console.log('Unique genres:', Array.from(uniqueGenres));
+            validateBadgeCriteria(uniqueGenres.size, 5, 2);
+          }
+
         }
         setIsWatched(!isWatched);
       } catch (error) {
