@@ -441,8 +441,6 @@ export default function LogButton({
                     genres.forEach((genre: string) => uniqueGenres.add(genre));
                 }
             });
-        
-            console.log('Unique genres:', Array.from(uniqueGenres));
             validateBadgeCriteria(uniqueGenres.size, 5, 2);
           }
 
