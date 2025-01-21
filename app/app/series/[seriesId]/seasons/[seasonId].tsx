@@ -14,6 +14,8 @@ import OptionsTab from "@/components/OptionsTab";
 import EpisodesDisplay from "@/components/episodes/EpisodesDisplay";
 import { useUserContext } from "@/contexts/UserContext";
 import { getViewingHistory } from "@/api/episodesApi";
+import { useIsFocused } from "@react-navigation/native";
+
 const calculateProgress = (
   data: any[],
   conditionFn: (episode: any) => boolean
@@ -38,6 +40,7 @@ type EpisodesRAW = {
 };
 
 export default function SeasonScreen() {
+  const isFocused = useIsFocused();
   const { seriesId, seasonId } = useLocalSearchParams<{
     seriesId: string;
     seasonId: string;
@@ -126,7 +129,7 @@ export default function SeasonScreen() {
     if (watchedEpisodesRaw.length > 0) {
       fetchEpisodes();
     }
-  }, [watchedEpisodesRaw, seasonId]);
+  }, [watchedEpisodesRaw, seasonId, isFocused, episodes]);
   
   
 

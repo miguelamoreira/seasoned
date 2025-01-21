@@ -357,8 +357,6 @@ export default function LogButton({
 
   const updateUser = async (time_watched: number) => {
     const result = await updateUserTimeWatched(user?.user_id, time_watched);
-
-    
   };
 
   const getUserTimewatched = async () => {
