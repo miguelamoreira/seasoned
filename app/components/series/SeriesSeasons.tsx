@@ -28,19 +28,25 @@ export default function SeriesSeasons({ seasons, seriesId, userId }: { seasons: 
         onPress: () => router.push(`/series/${seriesId}/seasons/${season.id}`),
     }));
 
-    useEffect(()=>{
-        const fetchSeries = async (userId?: number | null) => {
+    useEffect(() => {
+        const fetchSeriesProgress = async () => {
             if (userId) {
                 try {
                     const data = await getSeriesProgress(userId);
-                    setseriesProgressData(data.find((line: line)=> line.series_id == parseInt(seriesId)))
+                    const progressData = data.find((line: line) => line.series_id === parseInt(seriesId, 10));
+                    setseriesProgressData(progressData || null);
                 } catch (err) {
-                    console.error("Error fetching series progress: ", err)
+                    console.error("Error fetching series progress: ", err);
                 }
             }
         };
-        fetchSeries(userId)
-    }, [])
+    
+        fetchSeriesProgress();
+    
+        const intervalId = setInterval(fetchSeriesProgress, 1000);
+    
+        return () => clearInterval(intervalId);
+    }, [userId, seriesId]);
     let progress = 0
     if(seriesProgressData != null){
     progress = seriesProgressData.progress_percentage / 100

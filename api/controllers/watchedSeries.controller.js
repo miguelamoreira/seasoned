@@ -7,6 +7,9 @@ const seriesUtil = require("../utils/series.js")
 const WatchedSeries = db.WatchedSeries;
 const Users = db.Users;
 const Series = db.Series;
+const SeriesProgress = db.SeriesProgress;
+const SeasonProgress = db.SeasonProgress;
+const Seasons = db.Seasons;
 
 exports.getWatchedSeries = async (req, res) => {
     const userId = req.params.id;
@@ -85,6 +88,21 @@ exports.addWatchedSeries = async (req, res) => {
             series_api_id: seriesId,
         });
 
+        const newSeriesProgress = await SeriesProgress.create({
+            user_id: userId,
+            series_id: seriesId,
+            progress_percentage: 100
+        })
+
+        const seasons = await Seasons.findAll({ where: { series_api_id: seriesId } });
+        for (const season of seasons) {
+            await SeasonProgress.create({
+                user_id: userId,
+                season_id: season.id,
+                progress_percentage: 100,
+            });
+        }
+
         return res.status(200).json({
             message: 'Series added to watched series list successfully',
             data: newWatch,
@@ -119,6 +137,17 @@ exports.removeFromWatchedSeries = async (req, res) => {
         }
 
         await existingWatchedEntry.destroy();
+
+        await SeriesProgress.destroy({
+            where: { user_id: userId, series_id: seriesId },
+        });
+
+        const seasons = await Seasons.findAll({ where: { series_api_id: seriesId } });
+        for (const season of seasons) {
+            await SeasonProgress.destroy({
+                where: { user_id: userId, season_id: season.id },
+            });
+        }
 
         return res.status(200).json({
             message: 'Series removed from watched series successfully.',
