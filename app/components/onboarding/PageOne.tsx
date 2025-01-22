@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Image, Text, StyleSheet, Dimensions } from 'react-native';
+import LottieView from "lottie-react-native";
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -8,11 +9,12 @@ export default function PageOne() {
   return (
     <View style={styles.screen}>
       <Image source={require('../../assets/images/onboarding/arc_1.png')} style={[styles.arcImage, { height: 440 }]}/>
-      <View style={styles.content}>
-        <Image source={require('../../assets/images/frankie_1.png')}  style={styles.frankie}/>
-        <Text style={styles.title}>Welcome to Seasoned!</Text>
-        <Text style={styles.description}>Take a look at our menu to avoid getting lost in the sauce</Text>
-      </View>
+      <LottieView
+        source={require("../../assets/lotties/onboardingOne.json")}
+        style={{width: "100%", height: "110%"}}
+        autoPlay
+        loop={false}
+      />
     </View>
   );
 }

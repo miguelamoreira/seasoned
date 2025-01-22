@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Image, Text, StyleSheet, Dimensions } from 'react-native';
+import LottieView from "lottie-react-native";
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -7,18 +8,12 @@ export default function PageTwo() {
   return (
     <View style={styles.screen}>
       <Image source={require('../../assets/images/onboarding/arc_2.png')} style={[styles.arcImage, { height: 440 }]}/>
-      <View style={styles.playContainer}>
-        <Image source={require('../../assets/images/onboarding/play.png')}></Image>
-        <Image source={require('../../assets/images/onboarding/play.png')}></Image>
-        <Image source={require('../../assets/images/onboarding/play.png')}></Image>
-      </View>
-      <View style={styles.content}>
-        <Image source={require('../../assets/images/onboarding/frankie_chief.png')}  style={styles.frankie}/>
-        <View style={styles.textContainer}>
-            <Text style={styles.title}>For starters,</Text>
-            <Text style={styles.description}>Keep track of your shows and stay up to date on new releases, all in one place</Text>
-        </View>
-      </View>
+      <LottieView
+        source={require("../../assets/lotties/onboardingTwo.json")}
+        style={{width: "100%", height: "110%"}}
+        autoPlay
+        loop={false}
+      />
     </View>
   );
 }

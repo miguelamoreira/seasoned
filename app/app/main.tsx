@@ -1,7 +1,11 @@
 import React from 'react';
-import { Image, StyleSheet, SafeAreaView, View, Text, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { useRouter } from 'expo-router';
+import LottieView from "lottie-react-native";
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -9,8 +13,12 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.mainContainer}>
 
-      <Image source={require('../assets/images/rainbow_1.png')} style={styles.rainbowTop}/>
-      <Image source={require('../assets/images/rainbow_2.png')} style={styles.rainbowBottom}/>
+      <LottieView
+        source={require("../assets/lotties/main.json")}
+        style={styles.lottieBackground}
+        autoPlay
+        loop={false}
+      />
 
       <View style={styles.titleContainer}>
         <Image source={require('../assets/images/frankie_1.png')} />
@@ -46,27 +54,18 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: '#FFF4E0',
-    paddingHorizontal: 16,
-    color: '#211B17'
+    color: '#211B17',
   },
-  rainbowTop: {
+  lottieBackground: {
     position: 'absolute',
-    top: -40,
-    left: 104,
     width: '100%',
-    height: 400, 
-    resizeMode: 'contain',
-  },
-  rainbowBottom: {
-    position: 'absolute',
-    bottom: -64,
-    width: '100%',
-    height: 400, 
-    resizeMode: 'contain',
+    height: '104%',
+    zIndex: 1,
   },
   titleContainer: {
     alignItems: 'center',
-    top: 120,
+    top: 144,
+    zIndex: 999,
   },
   appTitle: {
     fontSize: 48,
@@ -75,8 +74,9 @@ const styles = StyleSheet.create({
   },
   optionsContainer: {
     alignItems: 'center',
-    top: 188,
+    top: windowHeight / 3.5,
     gap: 24,
+    zIndex: 1000,
   },
   signinButton: {
     backgroundColor: '#D8A84E',
@@ -106,7 +106,8 @@ const styles = StyleSheet.create({
   },
   skipContainer: {
     alignItems: 'center',
-    top: 440,
+    top: windowHeight / 2,
+    zIndex: 999,
   },
   skipButton: {
     backgroundColor: '#D8A84E',

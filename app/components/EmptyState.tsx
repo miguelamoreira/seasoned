@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
+import LottieView from "lottie-react-native";
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -50,7 +51,12 @@ export default function EmptyState({ type }: EmptyStateProps) {
 
     return (
         <View style={styles.container}>
-            <Image source={imageSource} style={styles.image} />
+            <LottieView
+                source={require("../assets/lotties/emptyState.json")}
+                style={{width: "120%", height: "50%"}}
+                autoPlay
+                loop={false}
+            />
             <Text style={styles.text}>{text}</Text>
         </View>
     );
@@ -77,6 +83,7 @@ const styles = StyleSheet.create({
         color: '#211B17',
         textAlign: 'center',
         lineHeight: 24,
-        fontFamily: 'Arimo'
+        fontFamily: 'Arimo',
+        marginTop: -64
     },
 });
