@@ -43,7 +43,7 @@ export default function SeriesSeasons({ seasons, seriesId, userId }: { seasons: 
     
         fetchSeriesProgress();
     
-        const intervalId = setInterval(fetchSeriesProgress, 1000);
+        const intervalId = setInterval(fetchSeriesProgress, 3000);
     
         return () => clearInterval(intervalId);
     }, [userId, seriesId]);

@@ -13,7 +13,6 @@ import SeriesBio from '@/components/series/SeriesBio';
 import SeriesCast from '@/components/series/SeriesCast';
 import SeriesSeasons from '@/components/series/SeriesSeasons';
 import ReviewsContainer from '@/components/series/ReviewsContainer';
-import SeriesAlert from '@/components/series/SeriesAlert';
 import LogButton from '@/components/series/LogButton';
 import TabBar from '@/components/TabBar';
 
@@ -77,7 +76,6 @@ export default function SeriesScreen() {
                         genres={seriesData?.genre}
                     />
                     <SeriesBio bio={seriesData?.description} />
-                    {seriesData?.ended === null && <SeriesAlert release={seriesData?.release_date} />}
                     <LogButton
                         onModalToggle={handleModalState}
                         navigation={undefined}

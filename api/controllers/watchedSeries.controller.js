@@ -95,10 +95,11 @@ exports.addWatchedSeries = async (req, res) => {
         })
 
         const seasons = await Seasons.findAll({ where: { series_api_id: seriesId } });
+        
         for (const season of seasons) {
             await SeasonProgress.create({
                 user_id: userId,
-                season_id: season.id,
+                season_id: season.season_id,
                 progress_percentage: 100,
             });
         }
@@ -145,7 +146,7 @@ exports.removeFromWatchedSeries = async (req, res) => {
         const seasons = await Seasons.findAll({ where: { series_api_id: seriesId } });
         for (const season of seasons) {
             await SeasonProgress.destroy({
-                where: { user_id: userId, season_id: season.id },
+                where: { user_id: userId, season_id: season.season_id },
             });
         }
 

@@ -61,13 +61,12 @@ export default function SeasonScreen() {
   >([]);
   useEffect(() => {
     const fetchViewingHistory = async (userId?: number | null) => {
-      if (userId) {
-        try {
-          let dataRaw = await getViewingHistory(userId);
-          setWatchedEpisodesRaw(dataRaw);
-        } catch (err) {
-          console.error("Error fetching series progress: ", err);
-        }
+      if (!userId) return;
+      try {
+        const dataRaw = await getViewingHistory(userId);
+        setWatchedEpisodesRaw(dataRaw);
+      } catch (err) {
+        console.error("Error fetching viewing history:", err);
       }
     };
     fetchViewingHistory(user?.user_id);
@@ -109,17 +108,16 @@ export default function SeasonScreen() {
         );
         const showData = await showResponse.json();
         setSeriesName(showData.name);
-        const fetchSeries = async (userId?: number | null) => {
-            const data = await getSeasonProgress(userId);
-            const filter = data.find((line: line) => line.season_id === parseInt(seasonId))
 
-            if (filter != null) { 
-             setSeasonProgress(filter.progress_percentage / 100);
-            };
-            
+        if (user?.user_id) {
+          const data = await getSeasonProgress(user.user_id);
+          const progressLine = data.find(
+            (line: line) => line.season_id === parseInt(seasonId)
+          );
+          if (progressLine) {
+            setSeasonProgress(progressLine.progress_percentage / 100);
+          }
         }
-        fetchSeries(user?.user_id)
-        
       } catch (error) {
         console.error("Error fetching episodes:", error);
       } finally {
