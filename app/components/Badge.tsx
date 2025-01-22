@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import * as Progress from 'react-native-progress';
 import { Shadow } from 'react-native-shadow-2';
+
+const windowWidth = Dimensions.get('window').width;
 
 interface BadgeProps {
     variant: 'grid' | 'details' | 'progress'; 
@@ -58,7 +60,7 @@ export default function Badge({ variant, image, title, description, howTo, date,
                 {typeof progress === 'number' && (
                     <Progress.Bar
                         progress={progress}
-                        width={378}
+                        width={windowWidth - 32}
                         color="#82AA59"
                         borderColor="#352A23"
                         unfilledColor="#352A23"

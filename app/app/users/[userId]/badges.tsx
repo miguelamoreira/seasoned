@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, FlatList } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, FlatList, Dimensions } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as Progress from 'react-native-progress';
+
+const windowWidth = Dimensions.get('window').width;
 
 import OptionsTab from '@/components/OptionsTab'; 
 import Badge from '@/components/Badge';
@@ -52,7 +54,7 @@ export default function BadgesScreen() {
             <View style={{ paddingHorizontal: 16, }}>
             <Progress.Bar
                 progress={progress}
-                width={378}
+                width={windowWidth - 32}
                 color="#82AA59"
                 borderColor="#352A23"
                 unfilledColor="#352A23"
