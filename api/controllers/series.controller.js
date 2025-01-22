@@ -51,7 +51,11 @@ exports.findSeriesById = async (req, res) => {
 
         if (series) {
             reviews = await Reviews.findAll({
-                where: { series_api_id: seriesId },
+                where: { 
+                    series_api_id: seriesId,
+                    comment: { [Sequelize.Op.ne]: '' },
+                    score: { [Sequelize.Op.ne]: '' },
+                },
                 attributes: [ 'review_id', 'user_id', 'score', 'comment', 'review_date',],
                 limit: 2,
                 include: [

@@ -348,33 +348,33 @@ exports.createReviews = async (req, res) => {
 
         const createdReviews = [];
         for (let review of reviews) {
-            const { series_api_id, episode_api_id, score, comment } = review;
-
+            let { series_api_id, episode_api_id, score, comment } = review;
+        
             if (!series_api_id) {
                 return res.status(400).json({ 
                     message: 'Series API ID is required for each review.' 
                 });
             }
-
+        
             if (score && (score < 1 || score > 5)) {
                 return res.status(400).json({ 
                     message: 'Score must be between 1 and 5.' 
                 });
             }
-
+        
             let series = await Series.findOne({ where: { series_api_id } });
-
+        
             if (!series) {
                 await seriesUtil.addSeriesWithSeasonsAndEpisodes(series_api_id);
             }
-
+        
             if (episode_api_id) {
                 let episode = await Episodes.findOne({ where: { episode_api_id } });
-
+        
                 if (!episode) {
                     const episodeResponse = await axios.get(`https://api.tvmaze.com/episodes/${episode_api_id}`);
                     const episodeData = episodeResponse.data;
-
+        
                     episode = await Episodes.create({
                         episode_api_id: episodeData.id,
                         season_id: episodeData.season,
@@ -386,29 +386,24 @@ exports.createReviews = async (req, res) => {
                     });
                 }
             }
-
-            if (score === undefined) {
-                score = null;
-            } 
-
-            if (comment === undefined) {
-                comment = null;
-            }
-
+        
+            score = score === undefined ? null : score;
+            comment = comment === undefined ? null : comment;
+        
             const reviewData = {
                 user_id,
                 series_api_id,
                 score,
                 comment,
             };
-
+        
             if (episode_api_id) {
                 reviewData.episode_api_id = episode_api_id;
             }
-
+        
             const newReview = await Reviews.create(reviewData);
             createdReviews.push(newReview);
-        }
+        }        
 
         return res.status(201).json({
             message: 'Review(s) created successfully.',
