@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     alignItems: 'center',
-    top: 144,
+    top: 164,
     zIndex: 999,
   },
   appTitle: {
