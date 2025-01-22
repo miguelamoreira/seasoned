@@ -74,41 +74,43 @@ export default function SeasonScreen() {
   
   useEffect(() => {
     const fetchEpisodes = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch(
           `https://api.tvmaze.com/seasons/${seasonId}/episodes`
         );
         const data = await response.json();
-        setEpisodes(
-          data.map((episode: any) => ({
-            id: episode.id,
-            image: episode.image
-              ? episode.image.medium
-              : "https://via.placeholder.com/100",
-            title: episode.name,
-            year: new Date(episode.airdate).getFullYear(),
-            season: episode.season,
-            episode: episode.number,
-            rating: episode.rating.average || null,
-            watched: watchedEpisodesRaw.some(
-              (line: EpisodesRAW) => line.episode_api_id === episode.id
-            ),
-            date: episode.airdate,
-            runtime: episode.runtime,
-          }))
-        );
+  
+        const episodesWithWatchStatus = data.map((episode: any) => ({
+          id: episode.id,
+          image: episode.image
+            ? episode.image.medium
+            : "https://via.placeholder.com/100",
+          title: episode.name,
+          year: new Date(episode.airdate).getFullYear(),
+          season: episode.season,
+          episode: episode.number,
+          rating: episode.rating.average || null,
+          watched: watchedEpisodesRaw.some(
+            (line: EpisodesRAW) => line.episode_api_id === episode.id
+          ),
+          date: episode.airdate,
+          runtime: episode.runtime,
+        }));
+        setEpisodes(episodesWithWatchStatus);
+  
         const seasonDetailsResponse = await fetch(
-         `https://api.tvmaze.com/seasons/${seasonId}`
+          `https://api.tvmaze.com/seasons/${seasonId}`
         );
         const seasonDetailsData = await seasonDetailsResponse.json();
         setSeasonNumber(seasonDetailsData.number);
-
+  
         const showResponse = await fetch(
           `https://api.tvmaze.com/shows/${seriesId}`
         );
         const showData = await showResponse.json();
         setSeriesName(showData.name);
-
+  
         if (user?.user_id) {
           const data = await getSeasonProgress(user.user_id);
           const progressLine = data.find(
@@ -124,11 +126,9 @@ export default function SeasonScreen() {
         setIsLoading(false);
       }
     };
-    if (watchedEpisodesRaw.length > 0) {
-      fetchEpisodes();
-    }
-  }, [watchedEpisodesRaw, seasonId, isFocused, episodes]);
   
+    fetchEpisodes();
+  }, [seasonId, user?.user_id]);  
   
 
   return (

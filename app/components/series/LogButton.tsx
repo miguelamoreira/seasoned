@@ -314,7 +314,7 @@ export default function LogButton({
 
         if (type === "series") {
           const likedSeries = await fetchLikedSeries(loggedInId);
-          const likedSeriesCount = likedSeries.data.length;
+          const likedSeriesCount = likedSeries.length;
           validateBadgeCriteria(likedSeriesCount, 10, 3);
         }
       }

@@ -21,12 +21,6 @@ exports.findAllFavouriteSeries = async (req, res) => {
             }]
         })
 
-        if (favouriteSeries.length === 0) {
-            return res.status(404).json({
-                message: 'No favourite series found for this user.'
-            });
-        }
-
         return res.status(200).json({
             message: 'Favorite series retrieved successfully',
             data: favouriteSeries

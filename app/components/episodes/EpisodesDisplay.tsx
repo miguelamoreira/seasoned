@@ -67,7 +67,6 @@ export default function EpisodesDisplay({
   seriesId,
   seasonNumber,
 }: EpisodesProps) {
-
   const isFocused = useIsFocused();
   const { user, token } = useUserContext();
   const router = useRouter();
@@ -75,36 +74,35 @@ export default function EpisodesDisplay({
     episodes.filter((episode) => episode.watched).map((episode) => episode.id)
   );
 
-  useEffect(()=>{
-    const updateEpisodes= async ()=>{
-      
-      const viewingHistory = await getViewingHistory(user?.user_id)
-      const watchedEpisodesArray:number[] = []
-      viewingHistory.forEach((item:any) => {
-        watchedEpisodes.some(episode => episode === item.episode_api_id)
-          ? watchedEpisodesArray.push(item.episode_api_id)
-          : null;
-      });
-      setWatchedEpisodes(watchedEpisodes.filter(item => watchedEpisodesArray.includes(item)))
-      
-    }
-    updateEpisodes()
-  },[isFocused])
+  useEffect(() => {
+    const updateEpisodes = async () => {
+      const viewingHistory = await getViewingHistory(user?.user_id);
+      const watchedEpisodesArray: number[] = viewingHistory
+        .filter((item: any) =>
+          episodes.some((episode) => episode.id === item.episode_api_id)
+        )
+        .map((item: any) => item.episode_api_id);
+      setWatchedEpisodes(watchedEpisodesArray);
+    };
+
+    updateEpisodes();
+  }, [isFocused, user, episodes]);
+
   const updateUser = async (time_watched: number) => {
-    const result = await updateUserTimeWatched(user?.user_id, time_watched);
+    try {
+      await updateUserTimeWatched(user?.user_id, time_watched);
+    } catch (error) {
+      console.error("Error updating user time watched:", error);
+    }
   };
 
   const getUserTimewatched = async () => {
     try {
       const data = await findUserById(user?.user_id);
-
-      if (data?.time_watched != undefined) {
-        return data.time_watched;
-      } else {
-        console.error("time_watched is not defined in the response data.");
-      }
+      return data?.time_watched ?? 0;
     } catch (error) {
       console.error("Error fetching user data:", error);
+      return 0;
     }
   };
 
@@ -112,7 +110,7 @@ export default function EpisodesDisplay({
     const viewingHistory = await getViewingHistory(user?.user_id);
     let seriesData = await findSeriesById(seriesId);
     const totalEpisodeOrder = seriesData.seasons.reduce(
-      (sum: any, episode: any) => sum + episode.episodeOrder,
+      (sum: any, season: any) => sum + season.episodeOrder,
       0
     );
     const seriesDataHistory = viewingHistory.filter(
@@ -147,46 +145,44 @@ export default function EpisodesDisplay({
   };
 
   const handleEpisodeWatched = async (episodeId: number) => {
-    const episode: Episode | undefined = episodes.find(
-      (line) => line.id === episodeId
-    );
-    if (watchedEpisodes.includes(episodeId)) {
-      const viewingHistory = await getViewingHistory(user?.user_id);
-      const seriesDataHistory = viewingHistory.find(
-        (item: any) => item.episode_api_id === parseInt(episode?.id)
+    const episode = episodes.find((line) => line.id === episodeId);
+    if (!episode) return;
+
+    const isWatched = watchedEpisodes.includes(episodeId);
+
+    try {
+      if (isWatched) {
+        const viewingHistory = await getViewingHistory(user?.user_id);
+        const historyItem = viewingHistory.find(
+          (item: any) => item.episode_api_id === episodeId
+        );
+        if (historyItem) {
+          await deleteViewingHistory(historyItem.history_id);
+          const time_watched = await getUserTimewatched();
+          const episodeRuntime = episode.runtime ?? 0; 
+          await updateUser(time_watched - episodeRuntime);
+        }
+      } else {
+        const apibody: apiBody = {
+          series_api_id: parseInt(seriesId),
+          episode_api_id: episodeId,
+          time_watched: episode?.runtime,
+          season_api_id: parseInt(seasonNumber),
+        };
+        await postViewingHistory(user?.user_id, apibody);
+        const time_watched = await getUserTimewatched();
+        await updateUser(time_watched + episode.runtime);
+      }
+
+      setWatchedEpisodes((prev) =>
+        isWatched
+          ? prev.filter((id) => id !== episodeId)
+          : [...prev, episodeId]
       );
-      await deleteViewingHistory(seriesDataHistory.history_id);
-      const time_watched = await getUserTimewatched();
-
-      let currentTimeWatched =
-        parseInt(time_watched) - parseInt(episode?.runtime);
-
-      await updateUser(currentTimeWatched);
-
       await updateProgress();
-    } else {
-      let apibody: apiBody = {
-        series_api_id: parseInt(seriesId),
-        episode_api_id: episodeId,
-        time_watched: episode?.runtime,
-        season_api_id: parseInt(seasonNumber),
-      };
-
-      await postViewingHistory(user?.user_id, apibody);
-
-      const time_watched = await getUserTimewatched();
-
-      let currentTimeWatched =
-        parseInt(time_watched) + parseInt(episode?.runtime);
-
-      await updateUser(currentTimeWatched);
-      await updateProgress();
+    } catch (error) {
+      console.error("Error handling episode watched:", error);
     }
-    setWatchedEpisodes((prev) =>
-      prev.includes(episodeId)
-        ? prev.filter((id) => id !== episodeId)
-        : [...prev, episodeId]
-    );
   };
 
   const handleNavigateToEpisode = (episodeId: number) => {

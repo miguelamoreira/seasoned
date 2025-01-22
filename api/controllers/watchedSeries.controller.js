@@ -10,6 +10,8 @@ const Series = db.Series;
 const SeriesProgress = db.SeriesProgress;
 const SeasonProgress = db.SeasonProgress;
 const Seasons = db.Seasons;
+const Episodes = db.Episodes;
+const ViewingHistory = db.ViewingHistory;
 
 exports.getWatchedSeries = async (req, res) => {
     const userId = req.params.id;
@@ -102,6 +104,20 @@ exports.addWatchedSeries = async (req, res) => {
                 season_id: season.season_id,
                 progress_percentage: 100,
             });
+
+            const episodes = await Episodes.findAll({ where: { season_id: season.season_id } });
+
+            for (const episode of episodes) {
+                await ViewingHistory.create({
+                    user_id: userId,
+                    series_api_id: seriesId,
+                    episode_api_id: episode.episode_api_id,
+                    season_api_id: season.season_id,
+                    watch_date: new Date(),
+                    time_watched: episode.duration,
+                    episode_progress: 100,
+                });
+            }
         }
 
         return res.status(200).json({
@@ -148,6 +164,13 @@ exports.removeFromWatchedSeries = async (req, res) => {
             await SeasonProgress.destroy({
                 where: { user_id: userId, season_id: season.season_id },
             });
+
+            const episodes = await Episodes.findAll({ where: { season_id: season.season_id } });
+            for (const episode of episodes) {
+                await ViewingHistory.destroy({
+                    where: { user_id: userId, episode_api_id: episode.episode_api_id },
+                });
+            }
         }
 
         return res.status(200).json({
